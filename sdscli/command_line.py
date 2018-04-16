@@ -137,6 +137,17 @@ def cloud(args):
     func(args)
 
 
+def rules(args):
+    """SDS user rules managment functions."""
+
+    logger.debug("got to pkg(): %s" % args)
+    sds_type = args.type
+    logger.debug("sds_type: %s" % sds_type)
+    func = get_adapter_func(sds_type, 'rules', 'import_rules' if args.subparser == 'import' else args.subparser)
+    logger.debug("func: %s" % func)
+    func(args)
+
+
 def job_list(args):
     """Configure SDS config file."""
 
@@ -288,6 +299,18 @@ def main():
     parser_cloud_storage_create_staging_area.add_argument('--suffix', '-s', default=".met.json", 
                                                           help="staging area signal file suffix")
     parser_cloud.set_defaults(func=cloud)
+
+    # parser for user rules
+    parser_rules = subparsers.add_parser('rules', help="SDS user rules management")
+    parser_rules.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                               choices=['hysds', 'sdskit'])
+    parser_rules_subparsers = parser_rules.add_subparsers(dest='subparser', help='SDS user rules management functions')
+    parser_rules_export = parser_rules_subparsers.add_parser('export', help="export user rules")
+    parser_rules_export.add_argument('--outfile', '-o', default="user_rules.json",
+                                   help="output JSON file for user rules")
+    parser_rules_import = parser_rules_subparsers.add_parser('import', help="import user rules")
+    parser_rules_import.add_argument('file', help='input JSON file for user rules import')
+    parser_rules.set_defaults(func=rules)
 
     # parser for jobs
     parser_job = subparsers.add_parser('job', help="SDS job subcommand")

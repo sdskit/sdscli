@@ -33,12 +33,14 @@ Command line interface for SDSKit
 ## Usage
 ```
 usage: sds [-h] [--debug]
-           {configure,update,ship,start,stop,reset,status,ci,pkg,job} ...
+           
+           {configure,update,ship,start,stop,reset,status,ci,pkg,cloud,rules,job}
+           ...
 
 SDSKit command line interface.
 
 positional arguments:
-  {configure,update,ship,start,stop,reset,status,ci,pkg,job}
+  {configure,update,ship,start,stop,reset,status,ci,pkg,cloud,rules,job}
                         Functions
     configure           configure SDS config file
     update              update SDS components
@@ -49,6 +51,8 @@ positional arguments:
     status              status of SDS components
     ci                  configure continuous integration for SDS cluster
     pkg                 SDS package management
+    cloud               SDS cloud management
+    rules               SDS user rules management
     job                 SDS job subcommand
 
 optional arguments:

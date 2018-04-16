@@ -182,7 +182,7 @@ CFG_DEFAULTS = {
         [ "OPS_HOME", os.path.expanduser('~')],
         [ "OPS_PASSWORD_HASH", ""],
         [ "LDAP_GROUPS", ""],
-        [ "KEY_FILENAME", os.path.join(os.path.expanduser('~'), '.ssh', 'id_rsa')],
+        [ "KEY_FILENAME", ""],
         [ "DATASETS_CFG", os.path.join(os.path.expanduser('~'), 'verdi', 'etc', 'datasets.json')],
     ],
     

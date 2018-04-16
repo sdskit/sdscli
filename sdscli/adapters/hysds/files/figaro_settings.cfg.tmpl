@@ -33,7 +33,12 @@ EXECUTE_NODE_USER = "{{ OPS_USER }}"
 PUCCINI_HOST = "{{ PUCCINI_FQDN }}"
 PUCCINI_USER = "{{ OPS_USER }}"
 
+# Mozart URL
 MOZART_URL = "https://{{ MOZART_FQDN }}/mozart"
+
+# Mozart REST API
+MOZART_REST_API = "https://{{ MOZART_PVT_IP }}/mozart/"
+
 # Kibana URL
 KIBANA_JOB_METRICS_URL = "https://{{ METRICS_FQDN }}/metrics/app/kibana#/dashboard/cb40a460-5ad3-11e7-8e6a-cbf606444333"
 KIBANA_PROV_METRICS_URL = "http://{{ METRICS_FQDN }}/metrics/#/dashboard/elasticsearch/Provenance%20Metrics"

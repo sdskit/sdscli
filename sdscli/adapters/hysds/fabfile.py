@@ -8,7 +8,7 @@ from __future__ import print_function
 import os, re, yaml, json, requests
 from copy import deepcopy
 from fabric.api import run, cd, put, sudo, prefix, env, settings
-from fabric.contrib.files import upload_template, exists
+from fabric.contrib.files import upload_template, exists, append
 from fabric.contrib.project import rsync_project
 
 from sdscli.log_utils import logger
@@ -381,11 +381,8 @@ def ensure_venv(hysds_dir):
             mkdir('%s/etc' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
             mkdir('%s/log' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
             mkdir('%s/run' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
-    bash_prof = os.path.expanduser("~/.bash_profile")
-    with open(bash_prof) as f:
-        bash_prof_lines = f.read()
-    if not re.search(r'^source \$HOME/{}/bin/activate'.format(hysds_dir), bash_prof_lines, re.M):
-        run("echo 'source $HOME/{}/bin/activate' >> ~/.bash_profile".format(hysds_dir))
+    append('.bash_profile', "source $HOME/{}/bin/activate".format(hysds_dir), escape=True)
+    append('.bash_profile', "export FACTER_ipaddress=$(ifconfig $(route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')", escape=True)
 
 
 def install_pkg_es_templates():
@@ -416,8 +413,9 @@ def grqd_clean_start():
 
 
 def grqd_stop():
-    with prefix('source sciflo/bin/activate'):
-        run('supervisorctl shutdown')
+    if exists('sciflo/run/supervisor.sock'):
+        with prefix('source sciflo/bin/activate'):
+            run('supervisorctl shutdown')
 
 
 def install_es_template():
@@ -446,8 +444,9 @@ def mozartd_clean_start():
 
 
 def mozartd_stop():
-    with prefix('source mozart/bin/activate'):
-        run('supervisorctl shutdown')
+    if exists('mozart/run/supervisor.sock'):
+        with prefix('source mozart/bin/activate'):
+            run('supervisorctl shutdown')
 
 
 def redis_flush():
@@ -499,8 +498,9 @@ def metricsd_clean_start():
 
 
 def metricsd_stop():
-    with prefix('source metrics/bin/activate'):
-        run('supervisorctl shutdown')
+    if exists('metrics/run/supervisor.sock'):
+        with prefix('source metrics/bin/activate'):
+            run('supervisorctl shutdown')
 
 
 ##########################
@@ -532,8 +532,9 @@ def verdid_clean_start():
 
 
 def verdid_stop():
-    with prefix('source verdi/bin/activate'):
-        run('supervisorctl shutdown')
+    if exists('verdi/run/supervisor.sock'):
+        with prefix('source verdi/bin/activate'):
+            run('supervisorctl shutdown')
 
 
 def supervisorctl_up():
