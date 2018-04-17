@@ -44,8 +44,7 @@ def get_buckets(c=None, **kargs):
 
 
 @cloud_config_check
-def get_bucket(bucket_name, c=None, **kargs):
+def get_bucket(container_name, c=None, **kargs):
     """Get bucket."""
 
-    if c is None: c = boto3.resource('s3')
-    return c.Bucket(bucket_name)
+    return blob_service.exists(container_name)
