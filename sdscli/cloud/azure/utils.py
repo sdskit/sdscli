@@ -36,15 +36,4 @@ def get_buckets(c=None, **kargs):
     """List all containers."""
 
     containers = blockblob_service.list_containers()
-    container_list = []
-    for c in containers:
-        container_list.append(c.name)
-
-    return container_list
-
-
-@cloud_config_check
-def get_bucket(container_name, c=None, **kargs):
-    """Get bucket."""
-
-    return blob_service.exists(container_name)
+    return containers
