@@ -588,7 +588,7 @@ def add_ci_job(repo, proto, uid=1001, gid=1001, branch=None, release=False):
         if branch is None:
             job_name = "container-builder_%s_%s" % (owner, name)
             config_tmpl = 'config.xml'
-        el Pe:
+        else:
             job_name = "container-builder_%s_%s_%s" % (owner, name, branch)
             config_tmpl = 'config-branch.xml'
         ctx = get_context()
