@@ -26,7 +26,7 @@ def cloud_config_check(func):
         if is_configured():
             return func(*args, **kwargs)
         else:
-            logger.error("Not configured for AWS.")
+            logger.error("Not configured for Azure.")
             sys.exit(1)
     return wrapper
 
