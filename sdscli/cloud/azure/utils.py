@@ -5,16 +5,18 @@ import os, sys, azure.common
 from azure.storage import CloudStorageAccount
 from azure.storage.blob import BlockBlobService
 
+from sdscli.conf_utils import SettingsConf
 from sdscli.log_utils import logger
 
 
 def is_configured():
     """Return if Azure account is configured."""
+    conf = SettingsConf()
 
     if config.IS_EMULATED'
         account = CloudStorageAccount(is_emulated=True)
     else:
-        account = CloudStorageAccount(account_name=config.STORAGE_ACCOUNT_NAME, account_key=config.STORAGE_ACCOUNT_KEY)
+        account = CloudStorageAccount(account_name=conf.get('AZURE_STORAGE_ACCOUNT_NAME'), account_key=conf.get('AZURE_STORAGE_ACCOUNT_KEY'))
         
         # Create a Block Blob Service Object
         blockblob_service = account.create_block_blob_service()
