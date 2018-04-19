@@ -765,8 +765,14 @@ def ship_code(cwd, tar_file, encrypt=False):
         run('tar --exclude-vcs -cvjf %s *' % tar_file)
     if encrypt is False:
         run('aws s3 cp %s s3://%s/' % (tar_file, ctx['CODE_BUCKET']))
+        # Azure Cli support to Azure Blob Storage
+        # Azure Blob storage is encrypted with SSE by default - additional settings can be configured with own key on Azure Key Vault
+        run('az storage blob upload -f %s -c %s -n %s --connection-string %s' % (tar_file, ctx['CODE_CONTAINER'], ctx['CODE_BLOB'], ctx['AZ_STORAGE_ACCOUNT']))
     else:
         run('aws s3 cp --sse %s s3://%s/' % (tar_file, ctx['CODE_BUCKET']))
+        # Azure Cli support to Azure Blob Storage
+        # Azure Blob storage is encrypted with SSE by default - additional settings can be configured with own key on Azure Key Vault
+        run('az storage blob upload -f %s -c %s -n %s --connection-string %s' % (tar_file, ctx['CODE_CONTAINER'], ctx['CODE_BLOB'], ctx['AZ_STORAGE_ACCOUNT']))
 
 
 ##########################
