@@ -833,6 +833,28 @@ def send_awscreds():
                     template_dir=get_user_files_path())
     run('chmod 600 .s3cfg')
 
+def send_awscreds_mozart_verdi():
+    ctx = get_context()
+
+    if exists('~/mozart/verdi/ops/creds'): run('rm -rf ~/mozart/verdi/ops/creds')
+    mkdir('~/mozart/verdi/ops/creds', context['OPS_USER'], context['OPS_USER'])
+    mkdir('~/mozart/verdi/ops/creds/.aws', context['OPS_USER'], context['OPS_USER'])
+    run('chmod 700 ~/mozart/verdi/ops/creds/.aws')
+    upload_template('aws_config', '~/mozart/verdi/ops/creds/.aws/config', use_jinja=True, context=ctx,
+                    template_dir=get_user_files_path())
+    if ctx['AWS_ACCESS_KEY'] not in (None, ""):
+        upload_template('aws_credentials', '~/mozart/verdi/ops/creds/.aws/credentials', use_jinja=True, context=ctx,
+                        template_dir=get_user_files_path())
+    run('chmod 600 ~/mozart/verdi/ops/creds/.aws/*')
+    #if exists('~/mozart/verdi/ops/creds/.boto'): run('rm -rf ~/mozart/verdi/ops/creds/.boto')
+    upload_template('boto', '~/mozart/verdi/ops/creds/.boto', use_jinja=True, context=ctx,
+                    template_dir=get_user_files_path())
+    run('chmod 600 ~/mozart/verdi/ops/creds/.boto')
+    #if exists('~/mozart/verdi/ops/creds/.s3cfg'): run('rm -rf ~/mozart/verdi/ops/creds/.s3cfg')
+    upload_template('s3cfg', '~/mozart/verdi/ops/creds/.s3cfg', use_jinja=True, context=ctx,
+                    template_dir=get_user_files_path())
+    run('chmod 600 ~/mozart/verdi/ops/creds/.s3cfg')
+
 
 ##########################
 # ship verdi code bundle

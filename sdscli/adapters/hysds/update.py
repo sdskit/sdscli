@@ -611,6 +611,8 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         execute(fab.set_spyddder_settings_mozart_verdi, roles=[comp])
         bar.update()
 
+
+        '''
         # update reqs
         set_bar_desc(bar, 'update_verdi_mozart : Updating HySDS core')
         execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/osaka', ndeps, roles=[comp])
@@ -625,6 +627,7 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         bar.update()
         execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/sciflo', ndeps, roles=[comp])
         bar.update()
+        '''
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -650,18 +653,19 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         execute(fab.send_template, 'datasets.json', '~/mozart/verdi/etc/datasets.json', roles=[comp])
         bar.update()
         
-        netrc = os.path.join(get_user_files_path(), 'netrc')
-
-        if os.path.exists(netrc):
-            set_bar_desc(bar, 'Configuring netrc')
-            execute(fab.copy, netrc, '.netrc', roles=[comp])
-            execute(fab.chmod, 600, '.netrc', roles=[comp])
-
         # ship AWS creds
         set_bar_desc(bar, 'Configuring AWS creds')
-        execute(fab.send_awscreds, roles=[comp])
+        execute(fab.send_awscreds_mozart_verdi, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Updated verdi')
+
+        netrc = os.path.join(get_user_files_path(), 'netrc')
+        #print("netrc : %s" %netrc)
+        if os.path.exists(netrc):
+            set_bar_desc(bar, 'Configuring netrc')
+            execute(fab.rm_rf, '~/mozart/verdi/ops/creds/.netrc', roles=[comp])
+            execute(fab.copy, netrc, '~/mozart/verdi/ops/creds/.netrc', roles=[comp])
+            execute(fab.chmod, 600, '~/mozart/verdi/ops/creds/.netrc', roles=[comp])
 
 
 def ship_verdi(conf, encrypt=False, comp='mozart'):
@@ -714,6 +718,8 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
                 queue_bar.update()
 
                 # copy creds
+                ''' 
+                # NO NEED TO COPY AS THEY ARE ALREADY IN ~/mozart/verdi/ops/creds directory
                 set_bar_desc(queue_bar, 'Copying creds')
                 execute(fab.rm_rf, '~/mozart/verdi/ops/creds', roles=[comp])
                 execute(fab.mkdir, '~/mozart/verdi/ops/creds', 'ops', 'ops', roles=[comp])
@@ -722,6 +728,7 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
                 execute(fab.cp_rp_exists, '~/.s3cfg', '~/mozart/verdi/ops/creds/', roles=[comp])
                 execute(fab.cp_rp_exists, '~/.aws', '~/mozart/verdi/ops/creds/', roles=[comp])
                 queue_bar.update()
+                '''
 
                 # send work directory stylesheets
              
@@ -738,6 +745,9 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
                 execute(fab.ship_code, '~/mozart/verdi/ops', '~/{}-{}.tbz2'.format(queue, venue), encrypt, roles=[comp])
                 queue_bar.update()
             bar.update()
+
+        #cleanup
+        execute(fab.rm_rf, '~/mozart/verdi', roles=[comp])
         set_bar_desc(bar, 'Finished shipping')
 
 
