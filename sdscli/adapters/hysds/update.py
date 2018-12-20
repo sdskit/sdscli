@@ -588,7 +588,7 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         execute(fab.mkdir, '~/mozart/verdi', None, None, roles=[comp])
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
+        set_bar_desc(bar, 'update_verdi_mozart : Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
         bar.update()
 
@@ -599,20 +599,20 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         #bar.update()
 
         # remove code bundle stuff
-        set_bar_desc(bar, 'Remove code bundle')
+        set_bar_desc(bar, 'update_verdi_mozart : Remove code bundle')
         execute(fab.rm_rf, '~/mozart/verdi/ops/etc', roles=[comp])
         execute(fab.rm_rf, '~/mozart/verdi/ops/install.sh', roles=[comp])
         bar.update()
 
         # update
-        set_bar_desc(bar, 'Syncing packages')
+        set_bar_desc(bar, 'update_verdi_mozart : Syncing packages')
         execute(fab.rm_rf, '~/mozart/verdi/ops/*', roles=[comp])
         execute(fab.rsync_code, 'verdi', roles=[comp])
         execute(fab.set_spyddder_settings, roles=[comp])
         bar.update()
 
         # update reqs
-        set_bar_desc(bar, 'Updating HySDS core')
+        set_bar_desc(bar, 'update_verdi_mozart : Updating HySDS core')
         execute(fab.pip_install_with_req, 'verdi', '~/mozart/verdi/ops/osaka', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi', '~/mozart/verdi/ops/prov_es', ndeps, roles=[comp])
@@ -665,6 +665,7 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
     """"Ship verdi code/config bundle."""
 
     venue = conf.get('VENUE')
+    comp='mozart'
     queues = [i.strip() for i in conf.get('QUEUES').split()]
 
     # progress bar
