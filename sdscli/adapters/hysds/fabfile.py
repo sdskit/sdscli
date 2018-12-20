@@ -237,15 +237,20 @@ def set_spyddder_settings():
     upload_template('settings.json.tmpl', '~/verdi/ops/spyddder-man/settings.json', use_jinja=True,
                     context=get_context(), template_dir=os.path.join(ops_dir, 'mozart/ops/spyddder-man'))
 
+def set_spyddder_settings_mozart_verdi():
+    upload_template('settings.json.tmpl', '~/mozart/verdi/ops/spyddder-man/settings.json', use_jinja=True,
+                    context=get_context(), template_dir=os.path.join(ops_dir, 'mozart/ops/spyddder-man'))
 
 def rsync_code(node_type, dir_path=None):
     if dir_path is None: dir_path = node_type
+
     rm_rf('%s/ops/osaka' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/osaka'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
     rm_rf('%s/ops/hysds_commons' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/hysds_commons'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
+    
     rm_rf('%s/ops/hysds' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/hysds'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
@@ -698,7 +703,8 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     else: raise RuntimeError("Unknown node type: %s" % node_type) 
 
 
-def send_celeryconf(node_type):
+def send_celeryconf(node_type, path_dir = None):
+    #if path_dir == None : path_dir = node_type
     template_dir = os.path.join(ops_dir, 'mozart/ops/hysds/configs/celery')
     if node_type == 'mozart': base_dir = "mozart"
     elif node_type == 'metrics': base_dir = "metrics"
@@ -706,7 +712,13 @@ def send_celeryconf(node_type):
     elif node_type == 'grq': base_dir = "sciflo"
     else: raise RuntimeError("Unknown node type: %s" % node_type)
     ctx = get_context(node_type)
+    if path_dir:
+        base_dir = path_dir
+
+    print("base_dir : %s" %base_dir)
     dest_file = '~/%s/ops/hysds/celeryconfig.py' % base_dir
+    print("dest_file : %s" %dest_file)
+    print("template_dir : %s" %template_dir)
     upload_template('celeryconfig.py.tmpl', dest_file, use_jinja=True, context=ctx,
                     template_dir=template_dir)
 
@@ -790,7 +802,11 @@ def ensure_ssl(node_type):
 ##########################
 
 def ship_code(cwd, tar_file, encrypt=False):
+    print('cwd : %s' %cwd)
+    print('tar_file : %s' %tar_file)
+
     ctx = get_context()
+    print('Code Bucket : %s' %ctx['CODE_BUCKET'])
     with cd(cwd):
         run('tar --exclude-vcs -cvjf %s *' % tar_file)
     if encrypt is False:
@@ -836,6 +852,19 @@ def send_queue_config(queue):
     upload_template('datasets.json.tmpl.asg', '~/verdi/etc/datasets.json',
                     use_jinja=True, context=ctx, template_dir=get_user_files_path())
     upload_template('supervisord.conf.tmpl', '~/verdi/etc/supervisord.conf.tmpl',
+                    use_jinja=True, context=ctx, template_dir=get_user_files_path())
+
+
+def send_queue_config_mozart(queue):
+    ctx = get_context()
+    ctx.update({'queue': queue})
+
+    print("template_dir : %s" %get_user_files_path())
+    upload_template('install.sh', '~/mozart/verdi/ops/install.sh', use_jinja=True, context=ctx,
+                    template_dir=get_user_files_path())
+    upload_template('datasets.json.tmpl.asg', '~/mozart/verdi/etc/datasets.json',
+                    use_jinja=True, context=ctx, template_dir=get_user_files_path())
+    upload_template('supervisord.conf.tmpl', '~/mozart/verdi/etc/supervisord.conf.tmpl',
                     use_jinja=True, context=ctx, template_dir=get_user_files_path())
 
 

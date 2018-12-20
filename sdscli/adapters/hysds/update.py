@@ -589,9 +589,9 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
 
         # ensure venv
         set_bar_desc(bar, 'update_verdi_mozart : Ensuring HySDS venv')
-        execute(fab.ensure_venv, comp, roles=[comp])
+        execute(fab.ensure_venv, '~/mozart/verdi', roles=[comp])
         bar.update()
-
+        
         # stop services
         #set_bar_desc(bar, 'Stopping verdid')
         #execute(fab.verdid_stop, roles=[comp])
@@ -603,41 +603,46 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         execute(fab.rm_rf, '~/mozart/verdi/ops/etc', roles=[comp])
         execute(fab.rm_rf, '~/mozart/verdi/ops/install.sh', roles=[comp])
         bar.update()
-
+        
         # update
         set_bar_desc(bar, 'update_verdi_mozart : Syncing packages')
         execute(fab.rm_rf, '~/mozart/verdi/ops/*', roles=[comp])
-        execute(fab.rsync_code, 'verdi', roles=[comp])
-        execute(fab.set_spyddder_settings, roles=[comp])
+        execute(fab.rsync_code, 'verdi', '~/mozart/verdi', roles=[comp])
+        execute(fab.set_spyddder_settings_mozart_verdi, roles=[comp])
         bar.update()
 
         # update reqs
+        print("Updating HySDS core")
         set_bar_desc(bar, 'update_verdi_mozart : Updating HySDS core')
-        execute(fab.pip_install_with_req, 'verdi', '~/mozart/verdi/ops/osaka', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/osaka', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/mozart/verdi/ops/prov_es', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/prov_es', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/mozart/verdi/ops/hysds_commons', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/mozart/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/mozart/verdi/ops/hysds', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/hysds', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/mozart/verdi/ops/sciflo', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/sciflo', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
+        print("Updating celery config")
         execute(fab.rm_rf, '~/mozart/verdi/ops/hysds/celeryconfig.py', roles=[comp])
         execute(fab.rm_rf, '~/mozart/verdi/ops/hysds/celeryconfig.pyc', roles=[comp])
-        execute(fab.send_celeryconf, 'verdi', roles=[comp])
+        execute(fab.send_celeryconf, 'verdi', 'mozart/verdi', roles=[comp])
         bar.update()
+        
+        print('completed celeryconfig')
+
 
         # update supervisor config
         set_bar_desc(bar, 'Updating supervisor config')
         execute(fab.rm_rf, '~/mozart/verdi/etc/supervisord.conf', roles=[comp])
         execute(fab.send_template_user_override, 'supervisord.conf.verdi', 
-                '~/verdi/etc/supervisord.conf', '~/mozart/ops/hysds/configs/supervisor',
+                '~/mozart/verdi/etc/supervisord.conf', '~/mozart/ops/hysds/configs/supervisor',
                 roles=[comp])
         bar.update()
 
@@ -647,8 +652,10 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         execute(fab.rm_rf, '~/mozart/verdi/etc/datasets.json', roles=[comp])
         execute(fab.send_template, 'datasets.json', '~/mozart/verdi/etc/datasets.json', roles=[comp])
         bar.update()
-
+        
         netrc = os.path.join(get_user_files_path(), 'netrc')
+        print("netrc : %s" %netrc)
+
         if os.path.exists(netrc):
             set_bar_desc(bar, 'Configuring netrc')
             execute(fab.copy, netrc, '.netrc', roles=[comp])
@@ -675,15 +682,16 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, comp, roles=[comp])
+        execute(fab.ensure_venv, '~/mozart/verdi', roles=[comp])
         bar.update()
 
         # stop services
+        '''
         set_bar_desc(bar, 'Stopping verdid')
         execute(fab.verdid_stop, roles=[comp])
         execute(fab.kill_hung, roles=[comp])
         bar.update()
-
+        '''
         # iterate over queues
         for queue in queues:
 
@@ -693,43 +701,51 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
             with tqdm(total=5) as queue_bar:
 
                 # send queue-specific install.sh script and configs
+                print('Sending queue-specific config')
                 set_bar_desc(queue_bar, 'Sending queue-specific config')
-                execute(fab.rm_rf, '~/verdi/ops/install.sh', roles=[comp])
-                execute(fab.rm_rf, '~/verdi/etc/datasets.json', roles=[comp])
-                execute(fab.rm_rf, '~/verdi/etc/supervisord.conf', roles=[comp])
-                execute(fab.rm_rf, '~/verdi/etc/supervisord.conf.tmpl', roles=[comp])
-                execute(fab.send_queue_config, queue, roles=[comp])
-                execute(fab.chmod, '755', '~/verdi/ops/install.sh', roles=[comp])
-                execute(fab.chmod, '644', '~/verdi/etc/datasets.json', roles=[comp])
+                execute(fab.rm_rf, '~/mozart/verdi/ops/install.sh', roles=[comp])
+                execute(fab.rm_rf, '~/mozart/verdi/etc/datasets.json', roles=[comp])
+                execute(fab.rm_rf, '~/mozart/verdi/etc/supervisord.conf', roles=[comp])
+                execute(fab.rm_rf, '~/mozart/verdi/etc/supervisord.conf.tmpl', roles=[comp])
+                execute(fab.send_queue_config_mozart, queue, roles=[comp])
+                execute(fab.chmod, '755', '~/mozart/verdi/ops/install.sh', roles=[comp])
+                execute(fab.chmod, '644', '~/mozart/verdi/etc/datasets.json', roles=[comp])
                 queue_bar.update()
 
                 # copy config
                 set_bar_desc(queue_bar, 'Copying config')
-                execute(fab.rm_rf, '~/verdi/ops/etc', roles=[comp])
-                execute(fab.cp_rp, '~/verdi/etc', '~/verdi/ops/', roles=[comp])
+                print('Copying config')
+                execute(fab.rm_rf, '~/mozart/verdi/ops/etc', roles=[comp])
+                execute(fab.cp_rp, '~/mozart/verdi/etc', '~/mozart/verdi/ops/', roles=[comp])
                 queue_bar.update()
 
                 # copy creds
                 set_bar_desc(queue_bar, 'Copying creds')
-                execute(fab.rm_rf, '~/verdi/ops/creds', roles=[comp])
-                execute(fab.mkdir, '~/verdi/ops/creds', 'ops', 'ops', roles=[comp])
-                execute(fab.cp_rp_exists, '~/.netrc', '~/verdi/ops/creds/', roles=[comp])
-                execute(fab.cp_rp_exists, '~/.boto', '~/verdi/ops/creds/', roles=[comp])
-                execute(fab.cp_rp_exists, '~/.s3cfg', '~/verdi/ops/creds/', roles=[comp])
-                execute(fab.cp_rp_exists, '~/.aws', '~/verdi/ops/creds/', roles=[comp])
+                print('Copying config')
+                execute(fab.rm_rf, '~/mozart/verdi/ops/creds', roles=[comp])
+                execute(fab.mkdir, '~/mozart/verdi/ops/creds', 'ops', 'ops', roles=[comp])
+                execute(fab.cp_rp_exists, '~/.netrc', '~/mozart/verdi/ops/creds/', roles=[comp])
+                execute(fab.cp_rp_exists, '~/.boto', '~/mozart/verdi/ops/creds/', roles=[comp])
+                execute(fab.cp_rp_exists, '~/.s3cfg', '~/mozart/verdi/ops/creds/', roles=[comp])
+                execute(fab.cp_rp_exists, '~/.aws', '~/mozart/verdi/ops/creds/', roles=[comp])
                 queue_bar.update()
 
                 # send work directory stylesheets
+                print('Sending work dir stylesheets')
+             
                 style_tar = os.path.join(get_user_files_path(), 'beefed-autoindex-open_in_new_win.tbz2')
                 set_bar_desc(queue_bar, 'Sending work dir stylesheets')
-                execute(fab.rm_rf, '~/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
-                execute(fab.copy, style_tar, '~/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
+                print('style_tar : %s' %style_tar)
+                execute(fab.rm_rf, '~/mozart/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
+                execute(fab.copy, style_tar, '~/mozart/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
                 queue_bar.update()
+
 
                 # create venue bundle
                 set_bar_desc(queue_bar, 'Creating/shipping bundle')
-                scp_file_to_mozart('~/{}-{}.tbz2'.format(queue, venue))
-                execute(fab.ship_code, '~/.', '~/{}-{}.tbz2'.format(queue, venue), encrypt, roles=['mozart'])
+                print('Creating/shipping bundle')
+                execute(fab.rm_rf, '~/{}-{}.tbz2'.format(queue, venue), roles=[comp])
+                execute(fab.ship_code, '~/mozart/verdi/ops', '~/{}-{}.tbz2'.format(queue, venue), encrypt, roles=[comp])
                 queue_bar.update()
             bar.update()
         set_bar_desc(bar, 'Finished shipping')
