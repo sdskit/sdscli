@@ -612,7 +612,6 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         bar.update()
 
         # update reqs
-        print("Updating HySDS core")
         set_bar_desc(bar, 'update_verdi_mozart : Updating HySDS core')
         execute(fab.pip_install_with_req, 'mozart/verdi', '~/mozart/verdi/ops/osaka', ndeps, roles=[comp])
         bar.update()
@@ -629,13 +628,11 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
-        print("Updating celery config")
         execute(fab.rm_rf, '~/mozart/verdi/ops/hysds/celeryconfig.py', roles=[comp])
         execute(fab.rm_rf, '~/mozart/verdi/ops/hysds/celeryconfig.pyc', roles=[comp])
         execute(fab.send_celeryconf, 'verdi', 'mozart/verdi', roles=[comp])
         bar.update()
         
-        print('completed celeryconfig')
 
 
         # update supervisor config
@@ -654,7 +651,6 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         bar.update()
         
         netrc = os.path.join(get_user_files_path(), 'netrc')
-        print("netrc : %s" %netrc)
 
         if os.path.exists(netrc):
             set_bar_desc(bar, 'Configuring netrc')
@@ -701,7 +697,6 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
             with tqdm(total=5) as queue_bar:
 
                 # send queue-specific install.sh script and configs
-                print('Sending queue-specific config')
                 set_bar_desc(queue_bar, 'Sending queue-specific config')
                 execute(fab.rm_rf, '~/mozart/verdi/ops/install.sh', roles=[comp])
                 execute(fab.rm_rf, '~/mozart/verdi/etc/datasets.json', roles=[comp])
@@ -714,14 +709,12 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
 
                 # copy config
                 set_bar_desc(queue_bar, 'Copying config')
-                print('Copying config')
                 execute(fab.rm_rf, '~/mozart/verdi/ops/etc', roles=[comp])
                 execute(fab.cp_rp, '~/mozart/verdi/etc', '~/mozart/verdi/ops/', roles=[comp])
                 queue_bar.update()
 
                 # copy creds
                 set_bar_desc(queue_bar, 'Copying creds')
-                print('Copying config')
                 execute(fab.rm_rf, '~/mozart/verdi/ops/creds', roles=[comp])
                 execute(fab.mkdir, '~/mozart/verdi/ops/creds', 'ops', 'ops', roles=[comp])
                 execute(fab.cp_rp_exists, '~/.netrc', '~/mozart/verdi/ops/creds/', roles=[comp])
@@ -731,11 +724,9 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
                 queue_bar.update()
 
                 # send work directory stylesheets
-                print('Sending work dir stylesheets')
              
                 style_tar = os.path.join(get_user_files_path(), 'beefed-autoindex-open_in_new_win.tbz2')
                 set_bar_desc(queue_bar, 'Sending work dir stylesheets')
-                print('style_tar : %s' %style_tar)
                 execute(fab.rm_rf, '~/mozart/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
                 execute(fab.copy, style_tar, '~/mozart/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
                 queue_bar.update()
@@ -743,13 +734,11 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
 
                 # create venue bundle
                 set_bar_desc(queue_bar, 'Creating/shipping bundle')
-                print('Creating/shipping bundle')
                 execute(fab.rm_rf, '~/{}-{}.tbz2'.format(queue, venue), roles=[comp])
                 execute(fab.ship_code, '~/mozart/verdi/ops', '~/{}-{}.tbz2'.format(queue, venue), encrypt, roles=[comp])
                 queue_bar.update()
             bar.update()
         set_bar_desc(bar, 'Finished shipping')
-        print("")
 
 
 def ship_verdi_ci(conf, encrypt=False, comp='ci'):

@@ -715,10 +715,7 @@ def send_celeryconf(node_type, path_dir = None):
     if path_dir:
         base_dir = path_dir
 
-    print("base_dir : %s" %base_dir)
     dest_file = '~/%s/ops/hysds/celeryconfig.py' % base_dir
-    print("dest_file : %s" %dest_file)
-    print("template_dir : %s" %template_dir)
     upload_template('celeryconfig.py.tmpl', dest_file, use_jinja=True, context=ctx,
                     template_dir=template_dir)
 
@@ -802,11 +799,8 @@ def ensure_ssl(node_type):
 ##########################
 
 def ship_code(cwd, tar_file, encrypt=False):
-    print('cwd : %s' %cwd)
-    print('tar_file : %s' %tar_file)
 
     ctx = get_context()
-    print('Code Bucket : %s' %ctx['CODE_BUCKET'])
     with cd(cwd):
         run('tar --exclude-vcs -cvjf %s *' % tar_file)
     if encrypt is False:
@@ -859,7 +853,6 @@ def send_queue_config_mozart(queue):
     ctx = get_context()
     ctx.update({'queue': queue})
 
-    print("template_dir : %s" %get_user_files_path())
     upload_template('install.sh', '~/mozart/verdi/ops/install.sh', use_jinja=True, context=ctx,
                     template_dir=get_user_files_path())
     upload_template('datasets.json.tmpl.asg', '~/mozart/verdi/etc/datasets.json',
