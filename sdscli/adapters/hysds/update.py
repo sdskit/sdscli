@@ -429,8 +429,8 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
         netrc = os.path.join(get_user_files_path(), 'netrc')
         if os.path.exists(netrc):
             set_bar_desc(bar, 'Configuring netrc')
-            #execute(fab.copy, netrc, '.netrc', roles=[comp])
-            execute(fab.send_template, netrc, '.netrc', node_type='verdi', roles=[comp])
+            execute(fab.copy, netrc, '.netrc', roles=[comp])
+            #execute(fab.send_template, netrc, '.netrc', node_type='verdi', roles=[comp])
             execute(fab.chmod, 600, '.netrc', roles=[comp])
 
         # ship AWS creds
@@ -516,8 +516,8 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
         netrc = os.path.join(get_user_files_path(), 'netrc')
         if os.path.exists(netrc):
             set_bar_desc(bar, 'Configuring netrc')
-            #execute(fab.copy, netrc, '.netrc', roles=[comp])
-            execute(fab.send_template, netrc, '.netrc', node_type='verdi', roles=[comp])
+            execute(fab.copy, netrc, '.netrc', roles=[comp])
+            #execute(fab.send_template, netrc, '.netrc', node_type='verdi', roles=[comp])
             execute(fab.chmod, 600, '.netrc', roles=[comp])
 
         # ship AWS creds
@@ -666,8 +666,8 @@ def update_verdi_mozart(conf, ndeps=False, comp='mozart'):
         if os.path.exists(netrc):
             set_bar_desc(bar, 'Configuring netrc')
             execute(fab.rm_rf, '~/mozart/verdi/ops/creds/.netrc', roles=[comp])
-            #execute(fab.copy, netrc, '~/mozart/verdi/ops/creds/.netrc', roles=[comp])
-            execute(fab.send_template, netrc, '~/mozart/verdi/ops/creds/.netrc', node_type='verdi', roles=[comp])
+            execute(fab.copy, netrc, '~/mozart/verdi/ops/creds/.netrc', roles=[comp])
+            #execute(fab.send_template, netrc, '~/mozart/verdi/ops/creds/.netrc', node_type='verdi', roles=[comp])
             execute(fab.chmod, 600, '~/mozart/verdi/ops/creds/.netrc', roles=[comp])
 
 
