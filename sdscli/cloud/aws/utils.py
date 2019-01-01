@@ -51,7 +51,6 @@ def get_keypairs(c=None):
     if c is None: c = boto3.client('ec2')
     return c.describe_key_pairs().get('KeyPairs', [])
 
-
 @cloud_config_check
 def get_images(c=None, **kargs):
     """List all AMIs."""
