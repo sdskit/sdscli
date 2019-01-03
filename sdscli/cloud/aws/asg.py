@@ -131,11 +131,11 @@ def create(args, conf):
     cur_lcs = { i['LaunchConfigurationName']: i for i in get_lcs(c) }
     logger.debug("cur_lcs: {}".format(pformat(cur_lcs)))
 
-    '''
+    
     # get current key pairs
     cur_keypairs = { i['KeyName']: i for i in get_keypairs(ec2) }
     logger.debug("cur_keypairs: {}".format(pformat(cur_keypairs)))
-    '''
+   
 
     # get roles
     cur_roles = { i['RoleName']: i for i in get_roles() }
@@ -161,15 +161,19 @@ def create(args, conf):
     logger.debug("AMI ID: {}".format(ami))
 
 
-    '''
+   
     # prompt for key pair
     keypair = prompt_keypair(cur_keypairs)
     logger.debug("key pair: {}".format(keypair))
-    '''
+    
 
     # prompt for roles
-    role = prompt_roles(cur_roles)
-    logger.debug("role: {}".format(role))
+    use_role = False
+    use_role = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to use instance roles [y/n]: ")],
+                          validator=YesNoValidator(), style=prompt_style).strip() == 'y'
+    if use_role:
+        role = prompt_roles(cur_roles)
+        logger.debug("role: {}".format(role))
 
     # prompt for security groups
     sgs, vpc_id = prompt_secgroup(cur_sgs)
@@ -235,13 +239,16 @@ def create(args, conf):
         # get launch config
         lc_args = {
             'ImageId': ami,
-            #'KeyName': keypair,
-            'IamInstanceProfile': role,
+            'KeyName': keypair,
+            #'IamInstanceProfile': role,
             'SecurityGroups': sgs,
             'UserData': user_data,
             'InstanceType': instance_type,
             'BlockDeviceMappings': bd_maps,
         }
+        if use_role:
+            lc_args['IamInstanceProfile'] = role
+
         if spot_bid is None:
             lc = "{}-{}-{}-launch-config".format(asg, instance_type, market)
         else:
