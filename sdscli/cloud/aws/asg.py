@@ -67,21 +67,6 @@ def prompt_keypair(keypairs):
         except IndexError:
             print("Invalid selection: {}".format(sel))
 
-def prompt_roles(roles):
-    """Prompt for role to use."""
-
-    ids = roles.keys()
-    pt = [(Token, "Current roles are:\n\n")]
-    for i, x in enumerate(ids):
-        pt.append((Token.Param, "{}".format(i)))
-        pt.append((Token, ". {}\n".format(x)))
-    pt.append((Token, "\nSelect role to use for launch configurations: "))
-    while True:
-        sel = int(prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
-                         validator=SelectionValidator()).strip())
-        try: return ids[sel]
-        except IndexError:
-            print("Invalid selection: {}".format(sel))
 
 def prompt_secgroup(sgs, desc=None):
     """Prompt for security groups to use."""
@@ -131,15 +116,9 @@ def create(args, conf):
     cur_lcs = { i['LaunchConfigurationName']: i for i in get_lcs(c) }
     logger.debug("cur_lcs: {}".format(pformat(cur_lcs)))
 
-    
     # get current key pairs
     cur_keypairs = { i['KeyName']: i for i in get_keypairs(ec2) }
     logger.debug("cur_keypairs: {}".format(pformat(cur_keypairs)))
-   
-
-    # get roles
-    cur_roles = { i['RoleName']: i for i in get_roles() }
-    logger.debug("cur_roles: {}".format(pformat(cur_roles)))
 
     # get current AMIs
     verdi_re = re.compile(r'(?:verdi|autoscale)', re.IGNORECASE)
@@ -160,20 +139,9 @@ def create(args, conf):
     ami = prompt_image(cur_images)
     logger.debug("AMI ID: {}".format(ami))
 
-
-   
     # prompt for key pair
     keypair = prompt_keypair(cur_keypairs)
     logger.debug("key pair: {}".format(keypair))
-    
-
-    # prompt for roles
-    use_role = False
-    use_role = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to use instance roles [y/n]: ")],
-                          validator=YesNoValidator(), style=prompt_style).strip() == 'y'
-    if use_role:
-        role = prompt_roles(cur_roles)
-        logger.debug("role: {}".format(role))
 
     # prompt for security groups
     sgs, vpc_id = prompt_secgroup(cur_sgs)
@@ -240,15 +208,11 @@ def create(args, conf):
         lc_args = {
             'ImageId': ami,
             'KeyName': keypair,
-            #'IamInstanceProfile': role,
             'SecurityGroups': sgs,
             'UserData': user_data,
             'InstanceType': instance_type,
             'BlockDeviceMappings': bd_maps,
         }
-        if use_role:
-            lc_args['IamInstanceProfile'] = role
-
         if spot_bid is None:
             lc = "{}-{}-{}-launch-config".format(asg, instance_type, market)
         else:
@@ -263,12 +227,6 @@ def create(args, conf):
             print("Created launch configuration {}.".format(lc))
 
         # get autoscaling group config
-
-        lifecycle_hook_specification_list=[
-            {
-                'RoleARN': role
-            },
-        ],
         asg_args = {
             'AutoScalingGroupName': asg,
             'LaunchConfigurationName': lc,
@@ -281,7 +239,6 @@ def create(args, conf):
             'NewInstancesProtectedFromScaleIn': False,
             'AvailabilityZones': azs,
             'VPCZoneIdentifier': ",".join(subnets),
-            #'LifecycleHookSpecificationList': lifecycle_hook_specification_list[0],
             'Tags': [
                 {
                     'Key': 'Name',
