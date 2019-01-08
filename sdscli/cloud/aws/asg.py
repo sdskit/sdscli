@@ -124,7 +124,7 @@ def create(args, conf):
     verdi_re = re.compile(r'(?:verdi|autoscale)', re.IGNORECASE)
     cur_images = OrderedDict([(i['ImageId'], i) for i in 
                                filter(lambda x: verdi_re.search(x['Name']),
-                                      sorted(get_images(c=ec2, Owners=['self']), 
+                                      sorted(get_images(c=ec2, Filters=[{'Name':'is-public','Values':['false']}]), 
                                              key=itemgetter('CreationDate'))
                                      )
                              ])
