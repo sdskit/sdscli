@@ -374,7 +374,7 @@ def status():
         print(blink(highlight("Supervisord is not running on %s." % role, 'red')))
 
 
-def ensure_venv(hysds_dir):
+def ensure_venv(hysds_dir, update_bash_profile=True):
     act_file = "~/%s/bin/activate" % hysds_dir
     if not exists(act_file):
         run("virtualenv --system-site-packages %s" % hysds_dir)
@@ -385,8 +385,9 @@ def ensure_venv(hysds_dir):
             mkdir('%s/etc' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
             mkdir('%s/log' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
             mkdir('%s/run' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
-    append('.bash_profile', "source $HOME/{}/bin/activate".format(hysds_dir), escape=True)
-    append('.bash_profile', "export FACTER_ipaddress=$(ifconfig $(route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')", escape=True)
+    if update_bash_profile:
+        append('.bash_profile', "source $HOME/{}/bin/activate".format(hysds_dir), escape=True)
+        append('.bash_profile', "export FACTER_ipaddress=$(ifconfig $(route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')", escape=True)
 
 
 def install_pkg_es_templates():
@@ -803,25 +804,33 @@ def ship_code(cwd, tar_file, encrypt=False):
 # ship creds
 ##########################
 
-def send_awscreds():
+def send_awscreds(suffix=None):
     ctx = get_context()
-    if exists('.aws'): run('rm -rf .aws')
-    mkdir('.aws', context['OPS_USER'], context['OPS_USER'])
-    run('chmod 700 .aws')
-    upload_template('aws_config', '.aws/config', use_jinja=True, context=ctx,
+    if suffix is None:
+        aws_dir = '.aws'
+        boto_file = '.boto'
+        s3cfg_file = '.s3cfg'
+    else:
+        aws_dir = '.aws{}'.format(suffix)
+        boto_file = '.boto{}'.format(suffix)
+        s3cfg_file = '.s3cfg{}'.format(suffix)
+    if exists(aws_dir): run('rm -rf {}'.format(aws_dir))
+    mkdir(aws_dir, context['OPS_USER'], context['OPS_USER'])
+    run('chmod 700 {}'.format(aws_dir))
+    upload_template('aws_config', '{}/config'.format(aws_dir), use_jinja=True, context=ctx,
                     template_dir=get_user_files_path())
     if ctx['AWS_ACCESS_KEY'] not in (None, ""):
-        upload_template('aws_credentials', '.aws/credentials', use_jinja=True, context=ctx,
+        upload_template('aws_credentials', '{}/credentials'.format(aws_dir), use_jinja=True, context=ctx,
                         template_dir=get_user_files_path())
-    run('chmod 600 .aws/*')
-    if exists('.boto'): run('rm -rf .boto')
-    upload_template('boto', '.boto', use_jinja=True, context=ctx,
+    run('chmod 600 {}/*'.format(aws_dir))
+    if exists(boto_file): run('rm -rf {}'.format(boto_file))
+    upload_template('boto', boto_file, use_jinja=True, context=ctx,
                     template_dir=get_user_files_path())
-    run('chmod 600 .boto')
-    if exists('.s3cfg'): run('rm -rf .s3cfg')
-    upload_template('s3cfg', '.s3cfg', use_jinja=True, context=ctx,
+    run('chmod 600 {}'.format(boto_file))
+    if exists(s3cfg_file): run('rm -rf {}'.format(s3cfg_file))
+    upload_template('s3cfg', s3cfg_file, use_jinja=True, context=ctx,
                     template_dir=get_user_files_path())
-    run('chmod 600 .s3cfg')
+    run('chmod 600 {}'.format(s3cfg_file))
 
 
 ##########################
