@@ -194,7 +194,7 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         set_bar_desc(bar, 'Updating celery config')
         execute(fab.rm_rf, '~/verdi/ops/hysds/celeryconfig.py', roles=[comp])
         execute(fab.rm_rf, '~/verdi/ops/hysds/celeryconfig.pyc', roles=[comp])
-        execute(fab.send_celeryconf, 'verdi', roles=[comp])
+        execute(fab.send_celeryconf, 'verdi-asg', roles=[comp])
         bar.update()
 
         # update supervisor config

@@ -700,16 +700,22 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
 
 
 def send_celeryconf(node_type):
+    ctx = get_context(node_type)
     template_dir = os.path.join(ops_dir, 'mozart/ops/hysds/configs/celery')
     if node_type == 'mozart': base_dir = "mozart"
     elif node_type == 'metrics': base_dir = "metrics"
     elif node_type in ('verdi', 'verdi-asg'): base_dir = "verdi"
     elif node_type == 'grq': base_dir = "sciflo"
     else: raise RuntimeError("Unknown node type: %s" % node_type)
-    ctx = get_context(node_type)
+    tmpl = 'celeryconfig.py.tmpl'
+    user_path = get_user_files_path()
+    if node_type == 'verdi-asg':
+        tmpl_asg = 'celeryconfig.py.tmpl.asg'
+        if os.path.exists(os.path.join(user_path, tmpl_asg)):
+            tmpl = tmpl_asg
     dest_file = '~/%s/ops/hysds/celeryconfig.py' % base_dir
-    upload_template('celeryconfig.py.tmpl', dest_file, use_jinja=True, context=ctx,
-                    template_dir=template_dir)
+    upload_template(tmpl, dest_file, use_jinja=True, context=ctx,
+                    template_dir=resolve_files_dir(tmpl, template_dir))
 
 
 def send_mozartconf():
