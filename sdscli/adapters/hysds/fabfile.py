@@ -619,10 +619,10 @@ def add_ci_job(repo, proto, branch=None, release=False):
             raise RuntimeError("Failed to parse repo owner and name: %s" % repo)   
         owner, name = match.groups()
         if branch is None:
-            job_name = "container-builder_%s_%s" % (owner, name)
+            job_name = "%s_container-builder_%s_%s" % (context['VENUE'], owner, name)
             config_tmpl = 'config.xml'
         else:
-            job_name = "container-builder_%s_%s_%s" % (owner, name, branch)
+            job_name = "%s_container-builder_%s_%s_%s" % (context['VENUE'], owner, name, branch)
             config_tmpl = 'config-branch.xml'
         ctx = get_context()
         ctx['PROJECT_URL'] = repo
