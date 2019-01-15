@@ -263,12 +263,6 @@ def create(args, conf):
             print("Created launch configuration {}.".format(lc))
 
         # get autoscaling group config
-
-        lifecycle_hook_specification_list=[
-            {
-                'RoleARN': role
-            },
-        ],
         asg_args = {
             'AutoScalingGroupName': asg,
             'LaunchConfigurationName': lc,
@@ -281,7 +275,6 @@ def create(args, conf):
             'NewInstancesProtectedFromScaleIn': False,
             'AvailabilityZones': azs,
             'VPCZoneIdentifier': ",".join(subnets),
-            #'LifecycleHookSpecificationList': lifecycle_hook_specification_list[0],
             'Tags': [
                 {
                     'Key': 'Name',
