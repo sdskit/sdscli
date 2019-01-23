@@ -590,17 +590,17 @@ def pip_uninstall(pkg, node_type='verdi'):
 def pip_install_with_req(node_type, dest):
     with prefix('source ~/%s/bin/activate' % node_type):
         with cd(dest):
-            run('pip install --process-dependency-links -e .')
+            run('pip install -e .')
 
 def pip_install_with_req(node_type, dest, ndeps):
     with prefix('source ~/%s/bin/activate' % node_type):
         with cd(dest):
 	    if ndeps:
-		logger.debug("ndeps is set, so running pip without process-dependency-links")
+		logger.debug("ndeps is set, so running pip with --no-deps")
 		run('pip install --no-deps -e .')
 	    else:
-		logger.debug("ndeps is NOT set, so running pip with process-dependency-links")
-            	run('pip install --process-dependency-links -e .')
+		logger.debug("ndeps is NOT set, so running pip without --no-deps")
+            	run('pip install -e .')
 
 def python_setup_develop(node_type, dest):
     with prefix('source ~/%s/bin/activate' % node_type):

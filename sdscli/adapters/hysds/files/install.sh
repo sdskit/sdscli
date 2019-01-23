@@ -21,7 +21,7 @@ pip install -e .
 cd $BASE_PATH/hysds/third_party/celery-v3.1.25.pqueue
 pip install -e .
 cd $BASE_PATH/hysds
-pip install --process-dependency-links -e .
+pip install -e .
 cd $BASE_PATH/sciflo
 pip install -e .
 
