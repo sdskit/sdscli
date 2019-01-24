@@ -119,6 +119,9 @@ def prompt_secgroup(sgs, desc=None):
 def create(args, conf):
     """Create Autoscaling group."""
 
+    # get autoscaling conf
+    asg_cfg = conf._cfg.get('ASG', {})
+
     # get clients
     c = boto3.client('autoscaling')
     ec2 = boto3.client('ec2')
@@ -157,26 +160,40 @@ def create(args, conf):
     logger.debug("cur_sgs: {}".format(pformat(cur_sgs)))
 
     # prompt for verdi AMI
-    ami = prompt_image(cur_images)
+    if 'AMI' in asg_cfg:
+        ami = asg_cfg['AMI']
+    else:
+        ami = prompt_image(cur_images)
     logger.debug("AMI ID: {}".format(ami))
 
-
-   
     # prompt for key pair
-    keypair = prompt_keypair(cur_keypairs)
+    if 'KEYPAIR' in asg_cfg:
+        keypair = asg_cfg['KEYPAIR']
+    else:
+        keypair = prompt_keypair(cur_keypairs)
     logger.debug("key pair: {}".format(keypair))
-    
 
     # prompt for roles
     use_role = False
-    use_role = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to use instance roles [y/n]: ")],
+    if 'USE_ROLE' in asg_cfg:
+        use_role = asg_cfg['USE_ROLE']
+    else:
+        use_role = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to use instance roles [y/n]: ")],
                           validator=YesNoValidator(), style=prompt_style).strip() == 'y'
+    logger.debug("use_role: {} {}".format(use_role, type(use_role)))
     if use_role:
-        role = prompt_roles(cur_roles)
+        if 'ROLE' in asg_cfg:
+            role = asg_cfg['ROLE']
+        else:
+            role = prompt_roles(cur_roles)
         logger.debug("role: {}".format(role))
 
     # prompt for security groups
-    sgs, vpc_id = prompt_secgroup(cur_sgs)
+    if 'SECURITY_GROUPS' in asg_cfg and 'VPC' in asg_cfg:
+        sgs = asg_cfg.get('SECURITY_GROUPS', [])
+        vpc_id = asg_cfg.get('VPC', None)
+    else:
+        sgs, vpc_id = prompt_secgroup(cur_sgs)
     logger.debug("security groups: {}".format(sgs))
     logger.debug("VPC ID: {}".format(vpc_id))
 
@@ -198,7 +215,8 @@ def create(args, conf):
     logger.debug("azs: {}".format(pformat(azs)))
 
     # check asgs that need to be configured
-    instance_types = conf.get('INSTANCE_TYPES').split()
+    instance_types = conf.get('INSTANCE_TYPES').split() if 'INSTANCE_TYPES' in conf._cfg else None
+    instance_bids = conf.get('INSTANCE_BIDS').split() if 'INSTANCE_BIDS' in conf._cfg else None
     for i, queue in enumerate([i.strip() for i in conf.get('QUEUES').split()]):
         asg = "{}-{}".format(conf.get('VENUE'), queue)
         if asg in cur_asgs:
@@ -212,22 +230,32 @@ def create(args, conf):
                                                            queue, conf.get('VENUE'))
 
         # prompt instance type
-        instance_type = prompt(get_prompt_tokens=lambda x: [(Token, "Refer to https://www.ec2instances.info/ "),
-                                                            (Token, "and enter instance type to use for launch "),
-                                                            (Token, "configuration: ")], style=prompt_style,
-                                                            default=unicode(instance_types[i]),
-                                                            validator=Ec2InstanceTypeValidator()).strip()
+        if instance_types is None:
+            instance_type = prompt(get_prompt_tokens=lambda x: [(Token, "Refer to https://www.ec2instances.info/ "),
+                                                                (Token, "and enter instance type to use for launch "),
+                                                                (Token, "configuration: ")], style=prompt_style,
+                                                                validator=Ec2InstanceTypeValidator()).strip()
+        else:
+            instance_type = instance_types[i]
         logger.debug("instance type: {}".format(instance_type))
 
         # use spot?
         market = "ondemand"
         spot_bid = None
-        use_spot = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to use spot instances [y/n]: ")],
-                          validator=YesNoValidator(), style=prompt_style).strip() == 'y'
-        if use_spot:
-            market = "spot"
-            spot_bid = prompt(get_prompt_tokens=lambda x: [(Token, "Enter spot price bid: ")],
-                              style=prompt_style, validator=PriceValidator()).strip()
+        if instance_bids is None:
+            use_spot = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to use spot instances [y/n]: ")],
+                              validator=YesNoValidator(), style=prompt_style).strip() == 'y'
+            if use_spot:
+                market = "spot"
+                spot_bid = prompt(get_prompt_tokens=lambda x: [(Token, "Enter spot price bid: ")],
+                                  style=prompt_style, validator=PriceValidator()).strip()
+        else:
+            spot_bid = instance_bids[i]
+            market = 'spot'
+            if eval(spot_bid) == 0.:
+                market = 'ondemand'
+                spot_bid = None
+        if market == 'spot':
             logger.debug("spot price bid: {}".format(spot_bid))
 
         # get block device mappings and remove encrypteed flag for spot to fire up
