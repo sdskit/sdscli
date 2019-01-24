@@ -87,6 +87,9 @@ def ship_style(args, conf):
 def create_staging_area(args, conf):
     """Provision staging area in bucket."""
 
+    # get staging area conf
+    sa_cfg = conf._cfg.get('STAGING_AREA', {})
+
     # create boto3 clients
     s3_res = boto3.resource('s3')
     sns_client = boto3.client('sns')
@@ -189,7 +192,11 @@ def create_staging_area(args, conf):
     cur_sgs = { i['GroupId']: i for i in get_sgs() }
     logger.debug("cur_sgs: {}".format(pformat(cur_sgs)))
     desc = "\nSelect security groups lambda will use (space between each selected): "
-    sgs, vpc_id = prompt_secgroup(cur_sgs, desc)
+    if 'LAMBDA_SECURITY_GROUPS' in sa_cfg and 'LAMBDA_VPC' in sa_cfg:
+        sgs = sa_cfg.get('LAMBDA_SECURITY_GROUPS', [])
+        vpc_id = sa_cfg.get('LAMBDA_VPC', None)
+    else:
+        sgs, vpc_id = prompt_secgroup(cur_sgs, desc)
     logger.debug("security groups: {}".format(sgs))
     logger.debug("VPC ID: {}".format(vpc_id))
 
@@ -215,21 +222,33 @@ def create_staging_area(args, conf):
     logger.debug("Found {} roles.".format(len(roles)))
     cur_roles = OrderedDict([(i['Arn'], i) for i in sorted(roles, 
                             key=itemgetter('CreateDate'))])
-    role = prompt_role(cur_roles)
+    if 'LAMBDA_ROLE' in sa_cfg:
+        role = sa_cfg['LAMBDA_ROLE']
+    else:
+        role = prompt_role(cur_roles)
     logger.debug("Selected role: {}".format(role))
 
     # prompt for job type, release, and queue
-    job_type = prompt(get_prompt_tokens=lambda x:
-                      [(Token, "Enter job type to submit on data staged event: ")],
-                      style=prompt_style).strip()
+    if 'JOB_TYPE' in sa_cfg:
+        job_type = sa_cfg['JOB_TYPE']
+    else:
+        job_type = prompt(get_prompt_tokens=lambda x:
+                          [(Token, "Enter job type to submit on data staged event: ")],
+                          style=prompt_style).strip()
     logger.debug("job type: {}".format(job_type))
-    job_release = prompt(get_prompt_tokens=lambda x:
-                         [(Token, "Enter release version for {}: ".format(job_type))],
-                         style=prompt_style).strip()
+    if 'JOB_RELEASE' in sa_cfg:
+        job_release = sa_cfg['JOB_RELEASE']
+    else:
+        job_release = prompt(get_prompt_tokens=lambda x:
+                             [(Token, "Enter release version for {}: ".format(job_type))],
+                             style=prompt_style).strip()
     logger.debug("job release: {}".format(job_release))
-    job_queue = prompt(get_prompt_tokens=lambda x:
-                       [(Token, "Enter queue name to submit {}-{} jobs to: ".format(job_type, job_release))],
-                       style=prompt_style).strip()
+    if 'JOB_QUEUE' in sa_cfg:
+        job_queue = sa_cfg['JOB_QUEUE']
+    else:
+        job_queue = prompt(get_prompt_tokens=lambda x:
+                           [(Token, "Enter queue name to submit {}-{} jobs to: ".format(job_type, job_release))],
+                           style=prompt_style).strip()
     logger.debug("job queue: {}".format(job_queue))
 
     # create lambda
