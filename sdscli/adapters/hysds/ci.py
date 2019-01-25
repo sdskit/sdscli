@@ -23,17 +23,21 @@ from sdscli.prompt_utils import print_component_header
 from . import fabfile as fab
 
 
-#def remove_job(args):
-#    """Component status."""
-#
-#    # get user's SDS conf settings
-#    conf = SettingsConf()
-#
-#    raise RuntimeError("Unimplemented.")
+def remove_job(args):
+    """Remove jenkins jobs."""
+
+    # get user's SDS conf settings
+    conf = SettingsConf()
+
+    # remove jenkins job for branch or release
+    if args.branch is None:
+        execute(fab.remove_ci_job, args.repo, roles=['ci'])
+    else:
+        execute(fab.remove_ci_job, args.repo, args.branch, roles=['ci'])
 
 
 def add_job(args):
-    """Component status."""
+    """Add jenkins job."""
 
     # get user's SDS conf settings
     conf = SettingsConf()
@@ -57,3 +61,16 @@ def add_job(args):
 
     # reload
     execute(fab.reload_configuration, roles=['ci'])
+
+
+def build_job(args):
+    """Build jenkins job."""
+
+    # get user's SDS conf settings
+    conf = SettingsConf()
+
+    # build jenkins job for branch or release
+    if args.branch is None:
+        execute(fab.build_ci_job, args.repo, roles=['ci'])
+    else:
+        execute(fab.build_ci_job, args.repo, args.branch, roles=['ci'])

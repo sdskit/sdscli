@@ -612,18 +612,24 @@ def python_setup_develop(node_type, dest):
 # ci functions
 ##########################
 
+def get_ci_job_info(repo, branch=None):
+    ctx = get_context()
+    match = repo_re.search(repo)
+    if not match:
+        raise RuntimeError("Failed to parse repo owner and name: %s" % repo)   
+    owner, name = match.groups()
+    if branch is None:
+        job_name = "%s_container-builder_%s_%s" % (ctx['VENUE'], owner, name)
+        config_tmpl = 'config.xml'
+    else:
+        job_name = "%s_container-builder_%s_%s_%s" % (ctx['VENUE'], owner, name, branch)
+        config_tmpl = 'config-branch.xml'
+    return job_name, config_tmpl
+
+
 def add_ci_job(repo, proto, branch=None, release=False):
     with settings(sudo_user=context["JENKINS_USER"]):
-        match = repo_re.search(repo)
-        if not match:
-            raise RuntimeError("Failed to parse repo owner and name: %s" % repo)   
-        owner, name = match.groups()
-        if branch is None:
-            job_name = "%s_container-builder_%s_%s" % (context['VENUE'], owner, name)
-            config_tmpl = 'config.xml'
-        else:
-            job_name = "%s_container-builder_%s_%s_%s" % (context['VENUE'], owner, name, branch)
-            config_tmpl = 'config-branch.xml'
+        job_name, config_tmpl = get_ci_job_info(repo, branch)
         ctx = get_context()
         ctx['PROJECT_URL'] = repo
         ctx['BRANCH'] = branch
@@ -652,15 +658,29 @@ def add_ci_job_release(repo, proto):
     add_ci_job(repo, proto, release=True)
 
 
-def reload_configuration():
+def run_jenkins_cli(cmd):
     ctx = get_context()
     juser=ctx.get("JENKINS_API_USER","").strip()
     jkey=ctx.get("JENKINS_API_KEY","").strip()
     if juser == "" or jkey == "":
         raise RuntimeError("An API user/key is needed for Jenkins.  Reload manually or specify one.")
     with prefix('source verdi/bin/activate'):
-        run('java -jar %s/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 -http -auth %s:%s reload-configuration' % \
-            (ctx['JENKINS_DIR'], juser,jkey))
+        run('java -jar %s/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 -http -auth %s:%s %s' % \
+            (ctx['JENKINS_DIR'], juser, jkey, cmd))
+
+
+def reload_configuration():
+    run_jenkins_cli('reload-configuration')
+
+
+def build_ci_job(repo, branch=None):
+    job_name, config_tmpl = get_ci_job_info(repo, branch)
+    run_jenkins_cli('build %s -s -v' % job_name)
+
+
+def remove_ci_job(repo, branch=None):
+    job_name, config_tmpl = get_ci_job_info(repo, branch)
+    run_jenkins_cli('delete-job %s' % job_name)
 
 
 ##########################

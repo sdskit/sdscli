@@ -314,6 +314,14 @@ def main():
     parser_ci_add_job.add_argument('--branch', '-b', default=None,
                                    help="register git branch instead of release")
     parser_ci_add_job.add_argument('--token', '-k', action='store_true', help="use configured OAuth token")
+    parser_ci_remove_job = parser_ci_subparsers.add_parser('remove_job', help="remove Jenkins job")
+    parser_ci_remove_job.add_argument('repo', help='git repository url')
+    parser_ci_remove_job.add_argument('--branch', '-b', default=None,
+                                   help="git branch instead of release")
+    parser_ci_build_job = parser_ci_subparsers.add_parser('build_job', help="build Jenkins job")
+    parser_ci_build_job.add_argument('repo', help='git repository url')
+    parser_ci_build_job.add_argument('--branch', '-b', default=None,
+                                   help="git branch instead of release")
     parser_ci.set_defaults(func=ci)
 
     # parser for pkg
