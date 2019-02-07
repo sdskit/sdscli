@@ -3,9 +3,10 @@ SDS cloud management functions.
 """
 
 
-
-
-import os, json, pkgutil, traceback
+import os
+import json
+import pkgutil
+import traceback
 from fabric.api import execute, hide
 
 from prompt_toolkit.shortcuts import prompt, print_tokens
@@ -29,8 +30,8 @@ def ls(args):
     # check which cloud platforms configured
     for importer, mod_name, ispkg in pkgutil.iter_modules(sdscli.cloud.__path__):
         mod = get_module('sdscli.cloud.{}.utils'.format(mod_name))
-        print("{}: {}".format(mod_name, highlight("configured", 'green') if 
-              mod.is_configured() else highlight("unimplemented or not configured", 'red')))
+        print("{}: {}".format(mod_name, highlight("configured", 'green') if
+                              mod.is_configured() else highlight("unimplemented or not configured", 'red')))
 
 
 def asg(args):
@@ -44,7 +45,8 @@ def asg(args):
 
     # get func
     try:
-        func = get_func('sdscli.cloud.{}.{}'.format(args.cloud, args.subparser), args.subparser2)
+        func = get_func('sdscli.cloud.{}.{}'.format(
+            args.cloud, args.subparser), args.subparser2)
     except (ImportError, AttributeError):
         logger.error('Not implemented yet. Mahalo for trying. ;)')
         return 1
@@ -64,7 +66,8 @@ def storage(args):
 
     # get func
     try:
-        func = get_func('sdscli.cloud.{}.{}'.format(args.cloud, args.subparser), args.subparser2)
+        func = get_func('sdscli.cloud.{}.{}'.format(
+            args.cloud, args.subparser), args.subparser2)
     except (ImportError, AttributeError):
         logger.error('Not implemented yet. Mahalo for trying. ;)')
         return 1

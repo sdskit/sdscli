@@ -1,8 +1,7 @@
 
 
-
-
-import os, re
+import os
+import re
 
 from prompt_toolkit.validation import Validator, ValidationError
 
@@ -41,7 +40,8 @@ class YesNoValidator(Validator):
 class IpAddressValidator(Validator):
     def validate(self, document):
         text = document.text.lower()
-        match = re.search(r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$', text)
+        match = re.search(
+            r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$', text)
         if not match:
             raise ValidationError(message='Input needs to be valid IP address',
                                   cursor_position=len(text))

@@ -3,9 +3,11 @@ Stop TPS components for HySDS.
 """
 
 
-
-
-import os, yaml, pwd, hashlib, traceback
+import os
+import yaml
+import pwd
+import hashlib
+import traceback
 from fabric.api import execute, hide
 from tqdm import tqdm
 
@@ -104,7 +106,7 @@ def stop_comp(comp, conf):
 
     # if all, create progress bar
     if comp == 'all':
-    
+
         # progress bar
         with tqdm(total=4) as bar:
             set_bar_desc(bar, "Stopping TPS on grq")
@@ -122,10 +124,14 @@ def stop_comp(comp, conf):
             set_bar_desc(bar, "Stopped TPS on all")
             print("")
     else:
-        if comp == 'grq': stop_grq(conf)
-        if comp == 'mozart': stop_mozart(conf)
-        if comp == 'metrics': stop_metrics(conf)
-        if comp == 'ci': stop_ci(conf)
+        if comp == 'grq':
+            stop_grq(conf)
+        if comp == 'mozart':
+            stop_mozart(conf)
+        if comp == 'metrics':
+            stop_metrics(conf)
+        if comp == 'ci':
+            stop_ci(conf)
 
 
 def stop(comp, debug=False, force=False):
@@ -133,17 +139,19 @@ def stop(comp, debug=False, force=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert, 
-                      "Stopping TPS on component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
+        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
+                                                    "Stopping TPS on component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
                       validator=YesNoValidator(), style=prompt_style) == 'y'
-        if not cont: return 0
+        if not cont:
+            return 0
 
     # get user's SDS conf settings
     conf = SettingsConf()
 
     logger.debug("Stopping %s" % comp)
 
-    if debug: stop_comp(comp, conf)
+    if debug:
+        stop_comp(comp, conf)
     else:
         with hide('everything'):
             stop_comp(comp, conf)

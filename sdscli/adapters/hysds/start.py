@@ -3,9 +3,11 @@ Start components for HySDS.
 """
 
 
-
-
-import os, yaml, pwd, hashlib, traceback
+import os
+import yaml
+import pwd
+import hashlib
+import traceback
 from fabric.api import execute, hide
 from tqdm import tqdm
 
@@ -106,7 +108,7 @@ def start_comp(comp, conf):
 
     # if all, create progress bar
     if comp == 'all':
-    
+
         # progress bar
         with tqdm(total=4) as bar:
             set_bar_desc(bar, "Starting grq")
@@ -124,10 +126,14 @@ def start_comp(comp, conf):
             set_bar_desc(bar, "Started all")
             print("")
     else:
-        if comp == 'grq': start_grq(conf)
-        if comp == 'mozart': start_mozart(conf)
-        if comp == 'metrics': start_metrics(conf)
-        if comp == 'factotum': start_factotum(conf)
+        if comp == 'grq':
+            start_grq(conf)
+        if comp == 'mozart':
+            start_mozart(conf)
+        if comp == 'metrics':
+            start_metrics(conf)
+        if comp == 'factotum':
+            start_factotum(conf)
 
 
 def start(comp, debug=False, force=False):
@@ -135,17 +141,19 @@ def start(comp, debug=False, force=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert, 
-                      "Starting component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
+        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
+                                                    "Starting component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
                       validator=YesNoValidator(), style=prompt_style) == 'y'
-        if not cont: return 0
+        if not cont:
+            return 0
 
     # get user's SDS conf settings
     conf = SettingsConf()
 
     logger.debug("Starting %s" % comp)
 
-    if debug: start_comp(comp, conf)
+    if debug:
+        start_comp(comp, conf)
     else:
         with hide('everything'):
             start_comp(comp, conf)

@@ -1,7 +1,9 @@
 
 
-
-import os, yaml, logging, traceback
+import os
+import yaml
+import logging
+import traceback
 
 from sdscli.log_utils import logger
 
@@ -55,5 +57,6 @@ class SettingsConf(YamlConf):
     def __init__(self, file=None):
         "Construct SettingsConf instance."""
 
-        if file is None: file = get_user_config_path()
+        if file is None:
+            file = get_user_config_path()
         super(SettingsConf, self).__init__(file)
