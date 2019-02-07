@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import os, re, json, boto3
 from pprint import pformat
@@ -37,7 +37,7 @@ def ls(args, conf):
 def prompt_image(images):
     """Prompt for image to use."""
 
-    ids = images.keys()
+    ids = list(images.keys())
     pt = [(Token, "Current verdi AMIs are:\n\n")]
     for i, x in enumerate(ids):
         pt.append((Token.Param, "{}".format(i)))
@@ -54,7 +54,7 @@ def prompt_image(images):
 def prompt_keypair(keypairs):
     """Prompt for key pair to use."""
 
-    ids = keypairs.keys()
+    ids = list(keypairs.keys())
     pt = [(Token, "Current key pairs are:\n\n")]
     for i, x in enumerate(ids):
         pt.append((Token.Param, "{}".format(i)))
@@ -70,7 +70,7 @@ def prompt_keypair(keypairs):
 def prompt_roles(roles):
     """Prompt for role to use."""
 
-    ids = roles.keys()
+    ids = list(roles.keys())
     pt = [(Token, "Current roles are:\n\n")]
     for i, x in enumerate(ids):
         pt.append((Token.Param, "{}".format(i)))
@@ -88,15 +88,15 @@ def prompt_secgroup(sgs, desc=None):
 
     if desc is None:
         desc = "\nSelect security groups to use for launch configurations (space between each selected): "
-    ids = sgs.keys()
+    ids = list(sgs.keys())
     pt = [(Token, "Current security groups are:\n\n")]
     for i, x in enumerate(ids):
         pt.append((Token.Param, "{}".format(i)))
         pt.append((Token, ". {} - {} - {}\n".format(sgs[x]['VpcId'], sgs[x]['GroupName'], x)))
     pt.append((Token, desc))
     while True:
-        sels = map(int, [i.strip() for i in prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
-                                                   validator=MultipleSelectionValidator()).split()])
+        sels = list(map(int, [i.strip() for i in prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
+                                                   validator=MultipleSelectionValidator()).split()]))
         sgs_ids = set()
         vpc_ids = set()
         invalid = False
@@ -147,13 +147,11 @@ def create(args, conf):
     # get current AMIs
     verdi_re = re.compile(r'(?:verdi|autoscale)', re.IGNORECASE)
     cur_images = OrderedDict([(i['ImageId'], i) for i in 
-                               filter(lambda x: verdi_re.search(x['Name']),
-                                      sorted(get_images(c=ec2, Filters=[{'Name':'is-public','Values':['false']}]), 
-                                             key=itemgetter('CreationDate'))
-                                     )
+                               [x for x in sorted(get_images(c=ec2, Filters=[{'Name':'is-public','Values':['false']}]), 
+                                             key=itemgetter('CreationDate')) if verdi_re.search(x['Name'])]
                              ])
     logger.debug("cur_images: {}".format(json.dumps(cur_images, indent=2)))
-    logger.debug("cur_images.keys(): {}".format(cur_images.keys()))
+    logger.debug("cur_images.keys(): {}".format(list(cur_images.keys())))
 
     # get current security groups
     cur_sgs = { i['GroupId']: i for i in get_sgs(ec2) }

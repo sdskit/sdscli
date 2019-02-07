@@ -1,14 +1,14 @@
 """
 Continuous integration functions.
 """
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import print_function
+
+
+
 
 import os, yaml, pwd, hashlib, traceback
 from fabric.api import execute, hide
 from tqdm import tqdm
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from prompt_toolkit.shortcuts import prompt, print_tokens
 from prompt_toolkit.styles import style_from_dict

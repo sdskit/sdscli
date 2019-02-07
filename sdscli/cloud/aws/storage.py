@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import os, re, json, boto3, hashlib, base64
 from pprint import pformat
@@ -42,7 +42,7 @@ def ls(args, conf):
 def prompt_role(roles):
     """Prompt for role to use."""
 
-    names = roles.keys()
+    names = list(roles.keys())
     pt = [(Token, "Current roles are:\n\n")]
     for i, x in enumerate(names):
         pt.append((Token.Param, "{}".format(i)))

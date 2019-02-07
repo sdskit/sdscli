@@ -1,9 +1,9 @@
 """
 Configuration for HySDS cluster.
 """
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import print_function
+
+
+
 
 import os, yaml, pwd, shutil, hashlib, traceback
 from pkg_resources import resource_filename
@@ -287,7 +287,7 @@ def copy_files():
 
     files_path = get_user_files_path()
     logger.debug('files_path: %s' % files_path)
-    validate_dir(files_path, mode=0700)
+    validate_dir(files_path, mode=0o700)
     sds_files_path = resource_filename('sdscli', os.path.join('adapters', 'hysds', 'files'))
     sds_files = glob(os.path.join(sds_files_path, '*'))
     for sds_file in sds_files:
@@ -329,7 +329,7 @@ def configure():
         v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                 (Token.Param, "%s" % k), 
                                                 (Token, ": ")],
-                   default=unicode(cfg.get(k, d)),
+                   default=str(cfg.get(k, d)),
                    style=prompt_style)
         cfg[k] = v
 
@@ -355,13 +355,13 @@ def configure():
                     p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter RabbitMQ password for user "),
                                                             (Token.Username, "%s" % cfg['MOZART_RABBIT_USER']), 
                                                             (Token, ": ")],
-                               default=unicode(cfg.get(k, d)),
+                               default=str(cfg.get(k, d)),
                                style=prompt_style,
                                is_password=True)
                     p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter RabbitMQ password for user "),
                                                             (Token.Username, "%s" % cfg['MOZART_RABBIT_USER']), 
                                                             (Token, ": ")],
-                               default=unicode(cfg.get(k, d)),
+                               default=str(cfg.get(k, d)),
                                style=prompt_style,
                                is_password=True)
                     if p1 == p2:
@@ -374,11 +374,11 @@ def configure():
             elif k == 'MOZART_REDIS_PASSWORD':
                 while True:
                     p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter Redis password: ")],
-                               default=unicode(cfg.get(k, d)),
+                               default=str(cfg.get(k, d)),
                                style=prompt_style,
                                is_password=True)
                     p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter Redis password: ")],
-                               default=unicode(cfg.get(k, d)),
+                               default=str(cfg.get(k, d)),
                                style=prompt_style,
                                is_password=True)
                     if p1 == p2:
@@ -389,7 +389,7 @@ def configure():
                 v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                         (Token.Param, "%s" % k), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style)
             cfg[k] = v
    
@@ -420,7 +420,7 @@ def configure():
             v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                     (Token.Param, "%s" % k), 
                                                     (Token, ": ")],
-                       default=unicode(cfg.get(k, d)),
+                       default=str(cfg.get(k, d)),
                        style=prompt_style)
         cfg[k] = v
 
@@ -429,7 +429,7 @@ def configure():
         v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                 (Token.Param, "%s" % k), 
                                                 (Token, ": ")],
-                   default=unicode(cfg.get(k, d)),
+                   default=str(cfg.get(k, d)),
                    style=prompt_style)
         cfg[k] = v
 
@@ -452,11 +452,11 @@ def configure():
             if k == 'METRICS_REDIS_PASSWORD':
                 while True:
                     p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter Redis password: ")],
-                               default=unicode(cfg.get(k, d)),
+                               default=str(cfg.get(k, d)),
                                style=prompt_style,
                                is_password=True)
                     p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter Redis password: ")],
-                               default=unicode(cfg.get(k, d)),
+                               default=str(cfg.get(k, d)),
                                style=prompt_style,
                                is_password=True)
                     if p1 == p2:
@@ -467,7 +467,7 @@ def configure():
                 v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                         (Token.Param, "%s" % k), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style)
             cfg[k] = v
 
@@ -476,7 +476,7 @@ def configure():
         v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                 (Token.Param, "%s" % k), 
                                                 (Token, ": ")],
-                   default=unicode(cfg.get(k, d)),
+                   default=str(cfg.get(k, d)),
                    style=prompt_style)
         cfg[k] = v
 
@@ -499,7 +499,7 @@ def configure():
             v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                     (Token.Param, "%s" % k), 
                                                     (Token, ": ")],
-                       default=unicode(cfg.get(k, d)),
+                       default=str(cfg.get(k, d)),
                        style=prompt_style)
             cfg[k] = v
 
@@ -508,7 +508,7 @@ def configure():
         v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                 (Token.Param, "%s" % k), 
                                                 (Token, ": ")],
-                   default=unicode(cfg.get(k, d)),
+                   default=str(cfg.get(k, d)),
                    style=prompt_style)
         cfg[k] = v
 
@@ -519,13 +519,13 @@ def configure():
                 p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                         (Token.Param, "%s" % k), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style,
                            is_password=True)
                 p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter value for "),
                                                         (Token.Param, "%s" % k), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style,
                            is_password=True)
                 if p1 == p2:
@@ -536,7 +536,7 @@ def configure():
             v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                     (Token.Param, "%s" % k), 
                                                     (Token, ": ")],
-                       default=unicode(cfg.get(k, d)),
+                       default=str(cfg.get(k, d)),
                        style=prompt_style)
         cfg[k] = v
 
@@ -545,7 +545,7 @@ def configure():
         v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                 (Token.Param, "%s" % k), 
                                                 (Token, ": ")],
-                   default=unicode(cfg.get(k, d)),
+                   default=str(cfg.get(k, d)),
                    style=prompt_style)
         cfg[k] = v
 
@@ -556,13 +556,13 @@ def configure():
                 p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter webdav password for user "),
                                                         (Token.Username, "%s" % cfg['DAV_USER']), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style,
                            is_password=True)
                 p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter webdav password for ops user "),
                                                         (Token.Username, "%s" % cfg['DAV_USER']), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style,
                            is_password=True)
                 if p1 == p2:
@@ -573,7 +573,7 @@ def configure():
             v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                     (Token.Param, "%s" % k), 
                                                     (Token, ": ")],
-                       default=unicode(cfg.get(k, d)),
+                       default=str(cfg.get(k, d)),
                        style=prompt_style)
         cfg[k] = v
 
@@ -587,13 +587,13 @@ def configure():
                 p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter AWS secret key for "),
                                                         (Token.Username, "%s" % cfg['DATASET_AWS_ACCESS_KEY']), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style,
                            is_password=True)
                 p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter AWS secret key for "),
                                                         (Token.Username, "%s" % cfg['DATASET_AWS_ACCESS_KEY']), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style,
                            is_password=True)
                 if p1 == p2:
@@ -605,13 +605,13 @@ def configure():
                                                     (Token.Param, "%s" % k), 
                                                     (Token, ". If using instance roles, just press enter"),
                                                     (Token, ": ")],
-                       default=unicode(cfg.get(k, d)),
+                       default=str(cfg.get(k, d)),
                        style=prompt_style)
         else:
             v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                     (Token.Param, "%s" % k), 
                                                     (Token, ": ")],
-                       default=unicode(cfg.get(k, d)),
+                       default=str(cfg.get(k, d)),
                        style=prompt_style)
         cfg[k] = v
 
@@ -625,13 +625,13 @@ def configure():
                 p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter AWS secret key for "),
                                                         (Token.Username, "%s" % cfg['AWS_ACCESS_KEY']), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style,
                            is_password=True)
                 p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter AWS secret key for "),
                                                         (Token.Username, "%s" % cfg['AWS_ACCESS_KEY']), 
                                                         (Token, ": ")],
-                           default=unicode(cfg.get(k, d)),
+                           default=str(cfg.get(k, d)),
                            style=prompt_style,
                            is_password=True)
                 if p1 == p2:
@@ -643,19 +643,19 @@ def configure():
                                                     (Token.Param, "%s" % k), 
                                                     (Token, ". If using instance roles, just press enter"),
                                                     (Token, ": ")],
-                       default=unicode(cfg.get(k, d)),
+                       default=str(cfg.get(k, d)),
                        style=prompt_style)
         else:
             v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                     (Token.Param, "%s" % k), 
                                                     (Token, ": ")],
-                       default=unicode(cfg.get(k, d)),
+                       default=str(cfg.get(k, d)),
                        style=prompt_style)
         cfg[k] = v
 
 
     # ensure directory exists
-    validate_dir(os.path.dirname(cfg_file), mode=0700)
+    validate_dir(os.path.dirname(cfg_file), mode=0o700)
     yml = CFG_TMPL.format(**cfg)
     with open(cfg_file, 'w') as f:
         f.write(yml)

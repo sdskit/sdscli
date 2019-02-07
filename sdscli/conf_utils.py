@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import os, yaml, logging, traceback
 
@@ -46,7 +46,7 @@ class YamlConf(object):
         try:
             return self._cfg[key]
         except KeyError as e:
-            raise(YamlConfError("Configuration '{}' doesn't exist in {}.".format(key, self._file)))
+            raise YamlConfError
 
 
 class SettingsConf(YamlConf):

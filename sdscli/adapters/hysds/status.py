@@ -1,9 +1,9 @@
 """
 Status of HySDS components.
 """
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import print_function
+
+
+
 
 import os, yaml, pwd, hashlib, traceback, requests, re
 from fabric.api import execute, hide
@@ -44,7 +44,7 @@ def print_rabbitmq_status(user, password, host):
         conn = kombu.Connection(amqp_url)
         conn.ensure_connection(max_retries=3)
         print("RabbitMQ: ", highlight("RUNNING"))
-    except Exception, e:
+    except Exception as e:
         print("RabbitMQ: ", blink(highlight("NOT RUNNING", 'red', True)))
         print(e)
 
@@ -56,7 +56,7 @@ def print_redis_status(password, host):
         r = redis.StrictRedis(host, password=password)
         r.ping()
         print("Redis: ", highlight("RUNNING"))
-    except Exception, e:
+    except Exception as e:
         print("Redis: ", blink(highlight("NOT RUNNING", 'red', True)))
         print(e)
 
@@ -68,7 +68,7 @@ def print_es_status(host):
         es = elasticsearch.Elasticsearch([host], verify_certs=False)
         es.ping()
         print("ES: ", highlight("RUNNING"))
-    except Exception, e:
+    except Exception as e:
         print("ES: ", blink(highlight("NOT RUNNING", 'red', True)))
         print(e)
 
@@ -80,7 +80,7 @@ def print_http_status(server, url):
         r = requests.get(url, verify=False)
         r.raise_for_status()
         print("{}: {}".format(server, highlight("RUNNING")))
-    except Exception, e:
+    except Exception as e:
         print("{}: {}".format(server, blink(highlight("NOT RUNNING", 'red', True))))
         print(e)
 
@@ -88,7 +88,7 @@ def print_http_status(server, url):
 def print_service_status(service, ret, debug=False):
     """Print status of service based on systemctl status message."""
 
-    stdout = ret[ret.keys()[0]]
+    stdout = ret[list(ret.keys())[0]]
     status_match = re.search(r'Active:\s+(.+?)\s+', stdout)
     if not status_match:
         raise RuntimeError("Failed to extract status of {} from stdout:\n{}".format(service, stdout))

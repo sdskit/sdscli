@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import os, sys, boto3
 from botocore.exceptions import NoCredentialsError, ClientError
@@ -124,7 +124,7 @@ def configure_bucket_website(bucket_name, c=None, **kargs):
     bw = c.BucketWebsite(bucket_name)
     try:
         bw.put(**kargs)
-    except ClientError, e:
+    except ClientError as e:
         logger.error("Failed to put bucket website config with:\n{}".format(str(e)))
         logger.error("Check that you have privileges.")
         return 1
@@ -139,7 +139,7 @@ def configure_bucket_notification(bucket_name, c=None, **kargs):
     bn = c.BucketNotification(bucket_name)
     try:
         bn.put(**kargs)
-    except ClientError, e:
+    except ClientError as e:
         logger.error("Failed to put bucket notification config with:\n{}".format(str(e)))
         logger.error("Check that you have privileges.")
         return 1
