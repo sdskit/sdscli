@@ -1,11 +1,13 @@
 """
 Reset components for HySDS.
 """
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import print_function
 
-import os, yaml, pwd, hashlib, traceback
+
+import os
+import yaml
+import pwd
+import hashlib
+import traceback
 from fabric.api import execute, hide
 from tqdm import tqdm
 
@@ -114,7 +116,7 @@ def reset_grq(conf, comp='grq'):
         # clear out ES
         #set_bar_desc(bar, 'Clearing out ES')
         #execute(fab.clean_hysds_ios, roles=[comp])
-        #bar.update()
+        # bar.update()
 
         # start services
         set_bar_desc(bar, 'Resetting grqd')
@@ -152,7 +154,7 @@ def reset_comp(comp, conf):
 
     # if all, create progress bar
     if comp == 'all':
-    
+
         # progress bar
         with tqdm(total=4) as bar:
             set_bar_desc(bar, "Resetting grq")
@@ -170,10 +172,14 @@ def reset_comp(comp, conf):
             set_bar_desc(bar, "Reset all")
             print("")
     else:
-        if comp == 'grq': reset_grq(conf)
-        if comp == 'mozart': reset_mozart(conf)
-        if comp == 'metrics': reset_metrics(conf)
-        if comp == 'factotum': reset_factotum(conf)
+        if comp == 'grq':
+            reset_grq(conf)
+        if comp == 'mozart':
+            reset_mozart(conf)
+        if comp == 'metrics':
+            reset_metrics(conf)
+        if comp == 'factotum':
+            reset_factotum(conf)
 
 
 def reset(comp, debug=False, force=False):
@@ -181,17 +187,19 @@ def reset(comp, debug=False, force=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert, 
-                      "Resetting component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
+        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
+                                                    "Resetting component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
                       validator=YesNoValidator(), style=prompt_style) == 'y'
-        if not cont: return 0
+        if not cont:
+            return 0
 
     # get user's SDS conf settings
     conf = SettingsConf()
 
     logger.debug("Resetting %s" % comp)
 
-    if debug: reset_comp(comp, conf)
+    if debug:
+        reset_comp(comp, conf)
     else:
         with hide('everything'):
             reset_comp(comp, conf)

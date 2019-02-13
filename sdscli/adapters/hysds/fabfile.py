@@ -1,11 +1,13 @@
 """
 Fabric file for HySDS.
 """
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import print_function
 
-import os, re, yaml, json, requests
+
+import os
+import re
+import yaml
+import json
+import requests
 from copy import deepcopy
 from fabric.api import run, cd, put, sudo, prefix, env, settings, hide
 from fabric.contrib.files import upload_template, exists, append
@@ -28,7 +30,8 @@ context = {}
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sds_cfg = get_user_config_path()
 if not os.path.isfile(sds_cfg):
-    raise RuntimeError("SDS configuration file doesn't exist. Run 'sds configure'.")
+    raise RuntimeError(
+        "SDS configuration file doesn't exist. Run 'sds configure'.")
 with open(sds_cfg) as f:
     context = yaml.load(f)
 
@@ -60,21 +63,22 @@ verdi_hosts = [
     '%s' % context['VERDI_PVT_IP'],
 ]
 if context.get('OTHER_VERDI_HOSTS', None) is not None:
-    verdi_hosts.extend([i['VERDI_PVT_IP'] for i in context['OTHER_VERDI_HOSTS'] if i['VERDI_PVT_IP'] is not None])
+    verdi_hosts.extend([i['VERDI_PVT_IP']
+                        for i in context['OTHER_VERDI_HOSTS'] if i['VERDI_PVT_IP'] is not None])
 
 # define roles
 env.roledefs = {
-    'mozart': [ mozart_host ],
-    'mozart-rabbit': [ mozart_rabbit_host ],
-    'mozart-redis': [ mozart_redis_host ],
-    'mozart-es': [ mozart_es_host ],
-    'metrics': [ metrics_host ],
-    'metrics-redis': [ metrics_redis_host ],
-    'metrics-es': [ metrics_es_host ],
-    'grq': [ grq_host ],
-    'grq-es': [ grq_es_host ],
-    'factotum': [ factotum_host ],
-    'ci': [ ci_host ],
+    'mozart': [mozart_host],
+    'mozart-rabbit': [mozart_rabbit_host],
+    'mozart-redis': [mozart_redis_host],
+    'mozart-es': [mozart_es_host],
+    'metrics': [metrics_host],
+    'metrics-redis': [metrics_redis_host],
+    'metrics-es': [metrics_es_host],
+    'grq': [grq_host],
+    'grq-es': [grq_es_host],
+    'factotum': [factotum_host],
+    'ci': [ci_host],
     'verdi': verdi_hosts,
 }
 
@@ -96,6 +100,7 @@ ops_dir = context['OPS_HOME']
 ##########################
 # general functions
 ##########################
+
 
 def get_context(node_type=None):
     """Modify context based on host string."""
@@ -149,11 +154,15 @@ def resolve_role():
         if env.host_string in env.roledefs[role]:
             if '@' in env.host_string:
                 hostname = env.host_string.split('@')[1]
-            else: hostname = env.host_string
+            else:
+                hostname = env.host_string
             break
-    if role in ('factotum', 'ci'): hysds_dir = "verdi"
-    elif role == 'grq': hysds_dir = "sciflo"
-    else: hysds_dir = role
+    if role in ('factotum', 'ci'):
+        hysds_dir = "verdi"
+    elif role == 'grq':
+        hysds_dir = "sciflo"
+    else:
+        hysds_dir = role
     return role, hysds_dir, hostname
 
 
@@ -197,8 +206,9 @@ def copy(src, dest):
     put(src, dest)
 
 
-def ln_sf(src,dest):
-    if exists(dest): run('rm -rf %s' % dest)
+def ln_sf(src, dest):
+    if exists(dest):
+        run('rm -rf %s' % dest)
     with cd(os.path.dirname(dest)):
         run('ln -sf %s %s' % (src, os.path.basename(dest)))
 
@@ -208,7 +218,8 @@ def cp_rp(src, dest):
 
 
 def cp_rp_exists(src, dest):
-    if exists(src): run('cp -rp %s %s' % (src, dest))
+    if exists(src):
+        run('cp -rp %s %s' % (src, dest))
 
 
 def rm_rf(path):
@@ -220,15 +231,19 @@ def sudo_rm_rf(path):
 
 
 def send_template(tmpl, dest, tmpl_dir=None, node_type=None):
-    if tmpl_dir is None: tmpl_dir = get_user_files_path()
-    else: tmpl_dir = os.path.expanduser(tmpl_dir)
+    if tmpl_dir is None:
+        tmpl_dir = get_user_files_path()
+    else:
+        tmpl_dir = os.path.expanduser(tmpl_dir)
     upload_template(tmpl, dest, use_jinja=True, context=get_context(node_type),
                     template_dir=tmpl_dir)
 
 
 def send_template_user_override(tmpl, dest, tmpl_dir=None, node_type=None):
-    if tmpl_dir is None: tmpl_dir = get_user_files_path()
-    else: tmpl_dir = os.path.expanduser(tmpl_dir)
+    if tmpl_dir is None:
+        tmpl_dir = get_user_files_path()
+    else:
+        tmpl_dir = os.path.expanduser(tmpl_dir)
     upload_template(tmpl, dest, use_jinja=True, context=get_context(node_type),
                     template_dir=resolve_files_dir(tmpl, tmpl_dir))
 
@@ -239,7 +254,8 @@ def set_spyddder_settings():
 
 
 def rsync_code(node_type, dir_path=None):
-    if dir_path is None: dir_path = node_type
+    if dir_path is None:
+        dir_path = node_type
     rm_rf('%s/ops/osaka' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/osaka'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
@@ -299,8 +315,10 @@ def svn_rev(rev, path):
 
 
 def grep(grep_str, dir_path):
-    try: run('grep -r %s %s' % (grep_str, dir_path))
-    except: pass
+    try:
+        run('grep -r %s %s' % (grep_str, dir_path))
+    except:
+        pass
 
 
 def chmod(perms, path):
@@ -315,6 +333,7 @@ def mkdir(d, o, g):
     #sudo('mkdir -p %s' % d)
     #sudo('chown -R %s:%s %s' % (o, g, d))
     run("mkdir -p %s" % d)
+
 
 def untar(tarfile, chdir):
     with cd(chdir):
@@ -371,7 +390,7 @@ def status():
         with prefix('source %s/bin/activate' % hysds_dir):
             run('supervisorctl status')
     else:
-        print(blink(highlight("Supervisord is not running on %s." % role, 'red')))
+        print((blink(highlight("Supervisord is not running on %s." % role, 'red'))))
 
 
 def ensure_venv(hysds_dir, update_bash_profile=True):
@@ -382,12 +401,17 @@ def ensure_venv(hysds_dir, update_bash_profile=True):
             run('pip install -U pip')
             run('pip install -U setuptools')
             run('pip install --ignore-installed supervisor')
-            mkdir('%s/etc' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
-            mkdir('%s/log' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
-            mkdir('%s/run' % hysds_dir, context['OPS_USER'], context['OPS_USER'])
+            mkdir('%s/etc' % hysds_dir,
+                  context['OPS_USER'], context['OPS_USER'])
+            mkdir('%s/log' % hysds_dir,
+                  context['OPS_USER'], context['OPS_USER'])
+            mkdir('%s/run' % hysds_dir,
+                  context['OPS_USER'], context['OPS_USER'])
     if update_bash_profile:
-        append('.bash_profile', "source $HOME/{}/bin/activate".format(hysds_dir), escape=True)
-        append('.bash_profile', "export FACTER_ipaddress=$(ifconfig $(route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')", escape=True)
+        append('.bash_profile',
+               "source $HOME/{}/bin/activate".format(hysds_dir), escape=True)
+        append('.bash_profile',
+               "export FACTER_ipaddress=$(ifconfig $(route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')", escape=True)
 
 
 def install_pkg_es_templates():
@@ -395,7 +419,8 @@ def install_pkg_es_templates():
     if role not in ('grq', 'mozart'):
         raise RuntimeError("Invalid fabric function for %s." % role)
     with prefix('source %s/bin/activate' % hysds_dir):
-        run('%s/ops/hysds_commons/scripts/install_es_template.sh %s' % (hysds_dir, role))
+        run('%s/ops/hysds_commons/scripts/install_es_template.sh %s' %
+            (hysds_dir, role))
 
 
 ##########################
@@ -411,7 +436,7 @@ def grqd_start(force=False):
 
 def grqd_clean_start():
     run('rm -rf %s/sciflo/log/*' % ops_dir)
-    #with prefix('source %s/sciflo/bin/activate' % ops_dir):
+    # with prefix('source %s/sciflo/bin/activate' % ops_dir):
     #    with cd(os.path.join(ops_dir, 'sciflo/ops/grq2/scripts')):
     #        run('./reset_dumby_indices.sh')
     grqd_start(True)
@@ -483,8 +508,8 @@ def mozart_redis_flush():
 def rabbitmq_queues_flush():
     ctx = get_context()
     url = 'http://%s:15672/api/queues' % ctx['MOZART_RABBIT_PVT_IP']
-    r = requests.get('%s?columns=name' % url, auth=(ctx['MOZART_RABBIT_USER'], 
-                     ctx['MOZART_RABBIT_PASSWORD']))
+    r = requests.get('%s?columns=name' % url, auth=(ctx['MOZART_RABBIT_USER'],
+                                                    ctx['MOZART_RABBIT_PASSWORD']))
     r.raise_for_status()
     res = r.json()
     for i in res:
@@ -497,10 +522,14 @@ def rabbitmq_queues_flush():
 def mozart_es_flush():
     ctx = get_context()
     run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_template/*_status'.format(**ctx))
-    run('~/mozart/ops/hysds/scripts/clean_job_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
-    run('~/mozart/ops/hysds/scripts/clean_task_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
-    run('~/mozart/ops/hysds/scripts/clean_worker_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
-    run('~/mozart/ops/hysds/scripts/clean_event_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
+    run('~/mozart/ops/hysds/scripts/clean_job_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(
+        **ctx))
+    run('~/mozart/ops/hysds/scripts/clean_task_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(
+        **ctx))
+    run('~/mozart/ops/hysds/scripts/clean_worker_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(
+        **ctx))
+    run('~/mozart/ops/hysds/scripts/clean_event_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(
+        **ctx))
     #run('~/mozart/ops/hysds/scripts/clean_job_spec_container_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
 
 
@@ -533,16 +562,27 @@ def metricsd_stop():
 ##########################
 
 def kill_hung():
-    try: run('ps x | grep [j]ob_worker | awk \'{print $1}\' | xargs kill -TERM', quiet=True)
-    except: pass
-    try: run('ps x | grep [s]flExec | awk \'{print $1}\' | xargs kill -TERM', quiet=True)
-    except: pass
-    try: run('ps x | grep [s]flExec | awk \'{print $1}\' | xargs kill -KILL', quiet=True)
-    except: pass
+    try:
+        run(
+            'ps x | grep [j]ob_worker | awk \'{print $1}\' | xargs kill -TERM', quiet=True)
+    except:
+        pass
+    try:
+        run(
+            'ps x | grep [s]flExec | awk \'{print $1}\' | xargs kill -TERM', quiet=True)
+    except:
+        pass
+    try:
+        run(
+            'ps x | grep [s]flExec | awk \'{print $1}\' | xargs kill -KILL', quiet=True)
+    except:
+        pass
     ps_x()
+
 
 def import_kibana(import_cmd):
     run(import_cmd)
+
 
 def verdid_start(force=False):
     if not exists('verdi/run/supervisord.pid') or force:
@@ -592,15 +632,18 @@ def pip_install_with_req(node_type, dest):
         with cd(dest):
             run('pip install -e .')
 
+
 def pip_install_with_req(node_type, dest, ndeps):
     with prefix('source ~/%s/bin/activate' % node_type):
         with cd(dest):
-	    if ndeps:
-		logger.debug("ndeps is set, so running pip with --no-deps")
-		run('pip install --no-deps -e .')
-	    else:
-		logger.debug("ndeps is NOT set, so running pip without --no-deps")
-            	run('pip install -e .')
+            if ndeps:
+                logger.debug("ndeps is set, so running pip with --no-deps")
+                run('pip install --no-deps -e .')
+            else:
+                logger.debug(
+                    "ndeps is NOT set, so running pip without --no-deps")
+                run('pip install -e .')
+
 
 def python_setup_develop(node_type, dest):
     with prefix('source ~/%s/bin/activate' % node_type):
@@ -616,13 +659,14 @@ def get_ci_job_info(repo, branch=None):
     ctx = get_context()
     match = repo_re.search(repo)
     if not match:
-        raise RuntimeError("Failed to parse repo owner and name: %s" % repo)   
+        raise RuntimeError("Failed to parse repo owner and name: %s" % repo)
     owner, name = match.groups()
     if branch is None:
         job_name = "%s_container-builder_%s_%s" % (ctx['VENUE'], owner, name)
         config_tmpl = 'config.xml'
     else:
-        job_name = "%s_container-builder_%s_%s_%s" % (ctx['VENUE'], owner, name, branch)
+        job_name = "%s_container-builder_%s_%s_%s" % (
+            ctx['VENUE'], owner, name, branch)
         config_tmpl = 'config-branch.xml'
     return job_name, config_tmpl
 
@@ -637,17 +681,23 @@ def add_ci_job(repo, proto, branch=None, release=False):
         dest_file = '%s/config.xml' % job_dir
         mkdir(job_dir, None, None)
         chmod('777', job_dir)
-        if release: ctx['BRANCH_SPEC'] = "origin/tags/release-*"
-        else: ctx['BRANCH_SPEC'] = "**"
+        if release:
+            ctx['BRANCH_SPEC'] = "origin/tags/release-*"
+        else:
+            ctx['BRANCH_SPEC'] = "**"
         if proto in ('s3', 's3s'):
-            ctx['STORAGE_URL'] = "%s://%s/%s/" % (proto, ctx['S3_ENDPOINT'], ctx['CODE_BUCKET'])
+            ctx['STORAGE_URL'] = "%s://%s/%s/" % (
+                proto, ctx['S3_ENDPOINT'], ctx['CODE_BUCKET'])
         elif proto == 'gs':
-            ctx['STORAGE_URL'] = "%s://%s/%s/" % (proto, ctx['GS_ENDPOINT'], ctx['CODE_BUCKET'])
+            ctx['STORAGE_URL'] = "%s://%s/%s/" % (
+                proto, ctx['GS_ENDPOINT'], ctx['CODE_BUCKET'])
         elif proto in ('dav', 'davs'):
             ctx['STORAGE_URL'] = "%s://%s:%s@%s/repository/products/containers/" % \
-                                 (proto, ctx['DAV_USER'], ctx['DAV_PASSWORD'], ctx['DAV_SERVER'])
+                                 (proto, ctx['DAV_USER'],
+                                  ctx['DAV_PASSWORD'], ctx['DAV_SERVER'])
         else:
-            raise RuntimeError("Unrecognized storage type for containers: %s" % proto)
+            raise RuntimeError(
+                "Unrecognized storage type for containers: %s" % proto)
         upload_template(config_tmpl, "tmp-jenkins-upload", use_jinja=True, context=ctx,
                         template_dir=get_user_files_path())
         cp_rp("tmp-jenkins-upload", dest_file)
@@ -660,12 +710,13 @@ def add_ci_job_release(repo, proto):
 
 def run_jenkins_cli(cmd):
     ctx = get_context()
-    juser=ctx.get("JENKINS_API_USER","").strip()
-    jkey=ctx.get("JENKINS_API_KEY","").strip()
+    juser = ctx.get("JENKINS_API_USER", "").strip()
+    jkey = ctx.get("JENKINS_API_KEY", "").strip()
     if juser == "" or jkey == "":
-        raise RuntimeError("An API user/key is needed for Jenkins.  Reload manually or specify one.")
+        raise RuntimeError(
+            "An API user/key is needed for Jenkins.  Reload manually or specify one.")
     with prefix('source verdi/bin/activate'):
-        run('java -jar %s/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 -http -auth %s:%s %s' % \
+        run('java -jar %s/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 -http -auth %s:%s %s' %
             (ctx['JENKINS_DIR'], juser, jkey, cmd))
 
 
@@ -693,7 +744,8 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
 
     ctx = get_context(node_type)
     if node_type == 'mozart':
-        ctx.update({'cluster_jobs': cluster_jobs, 'cluster_metrics': cluster_metrics })
+        ctx.update({'cluster_jobs': cluster_jobs,
+                    'cluster_metrics': cluster_metrics})
         upload_template('indexer.conf.mozart', '~/mozart/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('job_status.template', '~/mozart/etc/job_status.template', use_jinja=True,
@@ -705,7 +757,8 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
         upload_template('event_status.template', '~/mozart/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
     elif node_type == 'metrics':
-        ctx.update({'cluster_jobs': cluster_jobs, 'cluster_metrics': cluster_metrics })
+        ctx.update({'cluster_jobs': cluster_jobs,
+                    'cluster_metrics': cluster_metrics})
         upload_template('indexer.conf.metrics', '~/metrics/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('job_status.template', '~/metrics/etc/job_status.template', use_jinja=True,
@@ -716,17 +769,23 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/metrics/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-    else: raise RuntimeError("Unknown node type: %s" % node_type) 
+    else:
+        raise RuntimeError("Unknown node type: %s" % node_type)
 
 
 def send_celeryconf(node_type):
     ctx = get_context(node_type)
     template_dir = os.path.join(ops_dir, 'mozart/ops/hysds/configs/celery')
-    if node_type == 'mozart': base_dir = "mozart"
-    elif node_type == 'metrics': base_dir = "metrics"
-    elif node_type in ('verdi', 'verdi-asg'): base_dir = "verdi"
-    elif node_type == 'grq': base_dir = "sciflo"
-    else: raise RuntimeError("Unknown node type: %s" % node_type)
+    if node_type == 'mozart':
+        base_dir = "mozart"
+    elif node_type == 'metrics':
+        base_dir = "metrics"
+    elif node_type in ('verdi', 'verdi-asg'):
+        base_dir = "verdi"
+    elif node_type == 'grq':
+        base_dir = "sciflo"
+    else:
+        raise RuntimeError("Unknown node type: %s" % node_type)
     tmpl = 'celeryconfig.py.tmpl'
     user_path = get_user_files_path()
     if node_type == 'verdi-asg':
@@ -744,19 +803,21 @@ def send_mozartconf():
                     template_dir=os.path.join(ops_dir, 'mozart/ops/mozart/settings'))
     with prefix('source ~/mozart/bin/activate'):
         with cd('~/mozart/ops/mozart'):
-            mkdir('~/mozart/ops/mozart/data', context['OPS_USER'], context['OPS_USER'])
+            mkdir('~/mozart/ops/mozart/data',
+                  context['OPS_USER'], context['OPS_USER'])
             run('./db_create.py')
 
 
 def send_figaroconf():
     dest_file = '~/mozart/ops/figaro/settings.cfg'
-    #upload_template('settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('mozart'),
+    # upload_template('settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('mozart'),
     #                template_dir=os.path.join(ops_dir, 'mozart/ops/figaro/settings'))
     upload_template('figaro_settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('mozart'),
                     template_dir=get_user_files_path())
     with prefix('source ~/mozart/bin/activate'):
         with cd('~/mozart/ops/figaro'):
-            mkdir('~/mozart/ops/figaro/data', context['OPS_USER'], context['OPS_USER'])
+            mkdir('~/mozart/ops/figaro/data',
+                  context['OPS_USER'], context['OPS_USER'])
             run('./db_create.py')
 
 
@@ -782,16 +843,18 @@ def create_user_rules_index():
             run('./create_user_rules_index.py')
 
 
-
 ##########################
 # self-signed SSL certs
 ##########################
 
 def ensure_ssl(node_type):
     ctx = get_context(node_type)
-    if node_type == "grq": commonName = ctx['GRQ_FQDN']
-    elif node_type == "mozart": commonName = ctx['MOZART_FQDN']
-    else: raise RuntimeError("Unknown node type: %s" % node_type) 
+    if node_type == "grq":
+        commonName = ctx['GRQ_FQDN']
+    elif node_type == "mozart":
+        commonName = ctx['MOZART_FQDN']
+    else:
+        raise RuntimeError("Unknown node type: %s" % node_type)
     prompts = {
         'Enter pass phrase for server.key:': 'hysds',
         'Enter pass phrase for server.key.org:': 'hysds',
@@ -800,7 +863,7 @@ def ensure_ssl(node_type):
     if not exists('ssl/server.key') or not exists('ssl/server.pem'):
         mkdir('ssl', context['OPS_USER'], context['OPS_USER'])
         upload_template('ssl_server.cnf', 'ssl/server.cnf', use_jinja=True,
-                        context={ 'commonName': commonName },
+                        context={'commonName': commonName},
                         template_dir=get_user_files_path())
         with cd('ssl'):
             with settings(prompts=prompts):
@@ -840,7 +903,8 @@ def send_awscreds(suffix=None):
         aws_dir = '.aws{}'.format(suffix)
         boto_file = '.boto{}'.format(suffix)
         s3cfg_file = '.s3cfg{}'.format(suffix)
-    if exists(aws_dir): run('rm -rf {}'.format(aws_dir))
+    if exists(aws_dir):
+        run('rm -rf {}'.format(aws_dir))
     mkdir(aws_dir, context['OPS_USER'], context['OPS_USER'])
     run('chmod 700 {}'.format(aws_dir))
     upload_template('aws_config', '{}/config'.format(aws_dir), use_jinja=True, context=ctx,
@@ -849,11 +913,13 @@ def send_awscreds(suffix=None):
         upload_template('aws_credentials', '{}/credentials'.format(aws_dir), use_jinja=True, context=ctx,
                         template_dir=get_user_files_path())
     run('chmod 600 {}/*'.format(aws_dir))
-    if exists(boto_file): run('rm -rf {}'.format(boto_file))
+    if exists(boto_file):
+        run('rm -rf {}'.format(boto_file))
     upload_template('boto', boto_file, use_jinja=True, context=ctx,
                     template_dir=get_user_files_path())
     run('chmod 600 {}'.format(boto_file))
-    if exists(s3cfg_file): run('rm -rf {}'.format(s3cfg_file))
+    if exists(s3cfg_file):
+        run('rm -rf {}'.format(s3cfg_file))
     upload_template('s3cfg', s3cfg_file, use_jinja=True, context=ctx,
                     template_dir=get_user_files_path())
     run('chmod 600 {}'.format(s3cfg_file))
@@ -880,12 +946,13 @@ def send_queue_config(queue):
 
 def ship_style(bucket=None, encrypt=False):
     ctx = get_context()
-    if bucket is None: bucket = ctx['DATASET_BUCKET']
+    if bucket is None:
+        bucket = ctx['DATASET_BUCKET']
     repo_dir = os.path.join(ops_dir, 'mozart/ops/s3-bucket-listing')
     index_file = os.path.join(repo_dir, 'tmp_index.html')
     list_js = os.path.join(repo_dir, 'list.js')
     index_style = os.path.join(repo_dir, 'index-style')
-    upload_template('s3-bucket-listing.html.tmpl', index_file, use_jinja=True, 
+    upload_template('s3-bucket-listing.html.tmpl', index_file, use_jinja=True,
                     context=ctx, template_dir=get_user_files_path())
     if encrypt is False:
         run('aws s3 cp %s s3://%s/index.html' % (index_file, bucket))
@@ -902,6 +969,7 @@ def ship_style(bucket=None, encrypt=False):
 ##########################
 
 def create_zip(zip_dir, zip_file):
-    if exists(zip_file): run('rm -rf %s' % zip_file)
+    if exists(zip_file):
+        run('rm -rf %s' % zip_file)
     with cd(zip_dir):
         run('zip -r -9 {} *'.format(zip_file))

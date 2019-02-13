@@ -1,8 +1,7 @@
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import print_function
 
-import os, re
+
+import os
+import re
 
 from prompt_toolkit.validation import Validator, ValidationError
 
@@ -41,7 +40,8 @@ class YesNoValidator(Validator):
 class IpAddressValidator(Validator):
     def validate(self, document):
         text = document.text.lower()
-        match = re.search(r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$', text)
+        match = re.search(
+            r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$', text)
         if not match:
             raise ValidationError(message='Input needs to be valid IP address',
                                   cursor_position=len(text))
@@ -105,22 +105,22 @@ def blink(s):
 def print_component_header(comp):
     """Print component header."""
 
-    print(highlight("#" * 40, 'cyan'))
-    print(highlight(comp, 'cyan', True))
-    print(highlight("#" * 40, 'cyan'))
+    print((highlight("#" * 40, 'cyan')))
+    print((highlight(comp, 'cyan', True)))
+    print((highlight("#" * 40, 'cyan')))
 
 
 def print_tps_header(comp):
     """Print tps header."""
 
-    print(highlight("-" * 40, 'cyan'))
-    print(highlight('third-party services', 'cyan', True))
-    print(highlight("-" * 40, 'cyan'))
+    print((highlight("-" * 40, 'cyan')))
+    print((highlight('third-party services', 'cyan', True)))
+    print((highlight("-" * 40, 'cyan')))
 
 
 def print_supervisor_header(comp):
     """Print supervisor header."""
 
-    print(highlight("-" * 40, 'cyan'))
-    print(highlight('supervised services', 'cyan', True))
-    print(highlight("-" * 40, 'cyan'))
+    print((highlight("-" * 40, 'cyan')))
+    print((highlight('supervised services', 'cyan', True)))
+    print((highlight("-" * 40, 'cyan')))

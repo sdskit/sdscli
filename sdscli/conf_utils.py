@@ -1,7 +1,9 @@
-from __future__ import absolute_import
-from __future__ import print_function
 
-import os, yaml, logging, traceback
+
+import os
+import yaml
+import logging
+import traceback
 
 from sdscli.log_utils import logger
 
@@ -46,7 +48,7 @@ class YamlConf(object):
         try:
             return self._cfg[key]
         except KeyError as e:
-            raise(YamlConfError("Configuration '{}' doesn't exist in {}.".format(key, self._file)))
+            raise YamlConfError
 
 
 class SettingsConf(YamlConf):
@@ -55,5 +57,6 @@ class SettingsConf(YamlConf):
     def __init__(self, file=None):
         "Construct SettingsConf instance."""
 
-        if file is None: file = get_user_config_path()
+        if file is None:
+            file = get_user_config_path()
         super(SettingsConf, self).__init__(file)

@@ -1,11 +1,13 @@
 """
 Update components for HySDS.
 """
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import print_function
 
-import os, yaml, pwd, hashlib, traceback
+
+import os
+import yaml
+import pwd
+import hashlib
+import traceback
 from fabric.api import execute, hide
 from tqdm import tqdm
 
@@ -47,19 +49,26 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
 
         # update reqs
         set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/osaka', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart',
+                '~/mozart/ops/osaka', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/prov_es', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart',
+                '~/mozart/ops/prov_es', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/hysds_commons', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart',
+                '~/mozart/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart',
+                '~/mozart/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/hysds', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart',
+                '~/mozart/ops/hysds', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/sciflo', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart',
+                '~/mozart/ops/sciflo', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/mozart', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'mozart',
+                '~/mozart/ops/mozart', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
@@ -72,7 +81,7 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         # update supervisor config
         set_bar_desc(bar, 'Updating supervisor config')
         execute(fab.rm_rf, '~/mozart/etc/supervisord.conf', roles=[comp])
-        execute(fab.send_template_user_override, 'supervisord.conf.mozart', 
+        execute(fab.send_template_user_override, 'supervisord.conf.mozart',
                 '~/mozart/etc/supervisord.conf', '~/mozart/ops/hysds/configs/supervisor',
                 roles=[comp])
         bar.update()
@@ -89,13 +98,15 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         # update job_creators
         set_bar_desc(bar, 'Updating job_creators')
         execute(fab.rm_rf, '~/mozart/etc/job_creators', roles=[comp])
-        execute(fab.cp_rp, '~/mozart/ops/hysds/scripts/job_creators', '~/mozart/etc/', roles=[comp])
+        execute(fab.cp_rp, '~/mozart/ops/hysds/scripts/job_creators',
+                '~/mozart/etc/', roles=[comp])
         bar.update()
 
-        #update datasets config; overwrite datasets config with domain-specific config
+        # update datasets config; overwrite datasets config with domain-specific config
         set_bar_desc(bar, 'Updating datasets config')
         execute(fab.rm_rf, '~/mozart/etc/datasets.json', roles=[comp])
-        execute(fab.send_template, 'datasets.json', '~/mozart/etc/datasets.json', roles=[comp])
+        execute(fab.send_template, 'datasets.json',
+                '~/mozart/etc/datasets.json', roles=[comp])
         bar.update()
 
         # ship logstash shipper configs
@@ -108,8 +119,9 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         set_bar_desc(bar, 'Updating mozart config')
         execute(fab.rm_rf, '~/mozart/ops/mozart/settings.cfg', roles=[comp])
         execute(fab.send_mozartconf, roles=[comp])
-        execute(fab.rm_rf, '~/mozart/ops/mozart/actions_config.json', roles=[comp])
-        execute(fab.copy, '~/mozart/ops/mozart/configs/actions_config.json.example', 
+        execute(fab.rm_rf, '~/mozart/ops/mozart/actions_config.json',
+                roles=[comp])
+        execute(fab.copy, '~/mozart/ops/mozart/configs/actions_config.json.example',
                 '~/mozart/ops/mozart/actions_config.json', roles=[comp])
         bar.update()
 
@@ -130,8 +142,10 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         bar.update()
 
         # link ssl certs to apps
-        execute(fab.ln_sf, '~/ssl/server.key', '~/mozart/ops/mozart/server.key', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.pem', '~/mozart/ops/mozart/server.pem', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.key',
+                '~/mozart/ops/mozart/server.key', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.pem',
+                '~/mozart/ops/mozart/server.pem', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
@@ -142,7 +156,8 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
 
         # ship netrc
         set_bar_desc(bar, 'Configuring netrc')
-        execute(fab.send_template, 'netrc.mozart', '.netrc', node_type='mozart', roles=[comp])
+        execute(fab.send_template, 'netrc.mozart',
+                '.netrc', node_type='mozart', roles=[comp])
         execute(fab.chmod, 600, '.netrc', roles=[comp])
         bar.update()
 
@@ -150,7 +165,7 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         set_bar_desc(bar, 'Update ES template')
         execute(fab.install_pkg_es_templates, roles=[comp])
         bar.update()
-        
+
         # ship AWS creds
         set_bar_desc(bar, 'Configuring AWS creds')
         execute(fab.send_awscreds, roles=[comp])
@@ -159,7 +174,8 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
 
         # update verdi for code/config bundle
         set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'verdi', update_bash_profile=False, roles=[comp])
+        execute(fab.ensure_venv, 'verdi',
+                update_bash_profile=False, roles=[comp])
         bar.update()
 
         # remove code bundle stuff
@@ -177,17 +193,23 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
 
         # update reqs
         set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/osaka', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/osaka', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/prov_es', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/prov_es', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/sciflo', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/sciflo', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
@@ -200,15 +222,16 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         # update supervisor config
         set_bar_desc(bar, 'Updating supervisor config')
         execute(fab.rm_rf, '~/verdi/etc/supervisord.conf', roles=[comp])
-        execute(fab.send_template_user_override, 'supervisord.conf.verdi', 
+        execute(fab.send_template_user_override, 'supervisord.conf.verdi',
                 '~/verdi/etc/supervisord.conf', '~/mozart/ops/hysds/configs/supervisor',
                 roles=[comp])
         bar.update()
 
-        #update datasets config; overwrite datasets config with domain-specific config
+        # update datasets config; overwrite datasets config with domain-specific config
         set_bar_desc(bar, 'Updating datasets config')
         execute(fab.rm_rf, '~/verdi/etc/datasets.json', roles=[comp])
-        execute(fab.send_template, 'datasets.json', '~/verdi/etc/datasets.json', roles=[comp])
+        execute(fab.send_template, 'datasets.json',
+                '~/verdi/etc/datasets.json', roles=[comp])
         bar.update()
 
         # ship netrc
@@ -249,24 +272,31 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
 
         # update reqs
         set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'metrics', '~/metrics/ops/osaka', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'metrics',
+                '~/metrics/ops/osaka', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'metrics', '~/metrics/ops/prov_es', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'metrics',
+                '~/metrics/ops/prov_es', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'metrics', '~/metrics/ops/hysds_commons', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'metrics',
+                '~/metrics/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'metrics', '~/metrics/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'metrics',
+                '~/metrics/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'metrics', '~/metrics/ops/hysds', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'metrics',
+                '~/metrics/ops/hysds', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'metrics', '~/metrics/ops/sciflo', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'metrics',
+                '~/metrics/ops/sciflo', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
         execute(fab.rm_rf, '~/metrics/ops/hysds/celeryconfig.py', roles=[comp])
         bar.update()
-        execute(fab.rm_rf, '~/metrics/ops/hysds/celeryconfig.pyc', roles=[comp])
+        execute(fab.rm_rf, '~/metrics/ops/hysds/celeryconfig.pyc',
+                roles=[comp])
         bar.update()
         execute(fab.send_celeryconf, 'metrics', roles=[comp])
         bar.update()
@@ -280,11 +310,12 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
                 roles=[comp])
         bar.update()
 
-        #update datasets config; overwrite datasets config with domain-specific config
+        # update datasets config; overwrite datasets config with domain-specific config
         set_bar_desc(bar, 'Updating datasets config')
         execute(fab.rm_rf, '~/metrics/etc/datasets.json', roles=[comp])
         bar.update()
-        execute(fab.send_template, 'datasets.json', '~/metrics/etc/datasets.json', roles=[comp])
+        execute(fab.send_template, 'datasets.json',
+                '~/metrics/etc/datasets.json', roles=[comp])
         bar.update()
 
         # ship logstash shipper configs
@@ -295,7 +326,8 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
 
         # ship kibana config
         set_bar_desc(bar, 'Updating kibana config')
-        execute(fab.send_template, 'kibana.yml', '~/kibana/config/kibana.yml', roles=[comp])
+        execute(fab.send_template, 'kibana.yml',
+                '~/kibana/config/kibana.yml', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
@@ -331,26 +363,35 @@ def update_grq(conf, ndeps=False, comp='grq'):
         set_bar_desc(bar, 'Syncing packages')
         execute(fab.rm_rf, '~/sciflo/ops/*', roles=[comp])
         execute(fab.rsync_code, 'grq', 'sciflo', roles=[comp])
-        execute(fab.pip_upgrade, 'gunicorn', 'sciflo', roles=[comp]) # ensure latest gunicorn
+        execute(fab.pip_upgrade, 'gunicorn', 'sciflo',
+                roles=[comp])  # ensure latest gunicorn
         bar.update()
 
         # update reqs
         set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'sciflo', '~/sciflo/ops/osaka', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/osaka', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'sciflo', '~/sciflo/ops/prov_es', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/prov_es', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'sciflo', '~/sciflo/ops/hysds_commons', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'sciflo', '~/sciflo/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'sciflo', '~/sciflo/ops/hysds', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/hysds', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'sciflo', '~/sciflo/ops/sciflo', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/sciflo', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'sciflo', '~/sciflo/ops/grq2', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/grq2', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'sciflo', '~/sciflo/ops/tosca', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/tosca', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
@@ -372,8 +413,10 @@ def update_grq(conf, ndeps=False, comp='grq'):
         execute(fab.send_toscaconf, 'tosca_settings.cfg.tmpl', roles=[comp])
         tosca_fv = os.path.join(get_user_files_path(), 'tosca_facetview.html')
         if os.path.exists(tosca_fv):
-            execute(fab.copy, tosca_fv, '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
-            execute(fab.chmod, 644, '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
+            execute(fab.copy, tosca_fv,
+                    '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
+            execute(
+                fab.chmod, 644, '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
         bar.update()
 
         # create user_rules index
@@ -389,10 +432,11 @@ def update_grq(conf, ndeps=False, comp='grq'):
                 roles=[comp])
         bar.update()
 
-        #update datasets config; overwrite datasets config with domain-specific config
+        # update datasets config; overwrite datasets config with domain-specific config
         set_bar_desc(bar, 'Updating datasets config')
         execute(fab.rm_rf, '~/sciflo/etc/datasets.json', roles=[comp])
-        execute(fab.send_template, 'datasets.json', '~/sciflo/etc/datasets.json', roles=[comp])
+        execute(fab.send_template, 'datasets.json',
+                '~/sciflo/etc/datasets.json', roles=[comp])
         bar.update()
 
         # ensure self-signed SSL certs exist
@@ -401,10 +445,14 @@ def update_grq(conf, ndeps=False, comp='grq'):
         bar.update()
 
         # link ssl certs to apps
-        execute(fab.ln_sf, '~/ssl/server.key', '~/sciflo/ops/grq2/server.key', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.pem', '~/sciflo/ops/grq2/server.pem', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.key', '~/sciflo/ops/tosca/server.key', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.pem', '~/sciflo/ops/tosca/server.pem', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.key',
+                '~/sciflo/ops/grq2/server.key', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.pem',
+                '~/sciflo/ops/grq2/server.pem', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.key',
+                '~/sciflo/ops/tosca/server.key', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.pem',
+                '~/sciflo/ops/tosca/server.pem', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
@@ -418,7 +466,7 @@ def update_grq(conf, ndeps=False, comp='grq'):
         execute(fab.install_es_template, roles=[comp])
         execute(fab.install_pkg_es_templates, roles=[comp])
         bar.update()
-        
+
         # ship AWS creds
         set_bar_desc(bar, 'Configuring AWS creds')
         execute(fab.send_awscreds, roles=[comp])
@@ -452,17 +500,23 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
 
         # update reqs
         set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/osaka', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/osaka', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/prov_es', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/prov_es', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/sciflo', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/sciflo', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
@@ -475,15 +529,16 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
         # update supervisor config
         set_bar_desc(bar, 'Updating supervisor config')
         execute(fab.rm_rf, '~/verdi/etc/supervisord.conf', roles=[comp])
-        execute(fab.send_template_user_override, 'supervisord.conf.factotum', 
+        execute(fab.send_template_user_override, 'supervisord.conf.factotum',
                 '~/verdi/etc/supervisord.conf', '~/mozart/ops/hysds/configs/supervisor',
                 roles=[comp])
         bar.update()
 
-        #update datasets config; overwrite datasets config with domain-specific config
+        # update datasets config; overwrite datasets config with domain-specific config
         set_bar_desc(bar, 'Updating datasets config')
         execute(fab.rm_rf, '~/verdi/etc/datasets.json', roles=[comp])
-        execute(fab.send_template, 'datasets.json', '~/verdi/etc/datasets.json', roles=[comp])
+        execute(fab.send_template, 'datasets.json',
+                '~/verdi/etc/datasets.json', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
@@ -538,17 +593,23 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
 
         # update reqs
         set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/osaka', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/osaka', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/prov_es', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/prov_es', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/hysds', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/hysds', ndeps, roles=[comp])
         bar.update()
-        execute(fab.pip_install_with_req, 'verdi', '~/verdi/ops/sciflo', ndeps, roles=[comp])
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/sciflo', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
@@ -561,15 +622,16 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
         # update supervisor config
         set_bar_desc(bar, 'Updating supervisor config')
         execute(fab.rm_rf, '~/verdi/etc/supervisord.conf', roles=[comp])
-        execute(fab.send_template_user_override, 'supervisord.conf.verdi', 
+        execute(fab.send_template_user_override, 'supervisord.conf.verdi',
                 '~/verdi/etc/supervisord.conf', '~/mozart/ops/hysds/configs/supervisor',
                 roles=[comp])
         bar.update()
 
-        #update datasets config; overwrite datasets config with domain-specific config
+        # update datasets config; overwrite datasets config with domain-specific config
         set_bar_desc(bar, 'Updating datasets config')
         execute(fab.rm_rf, '~/verdi/etc/datasets.json', roles=[comp])
-        execute(fab.send_template, 'datasets.json', '~/verdi/etc/datasets.json', roles=[comp])
+        execute(fab.send_template, 'datasets.json',
+                '~/verdi/etc/datasets.json', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
@@ -597,7 +659,7 @@ def update_comp(comp, conf, ndeps=False):
 
     # if all, create progress bar
     if comp == 'all':
-    
+
         # progress bar
         with tqdm(total=5) as bar:
             set_bar_desc(bar, "Updating grq")
@@ -618,11 +680,16 @@ def update_comp(comp, conf, ndeps=False):
             set_bar_desc(bar, "Updated all")
             print("")
     else:
-        if comp == 'grq': update_grq(conf, ndeps)
-        if comp == 'mozart': update_mozart(conf, ndeps)
-        if comp == 'metrics': update_metrics(conf, ndeps)
-        if comp == 'factotum': update_factotum(conf, ndeps)
-        if comp == 'verdi': update_verdi(conf, ndeps)
+        if comp == 'grq':
+            update_grq(conf, ndeps)
+        if comp == 'mozart':
+            update_mozart(conf, ndeps)
+        if comp == 'metrics':
+            update_metrics(conf, ndeps)
+        if comp == 'factotum':
+            update_factotum(conf, ndeps)
+        if comp == 'verdi':
+            update_verdi(conf, ndeps)
 
 
 def update(comp, debug=False, force=False, ndeps=False):
@@ -630,17 +697,19 @@ def update(comp, debug=False, force=False, ndeps=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert, 
-                      "Updating component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
+        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
+                                                    "Updating component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
                       validator=YesNoValidator(), style=prompt_style) == 'y'
-        if not cont: return 0
+        if not cont:
+            return 0
 
     # get user's SDS conf settings
     conf = SettingsConf()
 
     logger.debug("Updating %s" % comp)
 
-    if debug: update_comp(comp, conf, ndeps)
+    if debug:
+        update_comp(comp, conf, ndeps)
     else:
         with hide('everything'):
             update_comp(comp, conf, ndeps)
@@ -672,11 +741,15 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
                 set_bar_desc(queue_bar, 'Sending queue-specific config')
                 execute(fab.rm_rf, '~/verdi/ops/install.sh', roles=[comp])
                 execute(fab.rm_rf, '~/verdi/etc/datasets.json', roles=[comp])
-                execute(fab.rm_rf, '~/verdi/etc/supervisord.conf', roles=[comp])
-                execute(fab.rm_rf, '~/verdi/etc/supervisord.conf.tmpl', roles=[comp])
+                execute(fab.rm_rf, '~/verdi/etc/supervisord.conf',
+                        roles=[comp])
+                execute(fab.rm_rf, '~/verdi/etc/supervisord.conf.tmpl',
+                        roles=[comp])
                 execute(fab.send_queue_config, queue, roles=[comp])
-                execute(fab.chmod, '755', '~/verdi/ops/install.sh', roles=[comp])
-                execute(fab.chmod, '644', '~/verdi/etc/datasets.json', roles=[comp])
+                execute(fab.chmod, '755',
+                        '~/verdi/ops/install.sh', roles=[comp])
+                execute(fab.chmod, '644',
+                        '~/verdi/etc/datasets.json', roles=[comp])
                 queue_bar.update()
 
                 # copy config
@@ -688,25 +761,36 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
                 # copy creds
                 set_bar_desc(queue_bar, 'Copying creds')
                 execute(fab.rm_rf, '~/verdi/ops/creds', roles=[comp])
-                execute(fab.mkdir, '~/verdi/ops/creds', 'ops', 'ops', roles=[comp])
-                execute(fab.cp_rp_exists, '~/.netrc.verdi', '~/verdi/ops/creds/.netrc', roles=[comp])
-                execute(fab.cp_rp_exists, '~/.boto.verdi', '~/verdi/ops/creds/.boto', roles=[comp])
-                execute(fab.cp_rp_exists, '~/.s3cfg.verdi', '~/verdi/ops/creds/.s3cfg', roles=[comp])
-                execute(fab.cp_rp_exists, '~/.aws.verdi', '~/verdi/ops/creds/.aws', roles=[comp])
+                execute(fab.mkdir, '~/verdi/ops/creds',
+                        'ops', 'ops', roles=[comp])
+                execute(fab.cp_rp_exists, '~/.netrc.verdi',
+                        '~/verdi/ops/creds/.netrc', roles=[comp])
+                execute(fab.cp_rp_exists, '~/.boto.verdi',
+                        '~/verdi/ops/creds/.boto', roles=[comp])
+                execute(fab.cp_rp_exists, '~/.s3cfg.verdi',
+                        '~/verdi/ops/creds/.s3cfg', roles=[comp])
+                execute(fab.cp_rp_exists, '~/.aws.verdi',
+                        '~/verdi/ops/creds/.aws', roles=[comp])
                 queue_bar.update()
 
                 # send work directory stylesheets
-                style_tar = os.path.join(get_user_files_path(), 'beefed-autoindex-open_in_new_win.tbz2')
+                style_tar = os.path.join(
+                    get_user_files_path(), 'beefed-autoindex-open_in_new_win.tbz2')
                 set_bar_desc(queue_bar, 'Sending work dir stylesheets')
-                execute(fab.rm_rf, '~/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
-                execute(fab.copy, style_tar, '~/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
+                execute(
+                    fab.rm_rf, '~/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
+                execute(fab.copy, style_tar,
+                        '~/verdi/ops/beefed-autoindex-open_in_new_win.tbz2', roles=[comp])
                 queue_bar.update()
 
                 # create venue bundle
                 set_bar_desc(queue_bar, 'Creating/shipping bundle')
-                execute(fab.mkdir, '~/code_configs', 'ops', 'ops', roles=[comp])
-                execute(fab.rm_rf, '~/code_configs/{}-{}.tbz2'.format(queue, venue), roles=[comp])
-                execute(fab.ship_code, '~/verdi/ops', '~/code_configs/{}-{}.tbz2'.format(queue, venue), encrypt, roles=[comp])
+                execute(fab.mkdir, '~/code_configs',
+                        'ops', 'ops', roles=[comp])
+                execute(
+                    fab.rm_rf, '~/code_configs/{}-{}.tbz2'.format(queue, venue), roles=[comp])
+                execute(fab.ship_code, '~/verdi/ops',
+                        '~/code_configs/{}-{}.tbz2'.format(queue, venue), encrypt, roles=[comp])
                 queue_bar.update()
             bar.update()
         set_bar_desc(bar, 'Finished shipping')
@@ -719,10 +803,12 @@ def ship(encrypt, debug=False):
     # get user's SDS conf settings
     conf = SettingsConf()
 
-    if debug: ship_verdi(conf, encrypt)
+    if debug:
+        ship_verdi(conf, encrypt)
     else:
         with hide('everything'):
             ship_verdi(conf, encrypt)
+
 
 def import_kibana(comp='metrics'):
     """"Update metrics component."""
@@ -735,23 +821,29 @@ def import_kibana(comp='metrics'):
         execute(fab.ensure_venv, comp, roles=[comp])
         bar.update()
 
-        #create kibana metrics
+        # create kibana metrics
         set_bar_desc(bar, 'creating kibana metrics')
         execute(fab.rm_rf, '~/metrics/ops/kibana_metrics', roles=[comp])
-        execute(fab.mkdir, '~/metrics/ops/kibana_metrics', 'ops', 'ops', roles=[comp])
+        execute(fab.mkdir, '~/metrics/ops/kibana_metrics',
+                'ops', 'ops', roles=[comp])
         execute(fab.send_template, 'import_dashboard.sh.tmpl',
                 '~/metrics/ops/kibana_metrics/import_dashboard.sh', '~/mozart/ops/swot-pcm/conf/sds/files/kibana_dashboard_import',
                 roles=[comp])
-        execute(fab.chmod, 755, '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
-        execute(fab.copy, '~/mozart/ops/swot-pcm/conf/sds/files/kibana_dashboard_import/job-dashboards.json',  '~/metrics/ops/kibana_metrics/job-dashboards.json', roles=[comp])
-        execute(fab.copy, '~/mozart/ops/swot-pcm/conf/sds/files/kibana_dashboard_import/worker-dashboards.json',  '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
-        execute(fab.import_kibana,  '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
+        execute(fab.chmod, 755,
+                '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
+        execute(fab.copy, '~/mozart/ops/swot-pcm/conf/sds/files/kibana_dashboard_import/job-dashboards.json',
+                '~/metrics/ops/kibana_metrics/job-dashboards.json', roles=[comp])
+        execute(fab.copy, '~/mozart/ops/swot-pcm/conf/sds/files/kibana_dashboard_import/worker-dashboards.json',
+                '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
+        execute(fab.import_kibana,
+                '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
+
 
 def process_kibana_job(job_type, conf):
-    if job_type.lower()=="import":
+    if job_type.lower() == "import":
         import_kibana()
     else:
-	logger.debug("Not implemented %s" % job_type)
+        logger.debug("Not implemented %s" % job_type)
 
 
 def kibana(job_type, debug=False, force=False):
@@ -760,16 +852,18 @@ def kibana(job_type, debug=False, force=False):
     # prompt user
     if not force:
         cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
-                      "Updating Kibana: {}. Continue [y/n]: ".format(job_type)), (Token, " ")],
+                                                    "Updating Kibana: {}. Continue [y/n]: ".format(job_type)), (Token, " ")],
                       validator=YesNoValidator(), style=prompt_style) == 'y'
-        if not cont: return 0
+        if not cont:
+            return 0
 
     # get user's SDS conf settings
     conf = SettingsConf()
 
     logger.debug("Processing %s" % job_type)
 
-    if debug: process_kibana_job(job_type, conf)
+    if debug:
+        process_kibana_job(job_type, conf)
     else:
         with hide('everything'):
             process_kibana_job(job_type, conf)
