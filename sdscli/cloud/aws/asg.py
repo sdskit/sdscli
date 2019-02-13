@@ -34,7 +34,7 @@ def ls(args, conf):
     """List all Autoscaling groups."""
 
     for asg in get_asgs():
-        print(asg['AutoScalingGroupName'])
+        print((asg['AutoScalingGroupName']))
 
 
 def prompt_image(images):
@@ -53,7 +53,7 @@ def prompt_image(images):
         try:
             return ids[sel]
         except IndexError:
-            print("Invalid selection: {}".format(sel))
+            print(("Invalid selection: {}".format(sel)))
 
 
 def prompt_keypair(keypairs):
@@ -71,7 +71,7 @@ def prompt_keypair(keypairs):
         try:
             return ids[sel]
         except IndexError:
-            print("Invalid selection: {}".format(sel))
+            print(("Invalid selection: {}".format(sel)))
 
 
 def prompt_roles(roles):
@@ -89,7 +89,7 @@ def prompt_roles(roles):
         try:
             return ids[sel]
         except IndexError:
-            print("Invalid selection: {}".format(sel))
+            print(("Invalid selection: {}".format(sel)))
 
 
 def prompt_secgroup(sgs, desc=None):
@@ -115,14 +115,14 @@ def prompt_secgroup(sgs, desc=None):
                 sgs_ids.add(ids[sel])
                 vpc_ids.add(sgs[ids[sel]]['VpcId'])
             except IndexError:
-                print("Invalid selection: {}".format(sel))
+                print(("Invalid selection: {}".format(sel)))
                 invalid = True
                 break
         if invalid:
             continue
         if len(vpc_ids) > 1:
-            print("Invalid selections. Security groups from multiple VPC IDs selected: {}".format(
-                list(vpc_ids)))
+            print(("Invalid selections. Security groups from multiple VPC IDs selected: {}".format(
+                list(vpc_ids))))
             continue
         return list(sgs_ids), list(vpc_ids)[0]
 
@@ -230,7 +230,7 @@ def create(args, conf):
     for i, queue in enumerate([i.strip() for i in conf.get('QUEUES').split()]):
         asg = "{}-{}".format(conf.get('VENUE'), queue)
         if asg in cur_asgs:
-            print("ASG {} already exists. Skipping.".format(asg))
+            print(("ASG {} already exists. Skipping.".format(asg)))
             continue
 
         print_component_header(
@@ -296,12 +296,12 @@ def create(args, conf):
             lc_args['SpotPrice'] = spot_bid
         lc_args['LaunchConfigurationName'] = lc
         if lc in cur_lcs:
-            print("Launch configuration {} already exists. Skipping.".format(lc))
+            print(("Launch configuration {} already exists. Skipping.".format(lc)))
         else:
             lc_info = create_lc(c, **lc_args)
             logger.debug("Launch configuration {}: {}".format(
                 lc, pformat(lc_info)))
-            print("Created launch configuration {}.".format(lc))
+            print(("Created launch configuration {}.".format(lc)))
 
         # get autoscaling group config
         asg_args = {
@@ -337,7 +337,7 @@ def create(args, conf):
         logger.debug("asg_args: {}".format(pformat(asg_args)))
         asg_info = create_asg(c, **asg_args)
         logger.debug("Autoscaling group {}: {}".format(asg, pformat(asg_info)))
-        print("Created autoscaling group {}".format(asg))
+        print(("Created autoscaling group {}".format(asg)))
 
         # add target tracking scaling policy
         policy_name = "{}-target-tracking".format(asg)
@@ -370,4 +370,4 @@ def create(args, conf):
         ttsp_info = c.put_scaling_policy(**ttsp_args)
         logger.debug("Target tracking scaling policy {}: {}".format(
             policy_name, pformat(ttsp_info)))
-        print("Added target tracking scaling policy {} to {}".format(policy_name, asg))
+        print(("Added target tracking scaling policy {} to {}".format(policy_name, asg)))

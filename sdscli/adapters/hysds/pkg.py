@@ -42,7 +42,7 @@ def ls(args):
     # list
     for hit in hits:
         logger.debug(json.dumps(hit, indent=2))
-        print(hit['_id'])
+        print((hit['_id']))
     return
 
 

@@ -30,8 +30,8 @@ def ls(args):
     # check which cloud platforms configured
     for importer, mod_name, ispkg in pkgutil.iter_modules(sdscli.cloud.__path__):
         mod = get_module('sdscli.cloud.{}.utils'.format(mod_name))
-        print("{}: {}".format(mod_name, highlight("configured", 'green') if
-                              mod.is_configured() else highlight("unimplemented or not configured", 'red')))
+        print(("{}: {}".format(mod_name, highlight("configured", 'green') if
+                               mod.is_configured() else highlight("unimplemented or not configured", 'red'))))
 
 
 def asg(args):

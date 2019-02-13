@@ -41,7 +41,7 @@ def ls(args, conf):
     """List all buckets."""
 
     for bucket in get_buckets():
-        print(bucket['Name'])
+        print((bucket['Name']))
 
 
 def prompt_role(roles):
@@ -60,7 +60,7 @@ def prompt_role(roles):
         try:
             return names[sel]
         except IndexError:
-            print("Invalid selection: {}".format(sel))
+            print(("Invalid selection: {}".format(sel)))
 
 
 @cloud_config_check

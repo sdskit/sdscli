@@ -49,9 +49,9 @@ def print_rabbitmq_status(user, password, host):
     try:
         conn = kombu.Connection(amqp_url)
         conn.ensure_connection(max_retries=3)
-        print("RabbitMQ: ", highlight("RUNNING"))
+        print(("RabbitMQ: ", highlight("RUNNING")))
     except Exception as e:
-        print("RabbitMQ: ", blink(highlight("NOT RUNNING", 'red', True)))
+        print(("RabbitMQ: ", blink(highlight("NOT RUNNING", 'red', True))))
         print(e)
 
 
@@ -61,9 +61,9 @@ def print_redis_status(password, host):
     try:
         r = redis.StrictRedis(host, password=password)
         r.ping()
-        print("Redis: ", highlight("RUNNING"))
+        print(("Redis: ", highlight("RUNNING")))
     except Exception as e:
-        print("Redis: ", blink(highlight("NOT RUNNING", 'red', True)))
+        print(("Redis: ", blink(highlight("NOT RUNNING", 'red', True))))
         print(e)
 
 
@@ -73,9 +73,9 @@ def print_es_status(host):
     try:
         es = elasticsearch.Elasticsearch([host], verify_certs=False)
         es.ping()
-        print("ES: ", highlight("RUNNING"))
+        print(("ES: ", highlight("RUNNING")))
     except Exception as e:
-        print("ES: ", blink(highlight("NOT RUNNING", 'red', True)))
+        print(("ES: ", blink(highlight("NOT RUNNING", 'red', True))))
         print(e)
 
 
@@ -85,9 +85,9 @@ def print_http_status(server, url):
     try:
         r = requests.get(url, verify=False)
         r.raise_for_status()
-        print("{}: {}".format(server, highlight("RUNNING")))
+        print(("{}: {}".format(server, highlight("RUNNING"))))
     except Exception as e:
-        print("{}: {}".format(server, blink(highlight("NOT RUNNING", 'red', True))))
+        print(("{}: {}".format(server, blink(highlight("NOT RUNNING", 'red', True)))))
         print(e)
 
 
@@ -101,9 +101,9 @@ def print_service_status(service, ret, debug=False):
             "Failed to extract status of {} from stdout:\n{}".format(service, stdout))
     status = status_match.group(1)
     if status == 'active':
-        print("{}: {}".format(service, highlight(status.upper())))
+        print(("{}: {}".format(service, highlight(status.upper()))))
     else:
-        print("{}: {}".format(service, blink(highlight(status.upper(), 'red'))))
+        print(("{}: {}".format(service, blink(highlight(status.upper(), 'red')))))
     if debug:
         print(stdout)
 

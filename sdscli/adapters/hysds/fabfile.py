@@ -390,7 +390,7 @@ def status():
         with prefix('source %s/bin/activate' % hysds_dir):
             run('supervisorctl status')
     else:
-        print(blink(highlight("Supervisord is not running on %s." % role, 'red')))
+        print((blink(highlight("Supervisord is not running on %s." % role, 'red'))))
 
 
 def ensure_venv(hysds_dir, update_bash_profile=True):
