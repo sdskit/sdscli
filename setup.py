@@ -14,7 +14,8 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=['pyyaml', 'pygments', 'prompt-toolkit>=1.0,<2.0',
-                      'fabric', 'tqdm==4.19.7', 'backoff', 'future>=0.17.1'],
+                      'tqdm==4.19.7', 'backoff', 'future>=0.17.1',
+                      'fabric3', 'cryptography==2.4.2'], # https://github.com/paramiko/paramiko/issues/1369
     entry_points={
         'console_scripts': [
             'sds=sdscli.command_line:main'
