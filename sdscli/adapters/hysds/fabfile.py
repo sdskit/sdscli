@@ -407,7 +407,8 @@ def ensure_venv(hysds_dir, update_bash_profile=True):
         with prefix('source %s/bin/activate' % hysds_dir):
             run('pip install -U pip')
             run('pip install -U setuptools')
-            run('pip install --ignore-installed supervisor')
+            #run('pip install --ignore-installed supervisor')
+            run('pip install --ignore-installed git+https://github.com/Supervisor/supervisor')
             mkdir('%s/etc' % hysds_dir,
                   context['OPS_USER'], context['OPS_USER'])
             mkdir('%s/log' % hysds_dir,
