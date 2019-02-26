@@ -65,7 +65,7 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
                 '~/mozart/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+                '~/mozart/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'mozart',
                 '~/mozart/ops/hysds', ndeps, roles=[comp])
@@ -209,7 +209,7 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
                 '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+                '~/verdi/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/hysds', ndeps, roles=[comp])
@@ -288,7 +288,7 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
                 '~/metrics/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'metrics',
-                '~/metrics/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+                '~/metrics/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'metrics',
                 '~/metrics/ops/hysds', ndeps, roles=[comp])
@@ -385,7 +385,7 @@ def update_grq(conf, ndeps=False, comp='grq'):
                 '~/sciflo/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+                '~/sciflo/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'sciflo',
                 '~/sciflo/ops/hysds', ndeps, roles=[comp])
@@ -516,7 +516,7 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
                 '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+                '~/verdi/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/hysds', ndeps, roles=[comp])
@@ -609,7 +609,7 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
                 '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds/third_party/celery-v3.1.25.pqueue', ndeps, roles=[comp])
+                '~/verdi/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/hysds', ndeps, roles=[comp])
