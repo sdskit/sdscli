@@ -40,7 +40,7 @@ if not os.path.isfile(sds_cfg):
     raise RuntimeError(
         "SDS configuration file doesn't exist. Run 'sds configure'.")
 with open(sds_cfg) as f:
-    context = yaml.load(f)
+    context = yaml.load(f, Loader=yaml.FullLoader)
 
 # define and build groups to reduce redundancy in defining roles
 

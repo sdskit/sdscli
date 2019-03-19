@@ -42,7 +42,7 @@ class YamlConf(object):
         logger.debug("file: {}".format(file))
         self._file = file
         with open(self._file) as f:
-            self._cfg = yaml.load(f)
+            self._cfg = yaml.load(f, Loader=yaml.FullLoader)
 
     @property
     def file(self):

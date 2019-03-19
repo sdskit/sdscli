@@ -338,7 +338,7 @@ def configure():
         if not cont:
             return 0
         with open(cfg_file) as f:
-            cfg = yaml.load(f)
+            cfg = yaml.load(f, Loader=yaml.FullLoader)
     else:
         cfg = {}
 
