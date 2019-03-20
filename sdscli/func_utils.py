@@ -1,7 +1,19 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
-import os, sys, importlib, json, yaml, traceback, argparse, logging
+
+from future import standard_library
+standard_library.install_aliases()
+import os
+import sys
+import importlib
+import json
+import yaml
+import traceback
+import argparse
+import logging
 from importlib import import_module
 
 from sdscli.log_utils import logger
@@ -25,5 +37,6 @@ def get_func(mod_name, func_name):
     try:
         return getattr(mod, func_name)
     except AttributeError:
-        logger.error('Failed to get function "%s" from module "%s".' % (func_name, mod_name))
+        logger.error('Failed to get function "%s" from module "%s".' %
+                     (func_name, mod_name))
         raise

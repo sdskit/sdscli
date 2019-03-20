@@ -2,10 +2,21 @@
 SDS user rules management functions.
 """
 from __future__ import unicode_literals
-from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
-import os, json, yaml, requests, tarfile, shutil, traceback
+
+from builtins import open
+from future import standard_library
+standard_library.install_aliases()
+import os
+import json
+import yaml
+import requests
+import tarfile
+import shutil
+import traceback
 from fabric.api import execute, hide
 
 from prompt_toolkit.shortcuts import prompt, print_tokens
@@ -64,14 +75,16 @@ def import_rules(args):
     # user rules JSON file
     rules_file = normpath(args.file)
     if not os.path.isfile(rules_file):
-        logger.error("HySDS user rules file {} doesn't exist.".format(rules_file))
+        logger.error(
+            "HySDS user rules file {} doesn't exist.".format(rules_file))
         return 1
     logger.debug("rules_file: {}".format(rules_file))
 
     # read in user rules
     with open(rules_file) as f:
         rules = json.load(f)
-    logger.debug("rules: {}".format(json.dumps(rules_file, indent=2, sort_keys=True)))
+    logger.debug("rules: {}".format(json.dumps(
+        rules_file, indent=2, sort_keys=True)))
 
     # get ES endpoints
     mozart_es_url = "http://{}:9200".format(conf.get('MOZART_ES_PVT_IP'))

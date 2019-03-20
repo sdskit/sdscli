@@ -1,11 +1,21 @@
 """
 Status of HySDS components.
 """
-from __future__ import unicode_literals
-from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
 
-import os, yaml, pwd, hashlib, traceback, requests, re
+
+from future import standard_library
+standard_library.install_aliases()
+import os
+import yaml
+import pwd
+import hashlib
+import traceback
+import requests
+import re
 from fabric.api import execute, hide
 from tqdm import tqdm
 
@@ -14,13 +24,15 @@ from prompt_toolkit.styles import style_from_dict
 from prompt_toolkit.validation import Validator, ValidationError
 from pygments.token import Token
 
-import kombu, redis, elasticsearch
+import kombu
+import redis
+import elasticsearch
 
 from sdscli.log_utils import logger
 from sdscli.conf_utils import get_user_files_path, SettingsConf
 from sdscli.os_utils import validate_dir
 from sdscli.prompt_utils import (highlight, blink, print_component_header,
-print_tps_header, print_supervisor_header)
+                                 print_tps_header, print_supervisor_header)
 
 from . import fabfile as fab
 
@@ -43,9 +55,9 @@ def print_rabbitmq_status(user, password, host):
     try:
         conn = kombu.Connection(amqp_url)
         conn.ensure_connection(max_retries=3)
-        print("RabbitMQ: ", highlight("RUNNING"))
-    except Exception, e:
-        print("RabbitMQ: ", blink(highlight("NOT RUNNING", 'red', True)))
+        print(("RabbitMQ: ", highlight("RUNNING")))
+    except Exception as e:
+        print(("RabbitMQ: ", blink(highlight("NOT RUNNING", 'red', True))))
         print(e)
 
 
@@ -55,9 +67,9 @@ def print_redis_status(password, host):
     try:
         r = redis.StrictRedis(host, password=password)
         r.ping()
-        print("Redis: ", highlight("RUNNING"))
-    except Exception, e:
-        print("Redis: ", blink(highlight("NOT RUNNING", 'red', True)))
+        print(("Redis: ", highlight("RUNNING")))
+    except Exception as e:
+        print(("Redis: ", blink(highlight("NOT RUNNING", 'red', True))))
         print(e)
 
 
@@ -67,9 +79,9 @@ def print_es_status(host):
     try:
         es = elasticsearch.Elasticsearch([host], verify_certs=False)
         es.ping()
-        print("ES: ", highlight("RUNNING"))
-    except Exception, e:
-        print("ES: ", blink(highlight("NOT RUNNING", 'red', True)))
+        print(("ES: ", highlight("RUNNING")))
+    except Exception as e:
+        print(("ES: ", blink(highlight("NOT RUNNING", 'red', True))))
         print(e)
 
 
@@ -79,25 +91,27 @@ def print_http_status(server, url):
     try:
         r = requests.get(url, verify=False)
         r.raise_for_status()
-        print("{}: {}".format(server, highlight("RUNNING")))
-    except Exception, e:
-        print("{}: {}".format(server, blink(highlight("NOT RUNNING", 'red', True))))
+        print(("{}: {}".format(server, highlight("RUNNING"))))
+    except Exception as e:
+        print(("{}: {}".format(server, blink(highlight("NOT RUNNING", 'red', True)))))
         print(e)
 
 
 def print_service_status(service, ret, debug=False):
     """Print status of service based on systemctl status message."""
 
-    stdout = ret[ret.keys()[0]]
+    stdout = ret[list(ret.keys())[0]]
     status_match = re.search(r'Active:\s+(.+?)\s+', stdout)
     if not status_match:
-        raise RuntimeError("Failed to extract status of {} from stdout:\n{}".format(service, stdout))
+        raise RuntimeError(
+            "Failed to extract status of {} from stdout:\n{}".format(service, stdout))
     status = status_match.group(1)
     if status == 'active':
-        print("{}: {}".format(service, highlight(status.upper())))
+        print(("{}: {}".format(service, highlight(status.upper()))))
     else:
-        print("{}: {}".format(service, blink(highlight(status.upper(), 'red'))))
-    if debug: print(stdout)
+        print(("{}: {}".format(service, blink(highlight(status.upper(), 'red')))))
+    if debug:
+        print(stdout)
 
 
 def print_tps_status(conf, comp, debug=False):
@@ -105,30 +119,30 @@ def print_tps_status(conf, comp, debug=False):
 
     if comp == 'mozart':
         print_tps_header(comp)
-        #print_rabbitmq_status(conf.get('MOZART_RABBIT_USER'),
+        # print_rabbitmq_status(conf.get('MOZART_RABBIT_USER'),
         #                      conf.get('MOZART_RABBIT_PASSWORD'),
         #                      conf.get('MOZART_RABBIT_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'rabbitmq-server', roles=[comp])
         print_service_status('rabbitmq-server', ret, debug)
-        #print_redis_status(conf.get('MOZART_REDIS_PASSWORD'),
+        # print_redis_status(conf.get('MOZART_REDIS_PASSWORD'),
         #                   conf.get('MOZART_REDIS_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
-        #print_es_status(conf.get('MOZART_ES_PVT_IP'))
+        # print_es_status(conf.get('MOZART_ES_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
         print_service_status('elasticsearch', ret, debug)
     elif comp == 'metrics':
         print_tps_header(comp)
-        #print_redis_status(conf.get('METRICS_REDIS_PASSWORD'),
+        # print_redis_status(conf.get('METRICS_REDIS_PASSWORD'),
         #                   conf.get('METRICS_REDIS_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
-        #print_es_status(conf.get('METRICS_ES_PVT_IP')) # ES accessible only from localhost
+        # print_es_status(conf.get('METRICS_ES_PVT_IP')) # ES accessible only from localhost
         ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
         print_service_status('elasticsearch', ret, debug)
     elif comp == 'grq':
         print_tps_header(comp)
-        #print_es_status(conf.get('GRQ_ES_PVT_IP'))
+        # print_es_status(conf.get('GRQ_ES_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
         print_service_status('elasticsearch', ret, debug)
     elif comp == 'ci':
@@ -150,12 +164,18 @@ def print_status(conf, comp, debug=False):
 def status_comp(comp, conf, debug=False):
     """Update component."""
 
-    if comp in ('all', 'grq'): print_status(conf, 'grq', debug)
-    if comp in ('all', 'mozart'): print_status(conf, 'mozart', debug)
-    if comp in ('all', 'metrics'): print_status(conf, 'metrics', debug)
-    if comp in ('all', 'factotum'): print_status(conf, 'factotum', debug)
-    if comp in ('all', 'ci'): print_status(conf, 'ci', debug)
-    if comp in ('all', 'verdi'): print_status(conf, 'verdi', debug)
+    if comp in ('all', 'grq'):
+        print_status(conf, 'grq', debug)
+    if comp in ('all', 'mozart'):
+        print_status(conf, 'mozart', debug)
+    if comp in ('all', 'metrics'):
+        print_status(conf, 'metrics', debug)
+    if comp in ('all', 'factotum'):
+        print_status(conf, 'factotum', debug)
+    if comp in ('all', 'ci'):
+        print_status(conf, 'ci', debug)
+    if comp in ('all', 'verdi'):
+        print_status(conf, 'verdi', debug)
 
 
 def status(comp, debug=False):

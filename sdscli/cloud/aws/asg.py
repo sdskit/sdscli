@@ -1,7 +1,17 @@
-from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
 
-import os, re, json, boto3
+
+from builtins import int
+from builtins import map
+from future import standard_library
+standard_library.install_aliases()
+import os
+import re
+import json
+import boto3
 from pprint import pformat
 from collections import OrderedDict
 from operator import itemgetter
@@ -15,8 +25,8 @@ from sdscli.log_utils import logger
 from sdscli.conf_utils import get_user_config_path, get_user_files_path, SettingsConf
 from sdscli.os_utils import validate_dir
 from sdscli.prompt_utils import (YesNoValidator, SelectionValidator,
-MultipleSelectionValidator, Ec2InstanceTypeValidator, PriceValidator, highlight,
-print_component_header)
+                                 MultipleSelectionValidator, Ec2InstanceTypeValidator, PriceValidator, highlight,
+                                 print_component_header)
 from .utils import *
 
 
@@ -31,30 +41,33 @@ prompt_style = style_from_dict({
 def ls(args, conf):
     """List all Autoscaling groups."""
 
-    for asg in get_asgs(): print(asg['AutoScalingGroupName'])
+    for asg in get_asgs():
+        print((asg['AutoScalingGroupName']))
 
 
 def prompt_image(images):
     """Prompt for image to use."""
 
-    ids = images.keys()
+    ids = list(images.keys())
     pt = [(Token, "Current verdi AMIs are:\n\n")]
     for i, x in enumerate(ids):
         pt.append((Token.Param, "{}".format(i)))
-        pt.append((Token, ". {} - {} ({})\n".format(images[x]['Name'], x, images[x]['CreationDate'])))
+        pt.append(
+            (Token, ". {} - {} ({})\n".format(images[x]['Name'], x, images[x]['CreationDate'])))
     pt.append((Token, "\nSelect verdi AMI to use for launch configurations: "))
     while True:
         sel = int(prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
                          validator=SelectionValidator()).strip())
-        try: return ids[sel]
+        try:
+            return ids[sel]
         except IndexError:
-            print("Invalid selection: {}".format(sel))
+            print(("Invalid selection: {}".format(sel)))
 
 
 def prompt_keypair(keypairs):
     """Prompt for key pair to use."""
 
-    ids = keypairs.keys()
+    ids = list(keypairs.keys())
     pt = [(Token, "Current key pairs are:\n\n")]
     for i, x in enumerate(ids):
         pt.append((Token.Param, "{}".format(i)))
@@ -63,14 +76,16 @@ def prompt_keypair(keypairs):
     while True:
         sel = int(prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
                          validator=SelectionValidator()).strip())
-        try: return ids[sel]
+        try:
+            return ids[sel]
         except IndexError:
-            print("Invalid selection: {}".format(sel))
+            print(("Invalid selection: {}".format(sel)))
+
 
 def prompt_roles(roles):
     """Prompt for role to use."""
 
-    ids = roles.keys()
+    ids = list(roles.keys())
     pt = [(Token, "Current roles are:\n\n")]
     for i, x in enumerate(ids):
         pt.append((Token.Param, "{}".format(i)))
@@ -79,24 +94,27 @@ def prompt_roles(roles):
     while True:
         sel = int(prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
                          validator=SelectionValidator()).strip())
-        try: return ids[sel]
+        try:
+            return ids[sel]
         except IndexError:
-            print("Invalid selection: {}".format(sel))
+            print(("Invalid selection: {}".format(sel)))
+
 
 def prompt_secgroup(sgs, desc=None):
     """Prompt for security groups to use."""
 
     if desc is None:
         desc = "\nSelect security groups to use for launch configurations (space between each selected): "
-    ids = sgs.keys()
+    ids = list(sgs.keys())
     pt = [(Token, "Current security groups are:\n\n")]
     for i, x in enumerate(ids):
         pt.append((Token.Param, "{}".format(i)))
-        pt.append((Token, ". {} - {} - {}\n".format(sgs[x]['VpcId'], sgs[x]['GroupName'], x)))
+        pt.append(
+            (Token, ". {} - {} - {}\n".format(sgs[x]['VpcId'], sgs[x]['GroupName'], x)))
     pt.append((Token, desc))
     while True:
-        sels = map(int, [i.strip() for i in prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
-                                                   validator=MultipleSelectionValidator()).split()])
+        sels = list(map(int, [i.strip() for i in prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
+                                                        validator=MultipleSelectionValidator()).split()]))
         sgs_ids = set()
         vpc_ids = set()
         invalid = False
@@ -105,12 +123,14 @@ def prompt_secgroup(sgs, desc=None):
                 sgs_ids.add(ids[sel])
                 vpc_ids.add(sgs[ids[sel]]['VpcId'])
             except IndexError:
-                print("Invalid selection: {}".format(sel))
+                print(("Invalid selection: {}".format(sel)))
                 invalid = True
                 break
-        if invalid: continue
+        if invalid:
+            continue
         if len(vpc_ids) > 1:
-            print("Invalid selections. Security groups from multiple VPC IDs selected: {}".format(list(vpc_ids)))
+            print(("Invalid selections. Security groups from multiple VPC IDs selected: {}".format(
+                list(vpc_ids))))
             continue
         return list(sgs_ids), list(vpc_ids)[0]
 
@@ -127,36 +147,32 @@ def create(args, conf):
     ec2 = boto3.client('ec2')
 
     # get current autoscaling groups
-    cur_asgs = { i['AutoScalingGroupName']: i for i in get_asgs(c) }
+    cur_asgs = {i['AutoScalingGroupName']: i for i in get_asgs(c)}
     logger.debug("cur_asgs: {}".format(pformat(cur_asgs)))
 
     # get current launch configs
-    cur_lcs = { i['LaunchConfigurationName']: i for i in get_lcs(c) }
+    cur_lcs = {i['LaunchConfigurationName']: i for i in get_lcs(c)}
     logger.debug("cur_lcs: {}".format(pformat(cur_lcs)))
 
-    
     # get current key pairs
-    cur_keypairs = { i['KeyName']: i for i in get_keypairs(ec2) }
+    cur_keypairs = {i['KeyName']: i for i in get_keypairs(ec2)}
     logger.debug("cur_keypairs: {}".format(pformat(cur_keypairs)))
-   
 
     # get roles
-    cur_roles = { i['RoleName']: i for i in get_roles() }
+    cur_roles = {i['RoleName']: i for i in get_roles()}
     logger.debug("cur_roles: {}".format(pformat(cur_roles)))
 
     # get current AMIs
     verdi_re = re.compile(r'(?:verdi|autoscale)', re.IGNORECASE)
-    cur_images = OrderedDict([(i['ImageId'], i) for i in 
-                               filter(lambda x: verdi_re.search(x['Name']),
-                                      sorted(get_images(c=ec2, Filters=[{'Name':'is-public','Values':['false']}]), 
-                                             key=itemgetter('CreationDate'))
-                                     )
-                             ])
+    cur_images = OrderedDict([(i['ImageId'], i) for i in
+                              [x for x in sorted(get_images(c=ec2, Filters=[{'Name': 'is-public', 'Values': ['false']}]),
+                                                 key=itemgetter('CreationDate')) if verdi_re.search(x['Name'])]
+                              ])
     logger.debug("cur_images: {}".format(json.dumps(cur_images, indent=2)))
-    logger.debug("cur_images.keys(): {}".format(cur_images.keys()))
+    logger.debug("cur_images.keys(): {}".format(list(cur_images.keys())))
 
     # get current security groups
-    cur_sgs = { i['GroupId']: i for i in get_sgs(ec2) }
+    cur_sgs = {i['GroupId']: i for i in get_sgs(ec2)}
     logger.debug("cur_sgs: {}".format(pformat(cur_sgs)))
 
     # prompt for verdi AMI
@@ -198,7 +214,7 @@ def create(args, conf):
     logger.debug("VPC ID: {}".format(vpc_id))
 
     # get current AZs
-    cur_azs = { i['ZoneName']: i for i in get_azs(ec2) }
+    cur_azs = {i['ZoneName']: i for i in get_azs(ec2)}
     logger.debug("cur_azs: {}".format(pformat(cur_azs)))
 
     # get subnet IDs and corresponding AZs for VPC
@@ -215,15 +231,18 @@ def create(args, conf):
     logger.debug("azs: {}".format(pformat(azs)))
 
     # check asgs that need to be configured
-    instance_types = conf.get('INSTANCE_TYPES').split() if 'INSTANCE_TYPES' in conf._cfg else None
-    instance_bids = conf.get('INSTANCE_BIDS').split() if 'INSTANCE_BIDS' in conf._cfg else None
+    instance_types = conf.get('INSTANCE_TYPES').split(
+    ) if 'INSTANCE_TYPES' in conf._cfg else None
+    instance_bids = conf.get('INSTANCE_BIDS').split(
+    ) if 'INSTANCE_BIDS' in conf._cfg else None
     for i, queue in enumerate([i.strip() for i in conf.get('QUEUES').split()]):
         asg = "{}-{}".format(conf.get('VENUE'), queue)
         if asg in cur_asgs:
-            print("ASG {} already exists. Skipping.".format(asg))
+            print(("ASG {} already exists. Skipping.".format(asg)))
             continue
 
-        print_component_header("Configuring autoscaling group:\n{}".format(asg))
+        print_component_header(
+            "Configuring autoscaling group:\n{}".format(asg))
 
         # get user data
         user_data = "BUNDLE_URL=s3://{}/{}-{}.tbz2".format(conf.get('CODE_BUCKET'),
@@ -234,7 +253,7 @@ def create(args, conf):
             instance_type = prompt(get_prompt_tokens=lambda x: [(Token, "Refer to https://www.ec2instances.info/ "),
                                                                 (Token, "and enter instance type to use for launch "),
                                                                 (Token, "configuration: ")], style=prompt_style,
-                                                                validator=Ec2InstanceTypeValidator()).strip()
+                                   validator=Ec2InstanceTypeValidator()).strip()
         else:
             instance_type = instance_types[i]
         logger.debug("instance type: {}".format(instance_type))
@@ -268,7 +287,7 @@ def create(args, conf):
         lc_args = {
             'ImageId': ami,
             'KeyName': keypair,
-            #'IamInstanceProfile': role,
+            # 'IamInstanceProfile': role,
             'SecurityGroups': sgs,
             'UserData': user_data,
             'InstanceType': instance_type,
@@ -280,15 +299,17 @@ def create(args, conf):
         if spot_bid is None:
             lc = "{}-{}-{}-launch-config".format(asg, instance_type, market)
         else:
-            lc = "{}-{}-{}-{}-launch-config".format(asg, instance_type, market, spot_bid)
+            lc = "{}-{}-{}-{}-launch-config".format(
+                asg, instance_type, market, spot_bid)
             lc_args['SpotPrice'] = spot_bid
         lc_args['LaunchConfigurationName'] = lc
         if lc in cur_lcs:
-            print("Launch configuration {} already exists. Skipping.".format(lc))
+            print(("Launch configuration {} already exists. Skipping.".format(lc)))
         else:
             lc_info = create_lc(c, **lc_args)
-            logger.debug("Launch configuration {}: {}".format(lc, pformat(lc_info)))
-            print("Created launch configuration {}.".format(lc))
+            logger.debug("Launch configuration {}: {}".format(
+                lc, pformat(lc_info)))
+            print(("Created launch configuration {}.".format(lc)))
 
         # get autoscaling group config
         asg_args = {
@@ -324,7 +345,7 @@ def create(args, conf):
         logger.debug("asg_args: {}".format(pformat(asg_args)))
         asg_info = create_asg(c, **asg_args)
         logger.debug("Autoscaling group {}: {}".format(asg, pformat(asg_info)))
-        print("Created autoscaling group {}".format(asg))
+        print(("Created autoscaling group {}".format(asg)))
 
         # add target tracking scaling policy
         policy_name = "{}-target-tracking".format(asg)
@@ -351,9 +372,10 @@ def create(args, conf):
                 },
                 'TargetValue': 1.0,
                 'DisableScaleIn': True
-            }, 
+            },
         }
         logger.debug("ttsp_args: {}".format(pformat(ttsp_args)))
         ttsp_info = c.put_scaling_policy(**ttsp_args)
-        logger.debug("Target tracking scaling policy {}: {}".format(policy_name, pformat(ttsp_info)))
-        print("Added target tracking scaling policy {} to {}".format(policy_name, asg))
+        logger.debug("Target tracking scaling policy {}: {}".format(
+            policy_name, pformat(ttsp_info)))
+        print(("Added target tracking scaling policy {} to {}".format(policy_name, asg)))

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 from setuptools import setup, find_packages
 import sdscli
 
@@ -10,16 +13,16 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=[ 'distribute', 'pyyaml', 'pygments', 
-                       'prompt-toolkit>=1.0,<2.0', 'fabric', 
-                       'tqdm==4.19.7', 'backoff' ],
+    install_requires=['pyyaml', 'pygments', 'prompt-toolkit>=1.0,<2.0',
+                      'tqdm==4.19.7', 'backoff', 'future>=0.17.1',
+                      'fabric3', 'cryptography==2.4.2'], # https://github.com/paramiko/paramiko/issues/1369
     entry_points={
         'console_scripts': [
             'sds=sdscli.command_line:main'
         ]
     },
     package_data={
-        '': [ 'adapters/hysds/files/*', 'adapters/hysds/files/*/*',
-              'adapters/sdskit/files/*', 'adapters/sdskit/files/*/*' ],
+        '': ['adapters/hysds/files/*', 'adapters/hysds/files/*/*',
+             'adapters/sdskit/files/*', 'adapters/sdskit/files/*/*'],
     }
 )

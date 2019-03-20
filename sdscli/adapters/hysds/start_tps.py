@@ -1,11 +1,19 @@
 """
 Start TPS components for HySDS.
 """
-from __future__ import unicode_literals
-from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
 
-import os, yaml, pwd, hashlib, traceback
+
+from future import standard_library
+standard_library.install_aliases()
+import os
+import yaml
+import pwd
+import hashlib
+import traceback
 from fabric.api import execute, hide
 from tqdm import tqdm
 
@@ -104,7 +112,7 @@ def start_comp(comp, conf):
 
     # if all, create progress bar
     if comp == 'all':
-    
+
         # progress bar
         with tqdm(total=4) as bar:
             set_bar_desc(bar, "Starting TPS on grq")
@@ -122,10 +130,14 @@ def start_comp(comp, conf):
             set_bar_desc(bar, "Started TPS on all")
             print("")
     else:
-        if comp == 'grq': start_grq(conf)
-        if comp == 'mozart': start_mozart(conf)
-        if comp == 'metrics': start_metrics(conf)
-        if comp == 'ci': start_ci(conf)
+        if comp == 'grq':
+            start_grq(conf)
+        if comp == 'mozart':
+            start_mozart(conf)
+        if comp == 'metrics':
+            start_metrics(conf)
+        if comp == 'ci':
+            start_ci(conf)
 
 
 def start(comp, debug=False, force=False):
@@ -133,17 +145,19 @@ def start(comp, debug=False, force=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert, 
-                      "Starting TPS on component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
+        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
+                                                    "Starting TPS on component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
                       validator=YesNoValidator(), style=prompt_style) == 'y'
-        if not cont: return 0
+        if not cont:
+            return 0
 
     # get user's SDS conf settings
     conf = SettingsConf()
 
     logger.debug("Starting %s" % comp)
 
-    if debug: start_comp(comp, conf)
+    if debug:
+        start_comp(comp, conf)
     else:
         with hide('everything'):
             start_comp(comp, conf)

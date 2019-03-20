@@ -1,7 +1,19 @@
-from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
 
-import os, re, json, boto3, hashlib, base64
+
+from builtins import int
+from builtins import open
+from future import standard_library
+standard_library.install_aliases()
+import os
+import re
+import json
+import boto3
+import hashlib
+import base64
 from pprint import pformat
 from collections import OrderedDict
 from operator import itemgetter
@@ -17,8 +29,8 @@ from sdscli.conf_utils import get_user_config_path, get_user_files_path, Setting
 from sdscli.os_utils import validate_dir
 from sdscli.func_utils import get_func
 from sdscli.prompt_utils import (YesNoValidator, SelectionValidator,
-MultipleSelectionValidator, Ec2InstanceTypeValidator, PriceValidator, highlight,
-print_component_header)
+                                 MultipleSelectionValidator, Ec2InstanceTypeValidator, PriceValidator, highlight,
+                                 print_component_header)
 from .utils import *
 from .asg import prompt_secgroup
 
@@ -36,24 +48,27 @@ prompt_style = style_from_dict({
 def ls(args, conf):
     """List all buckets."""
 
-    for bucket in get_buckets(): print(bucket['Name'])
+    for bucket in get_buckets():
+        print((bucket['Name']))
 
 
 def prompt_role(roles):
     """Prompt for role to use."""
 
-    names = roles.keys()
+    names = list(roles.keys())
     pt = [(Token, "Current roles are:\n\n")]
     for i, x in enumerate(names):
         pt.append((Token.Param, "{}".format(i)))
-        pt.append((Token, ". {} - {} ({})\n".format(x, roles[x]['Arn'], roles[x]['CreateDate'])))
+        pt.append((Token, ". {} - {} ({})\n".format(x,
+                                                    roles[x]['Arn'], roles[x]['CreateDate'])))
     pt.append((Token, "\nSelect role to use for lambda execution: "))
     while True:
         sel = int(prompt(get_prompt_tokens=lambda x: pt, style=prompt_style,
                          validator=SelectionValidator()).strip())
-        try: return names[sel]
+        try:
+            return names[sel]
         except IndexError:
-            print("Invalid selection: {}".format(sel))
+            print(("Invalid selection: {}".format(sel)))
 
 
 @cloud_config_check
@@ -61,13 +76,15 @@ def ship_style(args, conf):
     """Ship style to bucket."""
 
     # get bucket name
-    bucket_name = conf.get('DATASET_BUCKET') if args.bucket is None else args.bucket
+    bucket_name = conf.get(
+        'DATASET_BUCKET') if args.bucket is None else args.bucket
 
     # get fab function
-    func = get_func('sdscli.adapters.{}.fabfile'.format(args.type), args.subparser2)
+    func = get_func('sdscli.adapters.{}.fabfile'.format(
+        args.type), args.subparser2)
 
     # execute
-    execute(func, bucket_name, args.encrypt, roles=['mozart']) 
+    execute(func, bucket_name, args.encrypt, roles=['mozart'])
 
     # turn on website hosting and set index and error docs
     bw_args = {
@@ -95,14 +112,16 @@ def create_staging_area(args, conf):
     sns_client = boto3.client('sns')
 
     # get bucket name
-    bucket_name = conf.get('DATASET_BUCKET') if args.bucket is None else args.bucket
+    bucket_name = conf.get(
+        'DATASET_BUCKET') if args.bucket is None else args.bucket
     bucket = get_bucket(bucket_name, c=s3_res)
     logger.debug("bucket: {}".format(bucket))
 
     # create SNS topic
     logger.debug("prefix: {}".format(args.prefix))
     logger.debug("suffix: {}".format(args.suffix))
-    shasum = hashlib.sha224("{}-{}-{}".format(bucket_name, args.prefix, args.suffix)).hexdigest()
+    shasum = hashlib.sha224(
+        "{}-{}-{}".format(bucket_name, args.prefix, args.suffix)).hexdigest()
     topic_name = "{}-dataset-{}".format(conf.get('VENUE'), shasum[:4])
     logger.debug("topic_name: {}".format(topic_name))
     topic_arn = create_topic(Name=topic_name, c=sns_client)['TopicArn']
@@ -116,7 +135,7 @@ def create_staging_area(args, conf):
             {
                 "Sid": "__default_statement_ID",
                 "Effect": "Allow",
-                "Principal": { "AWS": "*" },
+                "Principal": {"AWS": "*"},
                 "Action": [
                     "SNS:GetTopicAttributes",
                     "SNS:SetTopicAttributes",
@@ -169,27 +188,28 @@ def create_staging_area(args, conf):
                         }
                     }
                 }
-            ] 
+            ]
         }
     }
     configure_bucket_notification(bucket_name, c=s3_res, **bn_args)
 
     # create lambda zip file and upload to code bucket
     zip_file = "/tmp/data-staged.zip"
-    func = get_func('sdscli.adapters.{}.fabfile'.format(args.type), 'create_zip')
+    func = get_func('sdscli.adapters.{}.fabfile'.format(
+        args.type), 'create_zip')
     if args.debug:
-        execute(func, "mozart/ops/hysds-cloud-functions/aws/data-staged", 
+        execute(func, "mozart/ops/hysds-cloud-functions/aws/data-staged",
                 zip_file, roles=['mozart'])
     else:
         with hide('everything'):
-            execute(func, "mozart/ops/hysds-cloud-functions/aws/data-staged", 
+            execute(func, "mozart/ops/hysds-cloud-functions/aws/data-staged",
                     zip_file, roles=['mozart'])
     #code_bucket = "s3://{}/{}".format(conf.get('S3_ENDPOINT'), conf.get('CODE_BUCKET'))
     #zip_url = os.path.join(code_bucket, 'data-staged.zip')
     #put(zip_file, zip_url)
 
     # prompt for security groups
-    cur_sgs = { i['GroupId']: i for i in get_sgs() }
+    cur_sgs = {i['GroupId']: i for i in get_sgs()}
     logger.debug("cur_sgs: {}".format(pformat(cur_sgs)))
     desc = "\nSelect security groups lambda will use (space between each selected): "
     if 'LAMBDA_SECURITY_GROUPS' in sa_cfg and 'LAMBDA_VPC' in sa_cfg:
@@ -201,7 +221,7 @@ def create_staging_area(args, conf):
     logger.debug("VPC ID: {}".format(vpc_id))
 
     # get current AZs
-    cur_azs = { i['ZoneName']: i for i in get_azs() }
+    cur_azs = {i['ZoneName']: i for i in get_azs()}
     logger.debug("cur_azs: {}".format(pformat(cur_azs)))
 
     # get subnet IDs and corresponding AZs for VPC
@@ -220,8 +240,8 @@ def create_staging_area(args, conf):
     # prompt for role
     roles = get_roles()
     logger.debug("Found {} roles.".format(len(roles)))
-    cur_roles = OrderedDict([(i['Arn'], i) for i in sorted(roles, 
-                            key=itemgetter('CreateDate'))])
+    cur_roles = OrderedDict([(i['Arn'], i) for i in sorted(roles,
+                                                           key=itemgetter('CreateDate'))])
     if 'LAMBDA_ROLE' in sa_cfg:
         role = sa_cfg['LAMBDA_ROLE']
     else:
@@ -262,8 +282,8 @@ def create_staging_area(args, conf):
         "Handler": "lambda_function.lambda_handler",
         "Code": {
             "ZipFile": open(zip_file, 'rb').read(),
-            #"S3Bucket": conf.get('CODE_BUCKET'),
-            #"S3Key": os.path.basename(zip_url)
+            # "S3Bucket": conf.get('CODE_BUCKET'),
+            # "S3Key": os.path.basename(zip_url)
         },
         "Description": "Lambda function to submit ingest job for data staged to S3 staging area.",
         "VpcConfig": {
@@ -289,6 +309,6 @@ def create_staging_area(args, conf):
                                  SourceArn=topic_arn)
 
     # subscribe lambda endpoint to sns
-    sns_resp = sns_client.subscribe(TopicArn=topic_arn, Protocol="lambda", 
+    sns_resp = sns_client.subscribe(TopicArn=topic_arn, Protocol="lambda",
                                     Endpoint=lambda_resp['FunctionArn'])
     logger.debug("sns_resp: {}".format(sns_resp))
