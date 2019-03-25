@@ -121,7 +121,7 @@ def create_staging_area(args, conf):
     logger.debug("prefix: {}".format(args.prefix))
     logger.debug("suffix: {}".format(args.suffix))
     shasum = hashlib.sha224(
-        "{}-{}-{}".format(bucket_name, args.prefix, args.suffix)).hexdigest()
+        "{}-{}-{}".format(bucket_name, args.prefix, args.suffix).encode()).hexdigest()
     topic_name = "{}-dataset-{}".format(conf.get('VENUE'), shasum[:4])
     logger.debug("topic_name: {}".format(topic_name))
     topic_arn = create_topic(Name=topic_name, c=sns_client)['TopicArn']
