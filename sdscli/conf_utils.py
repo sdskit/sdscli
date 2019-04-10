@@ -56,7 +56,7 @@ class YamlConf(object):
         try:
             return self._cfg[key]
         except KeyError as e:
-            raise YamlConfError("Configuration '{}' doesn't exist in {}.".format(key, self._file)))
+            raise YamlConfError("Configuration '{}' doesn't exist in {}.".format(key, self._file))
 
 
 class SettingsConf(YamlConf):
