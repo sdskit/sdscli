@@ -4,19 +4,18 @@ from __future__ import division
 from __future__ import absolute_import
 
 
+from sdscli.log_utils import logger
+from importlib import import_module
+import logging
+import argparse
+import traceback
+import yaml
+import json
+import importlib
+import sys
+import os
 from future import standard_library
 standard_library.install_aliases()
-import os
-import sys
-import importlib
-import json
-import yaml
-import traceback
-import argparse
-import logging
-from importlib import import_module
-
-from sdscli.log_utils import logger
 
 
 def get_module(mod_name):
@@ -34,6 +33,7 @@ def get_func(mod_name, func_name):
 
     mod = get_module(mod_name)
     logger.debug("mod: %s" % mod)
+    logger.debug("func_name: %s" % func_name)
     try:
         return getattr(mod, func_name)
     except AttributeError:

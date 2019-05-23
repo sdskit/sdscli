@@ -7,21 +7,20 @@ from __future__ import division
 from __future__ import absolute_import
 
 
+from sdscli.log_utils import logger
+from sdscli.func_utils import get_module, get_func
+import sdscli
+from importlib import import_module
+import logging
+import argparse
+import traceback
+import yaml
+import json
+import importlib
+import sys
+import os
 from future import standard_library
 standard_library.install_aliases()
-import os
-import sys
-import importlib
-import json
-import yaml
-import traceback
-import argparse
-import logging
-from importlib import import_module
-
-import sdscli
-from sdscli.func_utils import get_module, get_func
-from sdscli.log_utils import logger
 
 
 def get_adapter_func(sds_type, mod_name, func_name):
@@ -203,6 +202,17 @@ def job_list(args):
     logger.debug("got to job_list(): %s" % args)
 
 
+def orch(args):
+    """SDS container orchestration functions."""
+
+    logger.debug("got to orch(): %s" % args)
+    sds_type = args.type
+    logger.debug("sds_type: %s" % sds_type)
+    func = get_adapter_func(sds_type, 'orch', args.subparser)
+    logger.debug("func: %s" % func)
+    func(args.component, args.debug, args.force)
+
+
 def dispatch(args):
     """Dispatch to appropriate function."""
 
@@ -335,7 +345,8 @@ def main():
     parser_ci.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                            choices=['hysds', 'sdskit'])
     parser_ci_subparsers = parser_ci.add_subparsers(
-        dest='subparser', help='Continuous integration functions')
+        dest='subparser', required=True,
+        help='Continuous integration functions')
     parser_ci_add_job = parser_ci_subparsers.add_parser(
         'add_job', help="add Jenkins job")
     parser_ci_add_job.add_argument('repo', help='git repository url')
@@ -362,7 +373,8 @@ def main():
     parser_pkg.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                             choices=['hysds', 'sdskit'])
     parser_pkg_subparsers = parser_pkg.add_subparsers(
-        dest='subparser', help='SDS package management functions')
+        dest='subparser', required=True,
+        help='SDS package management functions')
     parser_pkg_ls = parser_pkg_subparsers.add_parser(
         'ls', help="list SDS package ids")
     parser_pkg_export = parser_pkg_subparsers.add_parser(
@@ -385,7 +397,8 @@ def main():
     parser_cloud.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                               choices=['hysds', 'sdskit'])
     parser_cloud_subparsers = parser_cloud.add_subparsers(
-        dest='subparser', help='SDS cloud management functions')
+        dest='subparser', required=True,
+        help='SDS cloud management functions')
     parser_cloud_ls = parser_cloud_subparsers.add_parser(
         'ls', help="list configured cloud vendors")
     parser_cloud_asg = parser_cloud_subparsers.add_parser(
@@ -393,7 +406,8 @@ def main():
     parser_cloud_asg.add_argument('--cloud', '-c', default='aws', const='aws', nargs='?',
                                   choices=['aws', 'azure', 'gcp'])
     parser_cloud_asg_subparsers = parser_cloud_asg.add_subparsers(
-        dest='subparser2', help='SDS cloud Autoscaling management functions')
+        dest='subparser2', required=True,
+        help='SDS cloud Autoscaling management functions')
     parser_cloud_asg_ls = parser_cloud_asg_subparsers.add_parser(
         'ls', help="list Autoscaling groups")
     parser_cloud_asg_create = parser_cloud_asg_subparsers.add_parser(
@@ -403,7 +417,8 @@ def main():
     parser_cloud_storage.add_argument('--cloud', '-c', default='aws', const='aws', nargs='?',
                                       choices=['aws', 'azure', 'gcp'])
     parser_cloud_storage_subparsers = parser_cloud_storage.add_subparsers(
-        dest='subparser2', help='SDS cloud storage management functions')
+        dest='subparser2', required=True,
+        help='SDS cloud storage management functions')
     parser_cloud_storage_ls = parser_cloud_storage_subparsers.add_parser(
         'ls', help="list buckets")
     parser_cloud_storage_ship_style = parser_cloud_storage_subparsers.add_parser(
@@ -428,7 +443,8 @@ def main():
     parser_rules.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                               choices=['hysds', 'sdskit'])
     parser_rules_subparsers = parser_rules.add_subparsers(
-        dest='subparser', help='SDS user rules management functions')
+        dest='subparser', required=True,
+        help='SDS user rules management functions')
     parser_rules_export = parser_rules_subparsers.add_parser(
         'export', help="export user rules")
     parser_rules_export.add_argument('--outfile', '-o', default="user_rules.json",
@@ -449,6 +465,44 @@ def main():
     parser_job_list.add_argument(
         "status", help="job status to list counts for")
     parser_job_list.set_defaults(func=job_list)
+
+    parser_update = subparsers.add_parser(
+        'update', help="update SDS components")
+    parser_update.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                               choices=['hysds', 'sdskit'])
+    parser_update.add_argument('component', choices=['mozart', 'grq', 'metrics',
+                                                     'factotum', 'ci', 'verdi', 'all'])
+    parser_update.add_argument('--force', '-f', action='store_true',
+                               help="force update without user confirmation")
+    parser_update.add_argument('--ndeps', '-n', action='store_true',
+                               help="skip the external accesses for dependencies")
+    parser_update.set_defaults(func=update)
+
+    # parser for container orchestration
+    parser_orch = subparsers.add_parser(
+        'orch', help="SDS container orchestration")
+    parser_orch.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                             choices=['hysds', 'sdskit'])
+    parser_orch_subparsers = parser_orch.add_subparsers(
+        dest='subparser', required=True,
+        help='SDS container orchestration functions')
+    parser_orch_start = parser_orch_subparsers.add_parser(
+        'start', help="start container-orchestrated SDS components")
+    parser_orch_start.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                                   choices=['hysds', 'sdskit'])
+    parser_orch_start.add_argument('component', choices=['mozart', 'grq', 'metrics',
+                                                         'factotum', 'all'])
+    parser_orch_start.add_argument('--force', '-f', action='store_true',
+                                   help="force start without user confirmation")
+    parser_orch_stop = parser_orch_subparsers.add_parser(
+        'stop', help="stop container-orchestrated SDS components")
+    parser_orch_stop.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                                  choices=['hysds', 'sdskit'])
+    parser_orch_stop.add_argument('component', choices=['mozart', 'grq', 'metrics',
+                                                        'factotum', 'all'])
+    parser_orch_stop.add_argument('--force', '-f', action='store_true',
+                                  help="force stop without user confirmation")
+    parser_orch.set_defaults(func=orch)
 
     # parse
     args = parser.parse_args()
