@@ -413,12 +413,12 @@ def ensure_venv(hysds_dir, update_bash_profile=True, system_site_packages=True, 
             if install_supervisor:
                 #run('pip install --ignore-installed supervisor')
                 run('pip install --ignore-installed git+https://github.com/Supervisor/supervisor')
-            mkdir('%s/etc' % hysds_dir,
-                  context['OPS_USER'], context['OPS_USER'])
-            mkdir('%s/log' % hysds_dir,
-                  context['OPS_USER'], context['OPS_USER'])
-            mkdir('%s/run' % hysds_dir,
-                  context['OPS_USER'], context['OPS_USER'])
+    mkdir('%s/etc' % hysds_dir,
+          context['OPS_USER'], context['OPS_USER'])
+    mkdir('%s/log' % hysds_dir,
+          context['OPS_USER'], context['OPS_USER'])
+    mkdir('%s/run' % hysds_dir,
+          context['OPS_USER'], context['OPS_USER'])
     if update_bash_profile:
         append('.bash_profile',
                "source $HOME/{}/bin/activate".format(hysds_dir), escape=True)
