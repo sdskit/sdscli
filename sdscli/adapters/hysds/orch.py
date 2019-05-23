@@ -236,3 +236,18 @@ def stop(comp, debug=False, force=False):
     logger.debug("Stopping %s" % comp)
 
     stop_comp(comp, conf)
+
+
+def logs_comp(comp, conf, follow):
+    """Show logs for component."""
+
+    execute(fab.logs_sysadm, follow, roles=[comp])
+
+
+def logs(comp, debug=False, follow=False):
+    """Show logs for components."""
+
+    # get user's SDS conf settings
+    conf = SettingsConf()
+
+    logs_comp(comp, conf, follow)

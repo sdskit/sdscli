@@ -210,7 +210,10 @@ def orch(args):
     logger.debug("sds_type: %s" % sds_type)
     func = get_adapter_func(sds_type, 'orch', args.subparser)
     logger.debug("func: %s" % func)
-    func(args.component, args.debug, args.force)
+    if args.subparser == 'logs':
+        func(args.component, args.debug, args.follow)
+    else:
+        func(args.component, args.debug, args.force)
 
 
 def dispatch(args):
@@ -510,6 +513,14 @@ def main():
                                                         'factotum', 'all'])
     parser_orch_stop.add_argument('--force', '-f', action='store_true',
                                   help="force stop without user confirmation")
+    parser_orch_logs = parser_orch_subparsers.add_parser(
+        'logs', help="show logs of container-orchestrated SDS components")
+    parser_orch_logs.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                                  choices=['hysds', 'sdskit'])
+    parser_orch_logs.add_argument('component', choices=['mozart', 'grq', 'metrics',
+                                                        'factotum'])
+    parser_orch_logs.add_argument('--follow', '-f', action='store_true',
+                                  help="follow log output")
     parser_orch.set_defaults(func=orch)
 
     # parse
