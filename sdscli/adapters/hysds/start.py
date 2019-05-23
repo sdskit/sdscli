@@ -7,27 +7,24 @@ from __future__ import division
 from __future__ import absolute_import
 
 
+from . import fabfile as fab
+from sdscli.prompt_utils import YesNoValidator, set_bar_desc
+from sdscli.os_utils import validate_dir
+from sdscli.conf_utils import get_user_files_path, SettingsConf
+from sdscli.log_utils import logger
+from pygments.token import Token
+from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.styles import style_from_dict
+from prompt_toolkit.shortcuts import prompt, print_tokens
+from tqdm import tqdm
+from fabric.api import execute, hide
+import traceback
+import hashlib
+import pwd
+import yaml
+import os
 from future import standard_library
 standard_library.install_aliases()
-import os
-import yaml
-import pwd
-import hashlib
-import traceback
-from fabric.api import execute, hide
-from tqdm import tqdm
-
-from prompt_toolkit.shortcuts import prompt, print_tokens
-from prompt_toolkit.styles import style_from_dict
-from prompt_toolkit.validation import Validator, ValidationError
-from pygments.token import Token
-
-from sdscli.log_utils import logger
-from sdscli.conf_utils import get_user_files_path, SettingsConf
-from sdscli.os_utils import validate_dir
-from sdscli.prompt_utils import YesNoValidator, set_bar_desc
-
-from . import fabfile as fab
 
 
 prompt_style = style_from_dict({
@@ -103,7 +100,7 @@ def start_factotum(conf, comp='factotum'):
         bar.update()
 
         # start services
-        set_bar_desc(bar, 'Starting verdid')
+        set_bar_desc(bar, 'Starting factotum')
         execute(fab.verdid_start, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Started factotum')

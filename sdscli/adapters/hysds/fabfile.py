@@ -7,22 +7,21 @@ from __future__ import division
 from __future__ import absolute_import
 
 
+from sdscli.prompt_utils import highlight, blink
+from sdscli.conf_utils import get_user_config_path, get_user_files_path
+from sdscli.log_utils import logger
+from fabric.contrib.project import rsync_project
+from fabric.contrib.files import upload_template, exists, append
+from fabric.api import run, cd, put, sudo, prefix, env, settings, hide
+from copy import deepcopy
+import requests
+import json
+import yaml
+import re
+import os
 from builtins import open
 from future import standard_library
 standard_library.install_aliases()
-import os
-import re
-import yaml
-import json
-import requests
-from copy import deepcopy
-from fabric.api import run, cd, put, sudo, prefix, env, settings, hide
-from fabric.contrib.files import upload_template, exists, append
-from fabric.contrib.project import rsync_project
-
-from sdscli.log_utils import logger
-from sdscli.conf_utils import get_user_config_path, get_user_files_path
-from sdscli.prompt_utils import highlight, blink
 
 
 # ssh_opts and extra_opts for rsync and rsync_project
@@ -400,15 +399,20 @@ def status():
         print((blink(highlight("Supervisord is not running on %s." % role, 'red'))))
 
 
-def ensure_venv(hysds_dir, update_bash_profile=True):
+def ensure_venv(hysds_dir, update_bash_profile=True, system_site_packages=True, install_supervisor=True):
     act_file = "~/%s/bin/activate" % hysds_dir
+    if system_site_packages:
+        venv_cmd = "virtualenv --system-site-packages %s" % hysds_dir
+    else:
+        venv_cmd = "virtualenv %s" % hysds_dir
     if not exists(act_file):
-        run("virtualenv --system-site-packages %s" % hysds_dir)
+        run(venv_cmd)
         with prefix('source %s/bin/activate' % hysds_dir):
             run('pip install -U pip')
             run('pip install -U setuptools')
-            #run('pip install --ignore-installed supervisor')
-            run('pip install --ignore-installed git+https://github.com/Supervisor/supervisor')
+            if install_supervisor:
+                #run('pip install --ignore-installed supervisor')
+                run('pip install --ignore-installed git+https://github.com/Supervisor/supervisor')
             mkdir('%s/etc' % hysds_dir,
                   context['OPS_USER'], context['OPS_USER'])
             mkdir('%s/log' % hysds_dir,

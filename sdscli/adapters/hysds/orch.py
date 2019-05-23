@@ -7,14 +7,16 @@ from __future__ import division
 from __future__ import absolute_import
 
 
+from . import fabfile as fab
 from sdscli.func_utils import get_module, get_func
-from sdscli.prompt_utils import YesNoValidator, highlight
+from sdscli.prompt_utils import YesNoValidator, highlight, set_bar_desc
 from sdscli.conf_utils import get_user_files_path, SettingsConf
 from sdscli.log_utils import logger
 from pygments.token import Token
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.styles import style_from_dict
 from prompt_toolkit.shortcuts import prompt, print_tokens
+from tqdm import tqdm
 from fabric.api import execute, hide
 import traceback
 import pkgutil
@@ -29,6 +31,115 @@ prompt_style = style_from_dict({
     Token.Username: '#D8060C',
     Token.Param: '#3CFF33',
 })
+
+
+def start_mozart(conf, comp='mozart'):
+    """"Start mozart component."""
+
+    # progress bar
+    with tqdm(total=2) as bar:
+
+        # ensure venv
+        set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.ensure_venv, comp, system_site_packages=False,
+                install_supervisor=False, roles=[comp])
+        bar.update()
+
+        # start services
+        set_bar_desc(bar, 'Starting mozartd')
+        #execute(fab.mozartd_start, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Started mozart')
+
+
+def start_metrics(conf, comp='metrics'):
+    """"Start metrics component."""
+
+    # progress bar
+    with tqdm(total=2) as bar:
+
+        # ensure venv
+        set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.ensure_venv, comp, system_site_packages=False,
+                install_supervisor=False, roles=[comp])
+        bar.update()
+
+        # start services
+        set_bar_desc(bar, 'Starting metricsd')
+        #execute(fab.metricsd_start, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Started metrics')
+
+
+def start_grq(conf, comp='grq'):
+    """"Start grq component."""
+
+    # progress bar
+    with tqdm(total=2) as bar:
+
+        # ensure venv
+        set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.ensure_venv, 'sciflo', system_site_packages=False,
+                install_supervisor=False, roles=[comp])
+        bar.update()
+
+        # start services
+        set_bar_desc(bar, 'Starting grqd')
+        #execute(fab.grqd_start, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Started grq')
+
+
+def start_factotum(conf, comp='factotum'):
+    """"Start factotum component."""
+
+    # progress bar
+    with tqdm(total=2) as bar:
+
+        # ensure venv
+        set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.ensure_venv, 'verdi', system_site_packages=False,
+                install_supervisor=False, roles=[comp])
+        bar.update()
+
+        # start services
+        set_bar_desc(bar, 'Starting factotum')
+        #execute(fab.verdid_start, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Started factotum')
+
+
+def start_comp(comp, conf):
+    """Start component."""
+
+    # if all, create progress bar
+    if comp == 'all':
+
+        # progress bar
+        with tqdm(total=4) as bar:
+            set_bar_desc(bar, "Starting metrics")
+            start_metrics(conf)
+            bar.update()
+            set_bar_desc(bar, "Starting grq")
+            start_grq(conf)
+            bar.update()
+            set_bar_desc(bar, "Starting mozart")
+            start_mozart(conf)
+            bar.update()
+            set_bar_desc(bar, "Starting factotum")
+            start_factotum(conf)
+            bar.update()
+            set_bar_desc(bar, "Started all")
+            print("")
+    else:
+        if comp == 'metrics':
+            start_metrics(conf)
+        if comp == 'grq':
+            start_grq(conf)
+        if comp == 'mozart':
+            start_mozart(conf)
+        if comp == 'factotum':
+            start_factotum(conf)
 
 
 def start(comp, debug=False, force=False):
@@ -48,9 +159,7 @@ def start(comp, debug=False, force=False):
     logger.debug("Starting %s" % comp)
 
     if debug:
-        #start_comp(comp, conf)
-        logger.debug("got here: {}".format(comp))
+        start_comp(comp, conf)
     else:
         with hide('everything'):
-            #start_comp(comp, conf)
-            logger.debug("got there: {}".format(comp))
+            start_comp(comp, conf)
