@@ -450,8 +450,15 @@ def main():
         "status", help="job status to list counts for")
     parser_job_list.set_defaults(func=job_list)
 
-    # dispatch
+    # parse
     args = parser.parse_args()
+
+    # print help
+    if len(sys.argv) == 1 or not hasattr(args, 'func'):
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
+    # dispatch
     return dispatch(args)
 
 
