@@ -486,6 +486,14 @@ def main():
     parser_orch_subparsers = parser_orch.add_subparsers(
         dest='subparser', required=True,
         help='SDS container orchestration functions')
+    parser_orch_init = parser_orch_subparsers.add_parser(
+        'init', help="Initialize container-orchestrated SDS components")
+    parser_orch_init.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                                   choices=['hysds', 'sdskit'])
+    parser_orch_init.add_argument('component', choices=['mozart', 'grq', 'metrics',
+                                                         'factotum', 'all'])
+    parser_orch_init.add_argument('--force', '-f', action='store_true',
+                                   help="force initialization without user confirmation")
     parser_orch_start = parser_orch_subparsers.add_parser(
         'start', help="start container-orchestrated SDS components")
     parser_orch_start.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',

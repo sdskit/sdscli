@@ -33,80 +33,92 @@ prompt_style = style_from_dict({
 })
 
 
+def init_mozart(conf, comp='mozart'):
+    """"Initialize mozart component."""
+
+    # progress bar
+    with tqdm(total=2) as bar:
+
+        # ensure venv
+        set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.ensure_venv, comp, system_site_packages=False,
+                install_supervisor=False, roles=[comp])
+        bar.update()
+
+        # initialize sysadm
+        set_bar_desc(bar, 'Initializing mozart')
+        execute(fab.init_sysadm, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Initialized mozart')
+
+
+def init_comp(comp, conf):
+    """Initialize component."""
+
+    # if all, create progress bar
+    if comp == 'all':
+
+        # progress bar
+        with tqdm(total=4) as bar:
+            set_bar_desc(bar, "Initializing metrics")
+            init_metrics(conf)
+            bar.update()
+            set_bar_desc(bar, "Initializing grq")
+            init_grq(conf)
+            bar.update()
+            set_bar_desc(bar, "Initializing mozart")
+            init_mozart(conf)
+            bar.update()
+            set_bar_desc(bar, "Initializing factotum")
+            init_factotum(conf)
+            bar.update()
+            set_bar_desc(bar, "Initialized all")
+            print("")
+    else:
+        if comp == 'metrics':
+            init_metrics(conf)
+        if comp == 'grq':
+            init_grq(conf)
+        if comp == 'mozart':
+            init_mozart(conf)
+        if comp == 'factotum':
+            init_factotum(conf)
+
+
+def init(comp, debug=False, force=False):
+    """Initialize components."""
+
+    # prompt user
+    if not force:
+        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
+                                                    "Initializing component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
+                      validator=YesNoValidator(), style=prompt_style) == 'y'
+        if not cont:
+            return 0
+
+    # get user's SDS conf settings
+    conf = SettingsConf()
+
+    logger.debug("Initializing %s" % comp)
+
+    if debug:
+        init_comp(comp, conf)
+    else:
+        with hide('everything'):
+            init_comp(comp, conf)
+
+
 def start_mozart(conf, comp='mozart'):
     """"Start mozart component."""
 
     # progress bar
-    with tqdm(total=2) as bar:
+    with tqdm(total=1) as bar:
 
-        # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, comp, system_site_packages=False,
-                install_supervisor=False, roles=[comp])
-        bar.update()
-
-        # start services
-        set_bar_desc(bar, 'Starting mozartd')
-        #execute(fab.mozartd_start, roles=[comp])
+        # start mozart
+        set_bar_desc(bar, 'Starting mozart')
+        execute(fab.start_sysadm, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Started mozart')
-
-
-def start_metrics(conf, comp='metrics'):
-    """"Start metrics component."""
-
-    # progress bar
-    with tqdm(total=2) as bar:
-
-        # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, comp, system_site_packages=False,
-                install_supervisor=False, roles=[comp])
-        bar.update()
-
-        # start services
-        set_bar_desc(bar, 'Starting metricsd')
-        #execute(fab.metricsd_start, roles=[comp])
-        bar.update()
-        set_bar_desc(bar, 'Started metrics')
-
-
-def start_grq(conf, comp='grq'):
-    """"Start grq component."""
-
-    # progress bar
-    with tqdm(total=2) as bar:
-
-        # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'sciflo', system_site_packages=False,
-                install_supervisor=False, roles=[comp])
-        bar.update()
-
-        # start services
-        set_bar_desc(bar, 'Starting grqd')
-        #execute(fab.grqd_start, roles=[comp])
-        bar.update()
-        set_bar_desc(bar, 'Started grq')
-
-
-def start_factotum(conf, comp='factotum'):
-    """"Start factotum component."""
-
-    # progress bar
-    with tqdm(total=2) as bar:
-
-        # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'verdi', system_site_packages=False,
-                install_supervisor=False, roles=[comp])
-        bar.update()
-
-        # start services
-        set_bar_desc(bar, 'Starting factotum')
-        #execute(fab.verdid_start, roles=[comp])
-        bar.update()
-        set_bar_desc(bar, 'Started factotum')
 
 
 def start_comp(comp, conf):
@@ -158,8 +170,69 @@ def start(comp, debug=False, force=False):
 
     logger.debug("Starting %s" % comp)
 
-    if debug:
-        start_comp(comp, conf)
+    start_comp(comp, conf)
+
+
+def stop_mozart(conf, comp='mozart'):
+    """"Stop mozart component."""
+
+    # progress bar
+    with tqdm(total=1) as bar:
+
+        # stop mozart
+        set_bar_desc(bar, 'Stopping mozart')
+        execute(fab.stop_sysadm, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Stopped mozart')
+
+
+def stop_comp(comp, conf):
+    """Stop component."""
+
+    # if all, create progress bar
+    if comp == 'all':
+
+        # progress bar
+        with tqdm(total=4) as bar:
+            set_bar_desc(bar, "Stopping metrics")
+            stop_metrics(conf)
+            bar.update()
+            set_bar_desc(bar, "Stopping grq")
+            stop_grq(conf)
+            bar.update()
+            set_bar_desc(bar, "Stopping mozart")
+            stop_mozart(conf)
+            bar.update()
+            set_bar_desc(bar, "Stopping factotum")
+            stop_factotum(conf)
+            bar.update()
+            set_bar_desc(bar, "Stopped all")
+            print("")
     else:
-        with hide('everything'):
-            start_comp(comp, conf)
+        if comp == 'metrics':
+            stop_metrics(conf)
+        if comp == 'grq':
+            stop_grq(conf)
+        if comp == 'mozart':
+            stop_mozart(conf)
+        if comp == 'factotum':
+            stop_factotum(conf)
+
+
+def stop(comp, debug=False, force=False):
+    """Stop components."""
+
+    # prompt user
+    if not force:
+        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
+                                                    "Stopping component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
+                      validator=YesNoValidator(), style=prompt_style) == 'y'
+        if not cont:
+            return 0
+
+    # get user's SDS conf settings
+    conf = SettingsConf()
+
+    logger.debug("Stopping %s" % comp)
+
+    stop_comp(comp, conf)
