@@ -13,9 +13,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['pyyaml', 'pygments', 'prompt-toolkit>=1.0,<2.0',
-                      'tqdm==4.19.7', 'backoff', 'future>=0.17.1',
-                      'fabric3', 'cryptography==2.4.2'], # https://github.com/paramiko/paramiko/issues/1369
+    install_requires=['PyYAML>=5.1', 'Pygments>=2.4.0', 'prompt-toolkit>=1.0,<2.0',
+                      'tqdm>=4.32.1', 'backoff>=1.8.0', 'future>=0.17.1', 'requests>=2.22.0',
+                      'kombu>=4.5.0', 'redis>=3.2.1', 'elasticsearch>=7.0.1',
+                      'fabric3>=1.14.post1', 'cryptography==2.4.2'], # https://github.com/paramiko/paramiko/issues/1369
     entry_points={
         'console_scripts': [
             'sds=sdscli.command_line:main'

@@ -27,6 +27,7 @@ Command line interface for SDSKit
   ```
   git clone https://github.com/sdskit/sdscli.git
   cd sdscli
+  pip install -r requirements.txt
   pip install .
   ```
 
