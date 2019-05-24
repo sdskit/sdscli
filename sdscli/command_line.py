@@ -214,6 +214,8 @@ def orch(args):
         func(args.component, args.debug, args.follow)
     elif args.subparser == 'start':
         func(args.component, args.release, args.debug, args.force)
+    elif args.subparser == 'ps':
+        func(args.component, args.debug)
     else:
         func(args.component, args.debug, args.force)
 
@@ -525,6 +527,12 @@ def main():
                                                         'factotum'])
     parser_orch_logs.add_argument('--follow', '-f', action='store_true',
                                   help="follow log output")
+    parser_orch_ps = parser_orch_subparsers.add_parser(
+        'ps', help="list orchestrated containers of SDS components")
+    parser_orch_ps.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                                  choices=['hysds', 'sdskit'])
+    parser_orch_ps.add_argument('component', choices=['mozart', 'grq', 'metrics',
+                                                        'factotum', 'all'])
     parser_orch.set_defaults(func=orch)
 
     # parse

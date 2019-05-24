@@ -1027,3 +1027,10 @@ def logs_sdsadm(follow=False):
                 run("./sdsadm logs {} -f".format(hysds_dir, role))
             else:
                 run("./sdsadm logs {}".format(hysds_dir, role))
+
+
+def ps_sdsadm():
+    role, hysds_dir, hostname = resolve_role()
+    with cd(os.path.join(hysds_dir, 'ops', 'sdsadm')):
+        with prefix('source ~/%s/bin/activate' % hysds_dir):
+            run("./sdsadm ps {} -a".format(hysds_dir, role))

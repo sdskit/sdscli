@@ -251,3 +251,20 @@ def logs(comp, debug=False, follow=False):
     conf = SettingsConf()
 
     logs_comp(comp, conf, follow)
+
+
+def ps_comp(comp, conf):
+    """List containers for component."""
+
+    comps = ['metrics', 'grq', 'mozart', 'factotum'] if comp == 'all' else [comp]
+    for c in comps:
+        execute(fab.ps_sdsadm, roles=[c])
+
+
+def ps(comp, debug=False):
+    """List containers for components."""
+
+    # get user's SDS conf settings
+    conf = SettingsConf()
+
+    ps_comp(comp, conf)
