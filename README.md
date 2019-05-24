@@ -4,6 +4,7 @@ Command line interface for SDSKit
 
 ## Prerequisites
 
+- python 3.7+
 - pip 9.0.1+
 - setuptools 36.0.1+
 - virtualenv 1.10.1+
