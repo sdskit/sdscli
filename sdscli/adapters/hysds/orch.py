@@ -45,9 +45,9 @@ def init_mozart(conf, comp='mozart'):
                 install_supervisor=False, roles=[comp])
         bar.update()
 
-        # initialize sysadm
+        # initialize sdsadm
         set_bar_desc(bar, 'Initializing mozart')
-        execute(fab.init_sysadm, roles=[comp])
+        execute(fab.init_sdsadm, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Initialized mozart')
 
@@ -116,7 +116,7 @@ def start_mozart(conf, comp='mozart'):
 
         # start mozart
         set_bar_desc(bar, 'Starting mozart')
-        execute(fab.start_sysadm, roles=[comp])
+        execute(fab.start_sdsadm, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Started mozart')
 
@@ -181,7 +181,7 @@ def stop_mozart(conf, comp='mozart'):
 
         # stop mozart
         set_bar_desc(bar, 'Stopping mozart')
-        execute(fab.stop_sysadm, roles=[comp])
+        execute(fab.stop_sdsadm, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Stopped mozart')
 
@@ -241,7 +241,7 @@ def stop(comp, debug=False, force=False):
 def logs_comp(comp, conf, follow):
     """Show logs for component."""
 
-    execute(fab.logs_sysadm, follow, roles=[comp])
+    execute(fab.logs_sdsadm, follow, roles=[comp])
 
 
 def logs(comp, debug=False, follow=False):

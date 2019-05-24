@@ -991,36 +991,35 @@ def create_zip(zip_dir, zip_file):
 # container orchestration
 ##########################
 
-def rsync_sdsadm(node_type, dir_path=None):
-    if dir_path is None:
-        dir_path = node_type
-    rm_rf('%s/ops/sdsadm' % dir_path)
-    rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/sdsadm'),
+def rsync_sdsadm():
+    role, hysds_dir, hostname = resolve_role()
+    rm_rf('%s/ops/sdsadm' % hysds_dir)
+    rsync_project('%s/ops/' % hysds_dir, os.path.join(ops_dir, 'mozart/ops/sdsadm'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
 
 
-def init_sysadm():
+def init_sdsadm():
     role, hysds_dir, hostname = resolve_role()
     with cd(os.path.join(hysds_dir, 'ops', 'sdsadm')):
         with prefix('source ~/%s/bin/activate' % hysds_dir):
             run("./sdsadm init {} -f".format(hysds_dir, role))
 
 
-def start_sysadm():
+def start_sdsadm():
     role, hysds_dir, hostname = resolve_role()
     with cd(os.path.join(hysds_dir, 'ops', 'sdsadm')):
         with prefix('source ~/%s/bin/activate' % hysds_dir):
             run("./sdsadm start {} -d".format(hysds_dir, role))
 
 
-def stop_sysadm():
+def stop_sdsadm():
     role, hysds_dir, hostname = resolve_role()
     with cd(os.path.join(hysds_dir, 'ops', 'sdsadm')):
         with prefix('source ~/%s/bin/activate' % hysds_dir):
             run("./sdsadm stop {}".format(hysds_dir, role))
 
 
-def logs_sysadm(follow=False):
+def logs_sdsadm(follow=False):
     role, hysds_dir, hostname = resolve_role()
     with cd(os.path.join(hysds_dir, 'ops', 'sdsadm')):
         with prefix('source ~/%s/bin/activate' % hysds_dir):
