@@ -1005,11 +1005,11 @@ def init_sdsadm():
             run("./sdsadm init {} -f".format(hysds_dir, role))
 
 
-def start_sdsadm():
+def start_sdsadm(release):
     role, hysds_dir, hostname = resolve_role()
     with cd(os.path.join(hysds_dir, 'ops', 'sdsadm')):
         with prefix('source ~/%s/bin/activate' % hysds_dir):
-            run("./sdsadm start {} -d".format(hysds_dir, role))
+            run("./sdsadm -r {} start {} -d".format(release, hysds_dir, role))
 
 
 def stop_sdsadm():

@@ -212,6 +212,8 @@ def orch(args):
     logger.debug("func: %s" % func)
     if args.subparser == 'logs':
         func(args.component, args.debug, args.follow)
+    elif args.subparser == 'start':
+        func(args.component, args.release, args.debug, args.force)
     else:
         func(args.component, args.debug, args.force)
 
@@ -505,6 +507,8 @@ def main():
                                                          'factotum', 'all'])
     parser_orch_start.add_argument('--force', '-f', action='store_true',
                                    help="force start without user confirmation")
+    parser_orch_start.add_argument('--release', '-r', default='latest',
+                                   help="HySDS core release")
     parser_orch_stop = parser_orch_subparsers.add_parser(
         'stop', help="stop container-orchestrated SDS components")
     parser_orch_stop.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',

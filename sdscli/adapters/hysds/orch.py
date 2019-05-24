@@ -108,20 +108,20 @@ def init(comp, debug=False, force=False):
             init_comp(comp, conf)
 
 
-def start_mozart(conf, comp='mozart'):
+def start_mozart(release, conf, comp='mozart'):
     """"Start mozart component."""
 
     # progress bar
     with tqdm(total=1) as bar:
 
         # start mozart
-        set_bar_desc(bar, 'Starting mozart')
-        execute(fab.start_sdsadm, roles=[comp])
+        set_bar_desc(bar, 'Starting mozart ({})'.format(release))
+        execute(fab.start_sdsadm, release, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started mozart')
+        set_bar_desc(bar, 'Started mozart ({})'.format(release))
 
 
-def start_comp(comp, conf):
+def start_comp(comp, release, conf):
     """Start component."""
 
     # if all, create progress bar
@@ -130,31 +130,31 @@ def start_comp(comp, conf):
         # progress bar
         with tqdm(total=4) as bar:
             set_bar_desc(bar, "Starting metrics")
-            start_metrics(conf)
+            start_metrics(release, conf)
             bar.update()
             set_bar_desc(bar, "Starting grq")
-            start_grq(conf)
+            start_grq(release, conf)
             bar.update()
             set_bar_desc(bar, "Starting mozart")
-            start_mozart(conf)
+            start_mozart(release, conf)
             bar.update()
             set_bar_desc(bar, "Starting factotum")
-            start_factotum(conf)
+            start_factotum(release, conf)
             bar.update()
             set_bar_desc(bar, "Started all")
             print("")
     else:
         if comp == 'metrics':
-            start_metrics(conf)
+            start_metrics(release, conf)
         if comp == 'grq':
-            start_grq(conf)
+            start_grq(release, conf)
         if comp == 'mozart':
-            start_mozart(conf)
+            start_mozart(release, conf)
         if comp == 'factotum':
-            start_factotum(conf)
+            start_factotum(release, conf)
 
 
-def start(comp, debug=False, force=False):
+def start(comp, release, debug=False, force=False):
     """Start components."""
 
     # prompt user
@@ -170,7 +170,7 @@ def start(comp, debug=False, force=False):
 
     logger.debug("Starting %s" % comp)
 
-    start_comp(comp, conf)
+    start_comp(comp, release, conf)
 
 
 def stop_mozart(conf, comp='mozart'):
