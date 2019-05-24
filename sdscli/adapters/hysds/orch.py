@@ -130,34 +130,21 @@ def init_factotum(conf, comp='factotum'):
 def init_comp(comp, conf):
     """Initialize component."""
 
-    # if all, create progress bar
     if comp == 'all':
-
-        # progress bar
-        with tqdm(total=4) as bar:
-            set_bar_desc(bar, "Initializing metrics")
-            init_metrics(conf)
-            bar.update()
-            set_bar_desc(bar, "Initializing grq")
-            init_grq(conf)
-            bar.update()
-            set_bar_desc(bar, "Initializing mozart")
-            init_mozart(conf)
-            bar.update()
-            set_bar_desc(bar, "Initializing factotum")
-            init_factotum(conf)
-            bar.update()
-            set_bar_desc(bar, "Initialized all")
-            print("")
+        comps = ['metrics', 'grq', 'mozart', 'factotum', 'ci']
+    elif comp == 'core':
+        comps = ['metrics', 'grq', 'mozart', 'factotum']
     else:
-        if comp == 'metrics':
-            init_metrics(conf)
-        if comp == 'grq':
-            init_grq(conf)
-        if comp == 'mozart':
-            init_mozart(conf)
-        if comp == 'factotum':
-            init_factotum(conf)
+        comps = [comp]
+
+    with tqdm(total=len(comps)) as bar:
+        for c in comps:
+            set_bar_desc(bar, 'Initializing {}'.format(c))
+            globals()["init_{}".format(c)](conf)
+            bar.update()
+            set_bar_desc(bar, 'Initialized {}'.format(c))
+        set_bar_desc(bar, "Initialized {}".format(comp))
+        print("")
 
 
 def init(comp, debug=False, force=False):
@@ -186,7 +173,12 @@ def init(comp, debug=False, force=False):
 def start_comp(comp, release, conf):
     """Start component."""
 
-    comps = ['metrics', 'grq', 'mozart', 'factotum'] if comp == 'all' else [comp]
+    if comp == 'all':
+        comps = ['metrics', 'grq', 'mozart', 'factotum', 'ci']
+    elif comp == 'core':
+        comps = ['metrics', 'grq', 'mozart', 'factotum']
+    else:
+        comps = [comp]
     with tqdm(total=len(comps)) as bar:
         for c in comps:
             set_bar_desc(bar, 'Starting {} ({})'.format(c, release))
@@ -219,7 +211,12 @@ def start(comp, release, debug=False, force=False):
 def stop_comp(comp, conf):
     """Stop component."""
 
-    comps = ['metrics', 'grq', 'mozart', 'factotum'] if comp == 'all' else [comp]
+    if comp == 'all':
+        comps = ['metrics', 'grq', 'mozart', 'factotum', 'ci']
+    elif comp == 'core':
+        comps = ['metrics', 'grq', 'mozart', 'factotum']
+    else:
+        comps = [comp]
     with tqdm(total=len(comps)) as bar:
         for c in comps:
             set_bar_desc(bar, 'Stopping {}'.format(c))
@@ -267,7 +264,12 @@ def logs(comp, debug=False, follow=False):
 def ps_comp(comp, conf):
     """List containers for component."""
 
-    comps = ['metrics', 'grq', 'mozart', 'factotum'] if comp == 'all' else [comp]
+    if comp == 'all':
+        comps = ['metrics', 'grq', 'mozart', 'factotum', 'ci']
+    elif comp == 'core':
+        comps = ['metrics', 'grq', 'mozart', 'factotum']
+    else:
+        comps = [comp]
     for c in comps:
         execute(fab.ps_sdsadm, roles=[c])
 

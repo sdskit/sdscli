@@ -498,7 +498,7 @@ def main():
     parser_orch_init.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                                    choices=['hysds', 'sdskit'])
     parser_orch_init.add_argument('component', choices=['mozart', 'grq', 'metrics',
-                                                         'factotum', 'all'])
+                                                         'factotum', 'ci', 'all', 'core'])
     parser_orch_init.add_argument('--force', '-f', action='store_true',
                                    help="force initialization without user confirmation")
     parser_orch_start = parser_orch_subparsers.add_parser(
@@ -506,7 +506,7 @@ def main():
     parser_orch_start.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                                    choices=['hysds', 'sdskit'])
     parser_orch_start.add_argument('component', choices=['mozart', 'grq', 'metrics',
-                                                         'factotum', 'all'])
+                                                         'factotum', 'ci', 'all', 'core'])
     parser_orch_start.add_argument('--force', '-f', action='store_true',
                                    help="force start without user confirmation")
     parser_orch_start.add_argument('--release', '-r', default='latest',
@@ -516,7 +516,7 @@ def main():
     parser_orch_stop.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                                   choices=['hysds', 'sdskit'])
     parser_orch_stop.add_argument('component', choices=['mozart', 'grq', 'metrics',
-                                                        'factotum', 'all'])
+                                                        'factotum', 'ci', 'all', 'core'])
     parser_orch_stop.add_argument('--force', '-f', action='store_true',
                                   help="force stop without user confirmation")
     parser_orch_logs = parser_orch_subparsers.add_parser(
@@ -524,7 +524,7 @@ def main():
     parser_orch_logs.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                                   choices=['hysds', 'sdskit'])
     parser_orch_logs.add_argument('component', choices=['mozart', 'grq', 'metrics',
-                                                        'factotum'])
+                                                        'factotum', 'ci'])
     parser_orch_logs.add_argument('--follow', '-f', action='store_true',
                                   help="follow log output")
     parser_orch_ps = parser_orch_subparsers.add_parser(
@@ -532,7 +532,7 @@ def main():
     parser_orch_ps.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                                   choices=['hysds', 'sdskit'])
     parser_orch_ps.add_argument('component', choices=['mozart', 'grq', 'metrics',
-                                                        'factotum', 'all'])
+                                                      'factotum', 'ci', 'all', 'core'])
     parser_orch.set_defaults(func=orch)
 
     # parse
