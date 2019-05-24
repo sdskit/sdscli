@@ -25,6 +25,7 @@ def get_module(mod_name):
         return import_module(mod_name)
     except ImportError:
         logger.error('Failed to import module "%s".' % mod_name)
+        logger.error(traceback.format_exc())
         raise
 
 
@@ -39,4 +40,5 @@ def get_func(mod_name, func_name):
     except AttributeError:
         logger.error('Failed to get function "%s" from module "%s".' %
                      (func_name, mod_name))
+        logger.error(traceback.format_exc())
         raise
