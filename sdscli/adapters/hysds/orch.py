@@ -102,6 +102,31 @@ def init_metrics(conf, comp='metrics'):
         set_bar_desc(bar, 'Initialized metrics')
 
 
+def init_factotum(conf, comp='factotum'):
+    """"Initialize factotum component."""
+
+    # progress bar
+    with tqdm(total=3) as bar:
+
+        # ensure venv
+        set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.ensure_venv, 'verdi', system_site_packages=False,
+                install_supervisor=False, roles=[comp])
+        bar.update()
+
+        # rsync sdsadm
+        set_bar_desc(bar, 'Syncing sdsadm')
+        execute(fab.rm_rf, '~/verdi/ops/sdsadm', roles=[comp])
+        execute(fab.rsync_sdsadm, roles=[comp])
+        bar.update()
+
+        # initialize sdsadm
+        set_bar_desc(bar, 'Initializing factotum')
+        execute(fab.init_sdsadm, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Initialized factotum')
+
+
 def init_comp(comp, conf):
     """Initialize component."""
 
