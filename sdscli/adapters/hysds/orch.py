@@ -77,6 +77,31 @@ def init_grq(conf, comp='grq'):
         set_bar_desc(bar, 'Initialized grq')
 
 
+def init_metrics(conf, comp='metrics'):
+    """"Initialize metrics component."""
+
+    # progress bar
+    with tqdm(total=3) as bar:
+
+        # ensure venv
+        set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.ensure_venv, comp, system_site_packages=False,
+                install_supervisor=False, roles=[comp])
+        bar.update()
+
+        # rsync sdsadm
+        set_bar_desc(bar, 'Syncing sdsadm')
+        execute(fab.rm_rf, '~/{}/ops/sdsadm'.format(comp), roles=[comp])
+        execute(fab.rsync_sdsadm, roles=[comp])
+        bar.update()
+
+        # initialize sdsadm
+        set_bar_desc(bar, 'Initializing metrics')
+        execute(fab.init_sdsadm, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Initialized metrics')
+
+
 def init_comp(comp, conf):
     """Initialize component."""
 
