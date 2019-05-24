@@ -1033,4 +1033,4 @@ def ps_sdsadm():
     role, hysds_dir, hostname = resolve_role()
     with cd(os.path.join(hysds_dir, 'ops', 'sdsadm')):
         with prefix('source ~/%s/bin/activate' % hysds_dir):
-            run("./sdsadm ps {} -a".format(role))
+            run("./sdsadm ps {}".format(role))
