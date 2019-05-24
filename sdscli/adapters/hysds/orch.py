@@ -52,6 +52,31 @@ def init_mozart(conf, comp='mozart'):
         set_bar_desc(bar, 'Initialized mozart')
 
 
+def init_grq(conf, comp='grq'):
+    """"Initialize grq component."""
+
+    # progress bar
+    with tqdm(total=3) as bar:
+
+        # ensure venv
+        set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.ensure_venv, 'sciflo', system_site_packages=False,
+                install_supervisor=False, roles=[comp])
+        bar.update()
+
+        # rsync sdsadm
+        set_bar_desc(bar, 'Syncing sdsadm')
+        execute(fab.rm_rf, '~/sciflo/ops/sdsadm', roles=[comp])
+        execute(fab.rsync_sdsadm, roles=[comp])
+        bar.update()
+
+        # initialize sdsadm
+        set_bar_desc(bar, 'Initializing grq')
+        execute(fab.init_sdsadm, roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Initialized grq')
+
+
 def init_comp(comp, conf):
     """Initialize component."""
 
@@ -108,50 +133,18 @@ def init(comp, debug=False, force=False):
             init_comp(comp, conf)
 
 
-def start_mozart(release, conf, comp='mozart'):
-    """"Start mozart component."""
-
-    # progress bar
-    with tqdm(total=1) as bar:
-
-        # start mozart
-        set_bar_desc(bar, 'Starting mozart ({})'.format(release))
-        execute(fab.start_sdsadm, release, roles=[comp])
-        bar.update()
-        set_bar_desc(bar, 'Started mozart ({})'.format(release))
-
-
 def start_comp(comp, release, conf):
     """Start component."""
 
-    # if all, create progress bar
-    if comp == 'all':
-
-        # progress bar
-        with tqdm(total=4) as bar:
-            set_bar_desc(bar, "Starting metrics")
-            start_metrics(release, conf)
+    comps = ['metrics', 'grq', 'mozart', 'factotum'] if comp == 'all' else [comp]
+    with tqdm(total=len(comps)) as bar:
+        for c in comps:
+            set_bar_desc(bar, 'Starting {} ({})'.format(c, release))
+            execute(fab.start_sdsadm, release, roles=[c])
             bar.update()
-            set_bar_desc(bar, "Starting grq")
-            start_grq(release, conf)
-            bar.update()
-            set_bar_desc(bar, "Starting mozart")
-            start_mozart(release, conf)
-            bar.update()
-            set_bar_desc(bar, "Starting factotum")
-            start_factotum(release, conf)
-            bar.update()
-            set_bar_desc(bar, "Started all")
-            print("")
-    else:
-        if comp == 'metrics':
-            start_metrics(release, conf)
-        if comp == 'grq':
-            start_grq(release, conf)
-        if comp == 'mozart':
-            start_mozart(release, conf)
-        if comp == 'factotum':
-            start_factotum(release, conf)
+            set_bar_desc(bar, 'Started {} ({})'.format(c, release))
+        set_bar_desc(bar, "Started all")
+        print("")
 
 
 def start(comp, release, debug=False, force=False):
@@ -173,50 +166,18 @@ def start(comp, release, debug=False, force=False):
     start_comp(comp, release, conf)
 
 
-def stop_mozart(conf, comp='mozart'):
-    """"Stop mozart component."""
-
-    # progress bar
-    with tqdm(total=1) as bar:
-
-        # stop mozart
-        set_bar_desc(bar, 'Stopping mozart')
-        execute(fab.stop_sdsadm, roles=[comp])
-        bar.update()
-        set_bar_desc(bar, 'Stopped mozart')
-
-
 def stop_comp(comp, conf):
     """Stop component."""
 
-    # if all, create progress bar
-    if comp == 'all':
-
-        # progress bar
-        with tqdm(total=4) as bar:
-            set_bar_desc(bar, "Stopping metrics")
-            stop_metrics(conf)
+    comps = ['metrics', 'grq', 'mozart', 'factotum'] if comp == 'all' else [comp]
+    with tqdm(total=len(comps)) as bar:
+        for c in comps:
+            set_bar_desc(bar, 'Stopping {}'.format(c))
+            execute(fab.stop_sdsadm, roles=[c])
             bar.update()
-            set_bar_desc(bar, "Stopping grq")
-            stop_grq(conf)
-            bar.update()
-            set_bar_desc(bar, "Stopping mozart")
-            stop_mozart(conf)
-            bar.update()
-            set_bar_desc(bar, "Stopping factotum")
-            stop_factotum(conf)
-            bar.update()
-            set_bar_desc(bar, "Stopped all")
-            print("")
-    else:
-        if comp == 'metrics':
-            stop_metrics(conf)
-        if comp == 'grq':
-            stop_grq(conf)
-        if comp == 'mozart':
-            stop_mozart(conf)
-        if comp == 'factotum':
-            stop_factotum(conf)
+            set_bar_desc(bar, 'Stopped {}'.format(c))
+        set_bar_desc(bar, "Stopped all")
+        print("")
 
 
 def stop(comp, debug=False, force=False):
