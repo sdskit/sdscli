@@ -37,7 +37,7 @@ def init_mozart(conf, comp='mozart'):
     """"Initialize mozart component."""
 
     # progress bar
-    with tqdm(total=2) as bar:
+    with tqdm(total=3) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -50,6 +50,14 @@ def init_mozart(conf, comp='mozart'):
         execute(fab.init_sdsadm, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Initialized mozart')
+
+        # configure for cluster
+        set_bar_desc(bar, 'Configuring mozart')
+        execute(fab.conf_sdsadm, 'celeryconfig.py',
+                '~/mozart/etc/celeryconfig.py',
+                roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Configured mozart')
 
 
 def init_grq(conf, comp='grq'):
