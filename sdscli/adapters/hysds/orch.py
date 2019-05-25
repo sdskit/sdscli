@@ -113,7 +113,7 @@ def init_metrics(conf, comp='metrics'):
     """"Initialize metrics component."""
 
     # progress bar
-    with tqdm(total=3) as bar:
+    with tqdm(total=5) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -132,6 +132,18 @@ def init_metrics(conf, comp='metrics'):
         execute(fab.init_sdsadm, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Initialized metrics')
+
+        # configure for cluster
+        set_bar_desc(bar, 'Configuring metrics')
+        execute(fab.conf_sdsadm, 'celeryconfig.py',
+                '~/metrics/etc/celeryconfig.py',
+                roles=[comp])
+        bar.update()
+        execute(fab.conf_sdsadm, 'datasets.json',
+                '~/metrics/etc/datasets.json', True,
+                roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Configured metrics')
 
 
 def init_factotum(conf, comp='factotum'):

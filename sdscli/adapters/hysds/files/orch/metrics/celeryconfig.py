@@ -1,5 +1,5 @@
-broker_url = "amqp://{{ MOZART_RABBIT_USER }}:{{ MOZART_RABBIT_PASSWORD }}@mozart-rabbitmq:5672//"
-result_backend = "redis://:{{ MOZART_REDIS_PASSWORD }}@mozart-redis"
+broker_url = "amqp://{{ MOZART_RABBIT_USER }}:{{ MOZART_RABBIT_PASSWORD }}@{{ MOZART_RABBIT_PVT_IP }}:5672//"
+result_backend = "redis://:{{ MOZART_REDIS_PASSWORD }}@{{ MOZART_REDIS_PVT_IP }}"
 
 task_serializer = "msgpack"
 result_serializer = "msgpack"
@@ -29,7 +29,7 @@ CELERY_SEND_TASK_ERROR_EMAILS = False
 ADMINS = (
     ('Gerald Manipon', 'pymonger@gmail.com'),
 )
-SERVER_EMAIL = 'ops@mozart-rabbitmq'
+SERVER_EMAIL = 'ops@{{ MOZART_RABBIT_FQDN }}'
 
 HYSDS_HANDLE_SIGNALS = False
 HYSDS_JOB_STATUS_EXPIRES = 86400
@@ -41,7 +41,7 @@ HARD_TIME_LIMIT_GAP = 300
 
 PYMONITOREDRUNNER_CFG = {
     "rabbitmq": {
-        "hostname": "mozart-rabbitmq",
+        "hostname": "{{ MOZART_RABBIT_PVT_IP }}",
         "port": 5672,
         "queue": "stdouterr"
     },
@@ -56,9 +56,9 @@ PYMONITOREDRUNNER_CFG = {
     }
 }
 
-MOZART_URL = "https://mozart/mozart/"
-MOZART_REST_URL = "https://mozart/mozart/api/v0.1"
-JOBS_ES_URL = "http://mozart-elasticsearch:9200"
+MOZART_URL = "https://{{ MOZART_PVT_IP }}/mozart/"
+MOZART_REST_URL = "https://{{ MOZART_PVT_IP }}/mozart/api/v0.1"
+JOBS_ES_URL = "http://{{ MOZART_PVT_IP }}:9200"
 JOBS_PROCESSED_QUEUE = "jobs_processed"
 USER_RULES_JOB_QUEUE = "user_rules_job"
 ON_DEMAND_JOB_QUEUE = "on_demand_job"
@@ -78,11 +78,11 @@ DATASET_ALIAS = "grq"
 
 USER_RULES_TRIGGER_QUEUE = "user_rules_trigger"
 
-REDIS_JOB_STATUS_URL = "redis://:{{ MOZART_REDIS_PASSWORD }}@mozart-redis"
+REDIS_JOB_STATUS_URL = "redis://:{{ MOZART_REDIS_PASSWORD }}@{{ MOZART_REDIS_PVT_IP }}"
 REDIS_JOB_STATUS_KEY = "logstash"
-REDIS_JOB_INFO_URL = "redis://:{{ METRICS_REDIS_PASSWORD }}@{{ METRICS_REDIS_PVT_IP }}"
+REDIS_JOB_INFO_URL = "redis://:{{ METRICS_REDIS_PASSWORD }}@metrics-redis"
 REDIS_JOB_INFO_KEY = "logstash"
-REDIS_INSTANCE_METRICS_URL = "redis://:{{ METRICS_REDIS_PASSWORD }}@{{ METRICS_REDIS_PVT_IP }}"
+REDIS_INSTANCE_METRICS_URL = "redis://:{{ METRICS_REDIS_PASSWORD }}@metrics-redis"
 REDIS_INSTANCE_METRICS_KEY = "logstash"
 REDIS_UNIX_DOMAIN_SOCKET = "unix://:{{ MOZART_REDIS_PASSWORD }}@/data/redis/redis.sock"
 
