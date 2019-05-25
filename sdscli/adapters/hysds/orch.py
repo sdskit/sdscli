@@ -37,7 +37,7 @@ def init_mozart(conf, comp='mozart'):
     """"Initialize mozart component."""
 
     # progress bar
-    with tqdm(total=3) as bar:
+    with tqdm(total=5) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -55,6 +55,14 @@ def init_mozart(conf, comp='mozart'):
         set_bar_desc(bar, 'Configuring mozart')
         execute(fab.conf_sdsadm, 'celeryconfig.py',
                 '~/mozart/etc/celeryconfig.py',
+                roles=[comp])
+        bar.update()
+        execute(fab.conf_sdsadm, 'datasets.json',
+                '~/mozart/etc/datasets.json', True,
+                roles=[comp])
+        bar.update()
+        execute(fab.conf_sdsadm, 'settings.cfg',
+                '~/mozart/etc/settings.cfg',
                 roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Configured mozart')

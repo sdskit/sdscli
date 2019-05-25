@@ -1036,8 +1036,11 @@ def ps_sdsadm():
             run("./sdsadm ps {}".format(role))
 
 
-def conf_sdsadm(tmpl, dest):
+def conf_sdsadm(tmpl, dest, shared=False):
     role, hysds_dir, hostname = resolve_role()
-    tmpl_dir = os.path.join(get_user_files_path(), 'orch', role)
+    if shared:
+        tmpl_dir = os.path.join(get_user_files_path(), 'orch')
+    else:
+        tmpl_dir = os.path.join(get_user_files_path(), 'orch', role)
     upload_template(tmpl, dest, use_jinja=True, context=get_context(role),
                     template_dir=tmpl_dir)
