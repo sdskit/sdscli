@@ -37,7 +37,7 @@ def init_mozart(conf, comp='mozart'):
     """"Initialize mozart component."""
 
     # progress bar
-    with tqdm(total=5) as bar:
+    with tqdm(total=7) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -65,6 +65,12 @@ def init_mozart(conf, comp='mozart'):
                 '~/mozart/etc/settings.cfg',
                 roles=[comp])
         bar.update()
+        execute(fab.send_template, 'netrc.mozart',
+                '.netrc', node_type='mozart', roles=[comp])
+        execute(fab.chmod, 600, '.netrc', roles=[comp])
+        bar.update()
+        execute(fab.send_awscreds, roles=[comp])
+        bar.update()
         set_bar_desc(bar, 'Configured mozart')
 
 
@@ -72,7 +78,7 @@ def init_grq(conf, comp='grq'):
     """"Initialize grq component."""
 
     # progress bar
-    with tqdm(total=6) as bar:
+    with tqdm(total=7) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -106,6 +112,13 @@ def init_grq(conf, comp='grq'):
                 '~/sciflo/etc/tosca_settings.cfg',
                 roles=[comp])
         bar.update()
+        netrc = os.path.join(get_user_files_path(), 'netrc')
+        if os.path.exists(netrc):
+            set_bar_desc(bar, 'Configuring netrc')
+            execute(fab.send_template, 'netrc', '.netrc', roles=[comp])
+            execute(fab.chmod, 600, '.netrc', roles=[comp])
+        execute(fab.send_awscreds, roles=[comp])
+        bar.update()
         set_bar_desc(bar, 'Configured grq')
 
 
@@ -113,7 +126,7 @@ def init_metrics(conf, comp='metrics'):
     """"Initialize metrics component."""
 
     # progress bar
-    with tqdm(total=5) as bar:
+    with tqdm(total=6) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -143,6 +156,13 @@ def init_metrics(conf, comp='metrics'):
                 '~/metrics/etc/datasets.json', True,
                 roles=[comp])
         bar.update()
+        netrc = os.path.join(get_user_files_path(), 'netrc')
+        if os.path.exists(netrc):
+            set_bar_desc(bar, 'Configuring netrc')
+            execute(fab.send_template, 'netrc', '.netrc', roles=[comp])
+            execute(fab.chmod, 600, '.netrc', roles=[comp])
+        execute(fab.send_awscreds, roles=[comp])
+        bar.update()
         set_bar_desc(bar, 'Configured metrics')
 
 
@@ -150,7 +170,7 @@ def init_factotum(conf, comp='factotum'):
     """"Initialize factotum component."""
 
     # progress bar
-    with tqdm(total=5) as bar:
+    with tqdm(total=6) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -180,6 +200,13 @@ def init_factotum(conf, comp='factotum'):
                 '~/verdi/etc/datasets.json', True,
                 roles=[comp])
         bar.update()
+        netrc = os.path.join(get_user_files_path(), 'netrc')
+        if os.path.exists(netrc):
+            set_bar_desc(bar, 'Configuring netrc')
+            execute(fab.send_template, 'netrc', '.netrc', roles=[comp])
+            execute(fab.chmod, 600, '.netrc', roles=[comp])
+        execute(fab.send_awscreds, roles=[comp])
+        bar.update()
         set_bar_desc(bar, 'Configured factotum')
 
 
@@ -187,7 +214,7 @@ def init_ci(conf, comp='ci'):
     """"Initialize ci component."""
 
     # progress bar
-    with tqdm(total=5) as bar:
+    with tqdm(total=6) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -216,6 +243,13 @@ def init_ci(conf, comp='ci'):
         execute(fab.conf_sdsadm, 'datasets.json',
                 '~/verdi/etc/datasets.json', True,
                 roles=[comp])
+        bar.update()
+        netrc = os.path.join(get_user_files_path(), 'netrc')
+        if os.path.exists(netrc):
+            set_bar_desc(bar, 'Configuring netrc')
+            execute(fab.send_template, 'netrc', '.netrc', roles=[comp])
+            execute(fab.chmod, 600, '.netrc', roles=[comp])
+        execute(fab.send_awscreds, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Configured ci')
 
