@@ -150,7 +150,7 @@ def init_factotum(conf, comp='factotum'):
     """"Initialize factotum component."""
 
     # progress bar
-    with tqdm(total=3) as bar:
+    with tqdm(total=5) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -170,12 +170,24 @@ def init_factotum(conf, comp='factotum'):
         bar.update()
         set_bar_desc(bar, 'Initialized factotum')
 
+        # configure for cluster
+        set_bar_desc(bar, 'Configuring factotum')
+        execute(fab.conf_sdsadm, 'celeryconfig.py',
+                '~/verdi/etc/celeryconfig.py',
+                roles=[comp])
+        bar.update()
+        execute(fab.conf_sdsadm, 'datasets.json',
+                '~/verdi/etc/datasets.json', True,
+                roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Configured factotum')
+
 
 def init_ci(conf, comp='ci'):
     """"Initialize ci component."""
 
     # progress bar
-    with tqdm(total=3) as bar:
+    with tqdm(total=5) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -194,6 +206,18 @@ def init_ci(conf, comp='ci'):
         execute(fab.init_sdsadm, roles=[comp])
         bar.update()
         set_bar_desc(bar, 'Initialized ci')
+
+        # configure for cluster
+        set_bar_desc(bar, 'Configuring ci')
+        execute(fab.conf_sdsadm, 'celeryconfig.py',
+                '~/verdi/etc/celeryconfig.py',
+                roles=[comp])
+        bar.update()
+        execute(fab.conf_sdsadm, 'datasets.json',
+                '~/verdi/etc/datasets.json', True,
+                roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'Configured ci')
 
 
 def init_comp(comp, conf):

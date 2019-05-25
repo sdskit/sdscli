@@ -1041,6 +1041,9 @@ def conf_sdsadm(tmpl, dest, shared=False):
     if shared:
         tmpl_dir = os.path.join(get_user_files_path(), 'orch')
     else:
-        tmpl_dir = os.path.join(get_user_files_path(), 'orch', role)
+        if role in ('factotum', 'ci'):
+            tmpl_dir = os.path.join(get_user_files_path(), 'orch', 'verdi')
+        else:
+            tmpl_dir = os.path.join(get_user_files_path(), 'orch', role)
     upload_template(tmpl, dest, use_jinja=True, context=get_context(role),
                     template_dir=tmpl_dir)
