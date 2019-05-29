@@ -15,7 +15,7 @@ setup(
     zip_safe=False,
     install_requires=['PyYAML>=5.1', 'Pygments>=2.4.0', 'prompt-toolkit>=1.0,<2.0',
                       'tqdm>=4.32.1', 'backoff>=1.8.0', 'future>=0.17.1', 'requests>=2.22.0',
-                      'kombu>=4.5.0', 'redis>=3.2.1', 'elasticsearch>=7.0.1', 'boto3>=1.9.154',
+                      'kombu>=4.5.0', 'redis>=3.2.1', 'elasticsearch>=1.0.0,<2.0.0', 'boto3>=1.9.154',
                       'fabric3>=1.14.post1', 'Jinja2>=2.10.1',
                       'cryptography==2.4.2'],  # https://github.com/paramiko/paramiko/issues/1369
     entry_points={
