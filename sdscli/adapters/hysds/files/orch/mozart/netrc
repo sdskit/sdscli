@@ -1,0 +1,3 @@
+machine mozart-rabbitmq login {{ MOZART_RABBIT_USER }} password {{ MOZART_RABBIT_PASSWORD }}
+macdef init
+ 

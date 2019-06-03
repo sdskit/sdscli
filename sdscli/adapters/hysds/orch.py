@@ -65,8 +65,8 @@ def init_mozart(conf, comp='mozart'):
                 '~/mozart/etc/settings.cfg',
                 roles=[comp])
         bar.update()
-        execute(fab.send_template, 'netrc.mozart',
-                '.netrc', node_type='mozart', roles=[comp])
+        execute(fab.conf_sdsadm, 'netrc', '.netrc',
+                roles=[comp])
         execute(fab.chmod, 600, '.netrc', roles=[comp])
         bar.update()
         execute(fab.send_awscreds, roles=[comp])
