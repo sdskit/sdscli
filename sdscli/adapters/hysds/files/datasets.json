@@ -1,55 +1,7 @@
 {
   "datasets": [
-    {
-      "ipath": "hysds::data/subsounding",
-      "match_pattern": "/(?P<id>snd_.+)$",
-      "alt_match_pattern": null,
-      "extractor": null,
-      "level": "l0",
-      "type": "subsounding",
-      "publish": {
-        "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/subsounding/{version}/{id}",
-        "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/products/subsounding/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/subsounding/{version}/{id}"
-        ]
-      },
-      "browse": {
-        "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/subsounding/{version}/{id}",
-        "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/browse/subsounding/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/subsounding/{version}/{id}"
-        ]
-      }
-    },
-    {
-      "ipath": "hysds::data/aggregate",
-      "match_pattern": "/(?P<id>ar_.+)$",
-      "alt_match_pattern": null,
-      "extractor": null,
-      "level": "l0",
-      "type": "aggregate",
-      "publish": {
-        "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/aggregate/{version}/{id}",
-        "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/products/aggregate/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/aggregate/{version}/{id}"
-        ]
-      },
-      "browse": {
-        "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/aggregate/{version}/{id}",
-        "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/browse/aggregate/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/aggregate/{version}/{id}"
-        ]
-      }
-    },
     { 
-      "ipath": "ariamh::data/area_of_interest",
+      "ipath": "hysds::data/area_of_interest",
       "match_pattern": "/(?P<id>AOI_.+)$",
       "alt_match_pattern": null,
       "extractor": null,
@@ -57,10 +9,10 @@
       "type": "area_of_interest",
       "publish": {
         "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/area_of_interest/{version}/{id}",
+        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/area_of_interest/{version}/{id}",
         "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/products/area_of_interest/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/area_of_interest/{version}/{id}"
+          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/datasets/area_of_interest/{version}/{id}",
+          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/area_of_interest/{version}/{id}"
         ]
       },
       "browse": {
@@ -73,30 +25,6 @@
       }
     },
     {
-      "ipath": "ariamh::data/incoming",
-      "level": "l1",
-      "type": "incoming",
-      "match_pattern": "/incoming-(?P<year>\\d{4})-(?P<month>\\d{2})-(?P<day>\\d{2})-(?P<id>.*)$",
-      "alt_match_pattern": null,
-      "extractor": null,
-      "publish": {
-        "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/incoming/{version}/{id}",
-        "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/products/incoming/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/incoming/{version}/{id}"
-        ]
-      },
-      "browse": {
-        "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/incoming/{version}/{id}",
-        "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/browse/incoming/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/incoming/{version}/{id}"
-        ]
-      }
-    },
-    {
       "ipath": "hysds::data/dumby-product",
       "match_pattern": "/(?P<id>dumby-product-\\d+)$",
       "alt_match_pattern": null,
@@ -105,10 +33,10 @@
       "type": "dumby-data",
       "publish": {
         "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/dumby/{version}/{id}",
+        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/dumby/{version}/{id}",
         "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/products/dumby/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/dumby/{version}/{id}"
+          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/datasets/dumby/{version}/{id}",
+          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/dumby/{version}/{id}"
         ]
       },
       "browse": {
@@ -121,12 +49,12 @@
       }
     },
     {
-      "ipath": "ariamh::data/triaged_job",
-      "level": "NA",
-      "type": "triaged_job",
+      "ipath": "hysds::data/triaged_job",
       "match_pattern": "/(?P<id>triaged_job-.*)$",
       "alt_match_pattern": null,
       "extractor": null,
+      "level": "NA",
+      "type": "triaged_job",
       "publish": {
         "s3-profile-name": "default",
         "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/{type}/{version}/{id}",

@@ -1,7 +1,7 @@
 {
   "datasets": [
     { 
-      "ipath": "ariamh::data/area_of_interest",
+      "ipath": "hysds::data/area_of_interest",
       "match_pattern": "/(?P<id>AOI_.+)$",
       "alt_match_pattern": null,
       "extractor": null,
