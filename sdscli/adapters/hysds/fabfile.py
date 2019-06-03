@@ -320,6 +320,22 @@ def svn_rev(rev, path):
     run('svn up -r %s %s' % (rev, path))
 
 
+def ls(path):
+    run('ls -al {}'.format(path))
+
+
+def cat(path):
+    run('cat {}'.format(path))
+
+
+def tail(path):
+    run('tail {}'.format(path))
+
+
+def tail_f(path):
+    run('tail -f {}'.format(path))
+
+
 def grep(grep_str, dir_path):
     try:
         run('grep -r %s %s' % (grep_str, dir_path))
