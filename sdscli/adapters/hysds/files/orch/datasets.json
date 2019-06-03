@@ -9,10 +9,10 @@
       "type": "area_of_interest",
       "publish": {
         "s3-profile-name": "default",
-        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/area_of_interest/{version}/{id}",
+        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/area_of_interest/{version}/{id}",
         "urls": [
-          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/products/area_of_interest/{version}/{id}",
-          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/area_of_interest/{version}/{id}"
+          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/datasets/area_of_interest/{version}/{id}",
+          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/area_of_interest/{version}/{id}"
         ]
       },
       "browse": {
@@ -21,6 +21,54 @@
         "urls": [
           "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/browse/area_of_interest/{version}/{id}",
           "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/area_of_interest/{version}/{id}"
+        ]
+      }
+    },
+    {
+      "ipath": "hysds::data/dumby-product",
+      "match_pattern": "/(?P<id>dumby-product-\\d+)$",
+      "alt_match_pattern": null,
+      "extractor": null,
+      "level": "l0",
+      "type": "dumby-data",
+      "publish": {
+        "s3-profile-name": "default",
+        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/dumby/{version}/{id}",
+        "urls": [
+          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/datasets/dumby/{version}/{id}",
+          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/dumby/{version}/{id}"
+        ]
+      },
+      "browse": {
+        "s3-profile-name": "default",
+        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/dumby/{version}/{id}",
+        "urls": [
+          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/browse/dumby/{version}/{id}",
+          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/dumby/{version}/{id}"
+        ]
+      }
+    },
+    {
+      "ipath": "hysds::data/triaged_job",
+      "match_pattern": "/(?P<id>triaged_job-.*)$",
+      "alt_match_pattern": null,
+      "extractor": null,
+      "level": "NA",
+      "type": "triaged_job",
+      "publish": {
+        "s3-profile-name": "default",
+        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/{type}/{version}/{id}",
+        "urls": [
+          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/datasets/{type}/{version}/{id}",
+          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/datasets/{type}/{version}/{id}"
+        ]
+      },
+      "browse": {
+        "s3-profile-name": "default",
+        "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/{type}/{version}/{id}",
+        "urls": [
+          "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/browse/{type}/{version}/{id}",
+          "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/{type}/{version}/{id}"
         ]
       }
     }
