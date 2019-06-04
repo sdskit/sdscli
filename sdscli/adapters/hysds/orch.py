@@ -408,3 +408,18 @@ def ps(comp, debug=False):
     conf = SettingsConf()
 
     ps_comp(comp, conf)
+
+
+def run_comp(comp, cmd, conf):
+    """Run command in component."""
+
+    execute(fab.run_sdsadm, cmd, roles=[comp])
+
+
+def run(comp, cmd):
+    """Run command in components."""
+
+    # get user's SDS conf settings
+    conf = SettingsConf()
+
+    run_comp(comp, cmd, conf)

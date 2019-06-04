@@ -1052,6 +1052,13 @@ def ps_sdsadm():
             run("./sdsadm ps {}".format(role))
 
 
+def run_sdsadm(cmd):
+    role, hysds_dir, hostname = resolve_role()
+    with cd(os.path.join(hysds_dir, 'ops', 'sdsadm')):
+        with prefix('source ~/%s/bin/activate' % hysds_dir):
+            run("./sdsadm run {} {}".format(role, cmd))
+
+
 def conf_sdsadm(tmpl, dest, shared=False):
     role, hysds_dir, hostname = resolve_role()
     if shared:
