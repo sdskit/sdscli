@@ -100,6 +100,9 @@ env.abort_on_prompts = True
 # do all tasks in parallel
 env.parallel = True
 
+# set connection timeout
+env.timeout = 60
+
 # define ops home directory
 ops_dir = context['OPS_HOME']
 
