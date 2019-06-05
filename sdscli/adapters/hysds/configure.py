@@ -67,6 +67,7 @@ MOZART_ES_FQDN: {MOZART_ES_FQDN}
 OPS_USER: {OPS_USER}
 OPS_HOME: {OPS_HOME}
 OPS_PASSWORD_HASH: {OPS_PASSWORD_HASH}
+OPS_PASSWORD_HASH_SHA1: {OPS_PASSWORD_HASH_SHA1}
 LDAP_GROUPS: {LDAP_GROUPS}
 KEY_FILENAME: {KEY_FILENAME}
 JENKINS_USER: {JENKINS_USER}
@@ -201,6 +202,7 @@ CFG_DEFAULTS = {
         ["OPS_USER", pwd.getpwuid(os.getuid())[0]],
         ["OPS_HOME", os.path.expanduser('~')],
         ["OPS_PASSWORD_HASH", ""],
+        ["OPS_PASSWORD_HASH_SHA1", ""],
         ["LDAP_GROUPS", ""],
         ["KEY_FILENAME", ""],
         ["DATASETS_CFG", os.path.join(os.path.expanduser(
@@ -414,6 +416,7 @@ def configure():
             cfg[k] = v
 
     # ops
+    OPS_PASSWORD_HASH_SHA1 = None
     for k, d in CFG_DEFAULTS['ops']:
         if k == 'OPS_PASSWORD_HASH':
             while True:
@@ -436,8 +439,11 @@ def configure():
                         print("Password can't be empty.")
                         continue
                     v = hashlib.sha224(p1.encode()).hexdigest()
+                    OPS_PASSWORD_HASH_SHA1 = hashlib.sha1(p1.encode()).hexdigest()
                     break
                 print("Passwords don't match.")
+        elif k == 'OPS_PASSWORD_HASH_SHA1':
+            v = OPS_PASSWORD_HASH_SHA1
         else:
             v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
                                                     (Token.Param, "%s" % k),
