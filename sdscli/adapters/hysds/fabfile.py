@@ -280,6 +280,9 @@ def rsync_code(node_type, dir_path=None):
     rm_rf('%s/ops/sciflo' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/sciflo'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
+    rm_rf('%s/ops/chimera' % dir_path)
+    rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/chimera'),
+                  extra_opts=extra_opts, ssh_opts=ssh_opts)
     rm_rf('%s/ops/container-builder' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/container-builder'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
