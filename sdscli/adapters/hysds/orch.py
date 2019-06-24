@@ -22,6 +22,9 @@ import traceback
 import pkgutil
 import json
 import os
+from xmlrpc.client import ServerProxy
+import ssl
+import netrc
 from future import standard_library
 standard_library.install_aliases()
 
@@ -447,3 +450,35 @@ def run(comp, cmd):
     conf = SettingsConf()
 
     run_comp(comp, cmd, conf)
+
+
+def status_comp(comp, conf):
+    """List containers for component."""
+
+    if comp == 'all':
+        comps = ['metrics', 'grq', 'mozart', 'factotum', 'ci']
+    elif comp == 'core':
+        comps = ['metrics', 'grq', 'mozart', 'factotum']
+    else:
+        comps = [comp]
+    for c in comps:
+        nc = netrc.netrc().hosts
+        comp_ip = conf.get('{}_PVT_IP'.format(c.upper()))
+        if comp_ip in nc: 
+            u, a, p = nc[comp_ip]
+            server_url = "https://{}:{}@{}/supervisor/RPC2".format(u, p, comp_ip)
+        else:
+            server_url = "https://{}/supervisor/RPC2".format(comp_ip)
+        server = ServerProxy(server_url, context=ssl._create_unverified_context())
+        state = server.supervisor.getState() 
+        logger.debug("{} state: {}".format(c, json.dumps(state, indent=2)))
+        #execute(fab.ps_sdsadm, roles=[c])
+
+
+def status(comp, debug=False):
+    """List containers for components."""
+
+    # get user's SDS conf settings
+    conf = SettingsConf()
+
+    status_comp(comp, conf)

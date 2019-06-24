@@ -214,7 +214,7 @@ def orch(args):
         func(args.component, args.debug, args.follow)
     elif args.subparser == 'start':
         func(args.component, args.release, args.debug, args.force)
-    elif args.subparser == 'ps':
+    elif args.subparser in ('ps', 'status'):
         func(args.component, args.debug)
     elif args.subparser == 'run':
         func(args.component, " ".join(args.cmd))
@@ -542,6 +542,12 @@ def main():
     parser_orch_run.add_argument('component', choices=['mozart', 'grq', 'metrics',
                                                         'factotum', 'ci'])
     parser_orch_run.add_argument('cmd', nargs=argparse.REMAINDER, help="command")
+    parser_orch_status = parser_orch_subparsers.add_parser(
+        'status', help="show status of SDS components")
+    parser_orch_status.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+                                  choices=['hysds', 'sdskit'])
+    parser_orch_status.add_argument('component', choices=['mozart', 'grq', 'metrics',
+                                                      'factotum', 'ci', 'all', 'core'])
     parser_orch.set_defaults(func=orch)
 
     # parse
