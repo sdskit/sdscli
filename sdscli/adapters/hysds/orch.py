@@ -120,6 +120,10 @@ def init_grq(conf, comp='grq'):
                 '~/sciflo/etc/tosca_settings.cfg',
                 roles=[comp])
         bar.update()
+        execute(fab.conf_sdsadm, 'pele_settings.cfg',
+                '~/sciflo/etc/pele_settings.cfg',
+                roles=[comp])
+        bar.update()
         netrc = os.path.join(get_user_files_path(), 'netrc')
         if os.path.exists(netrc):
             set_bar_desc(bar, 'Configuring netrc')

@@ -280,6 +280,9 @@ def rsync_code(node_type, dir_path=None):
     rm_rf('%s/ops/sciflo' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/sciflo'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
+    rm_rf('%s/ops/chimera' % dir_path)
+    rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/chimera'),
+                  extra_opts=extra_opts, ssh_opts=ssh_opts)
     rm_rf('%s/ops/container-builder' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/container-builder'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
@@ -310,6 +313,9 @@ def rsync_code(node_type, dir_path=None):
                       extra_opts=extra_opts, ssh_opts=ssh_opts)
         rm_rf('%s/ops/tosca' % dir_path)
         rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/tosca'),
+                      extra_opts=extra_opts, ssh_opts=ssh_opts)
+        rm_rf('%s/ops/pele' % dir_path)
+        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/pele'),
                       extra_opts=extra_opts, ssh_opts=ssh_opts)
 
 
@@ -866,6 +872,18 @@ def send_toscaconf(send_file='settings.cfg.tmpl', template_dir=get_user_files_pa
     with prefix('source ~/sciflo/bin/activate'):
         with cd('~/sciflo/ops/tosca'):
             run('./db_create.py')
+
+
+def send_peleconf(send_file='settings.cfg.tmpl', template_dir=get_user_files_path()):
+    tmpl_dir = os.path.expanduser(template_dir)
+    dest_file = '~/sciflo/ops/pele/settings.cfg'
+    upload_template(send_file, dest_file, use_jinja=True, context=get_context('grq'),
+                    template_dir=tmpl_dir)
+    with prefix('source ~/sciflo/bin/activate'):
+        with cd('~/sciflo/ops/pele'):
+            run('flask create-db')
+            run('flask db init')
+            run('flask db migrate')
 
 
 def create_user_rules_index():

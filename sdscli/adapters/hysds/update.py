@@ -41,7 +41,7 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
     """"Update mozart component."""
 
     # progress bar
-    with tqdm(total=37) as bar:
+    with tqdm(total=39) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -72,6 +72,9 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         bar.update()
         execute(fab.pip_install_with_req, 'mozart',
                 '~/mozart/ops/sciflo', ndeps, roles=[comp])
+        bar.update()
+        execute(fab.pip_install_with_req, 'mozart',
+                '~/mozart/ops/chimera', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'mozart',
                 '~/mozart/ops/mozart', ndeps, roles=[comp])
@@ -217,6 +220,9 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/sciflo', ndeps, roles=[comp])
         bar.update()
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/chimera', ndeps, roles=[comp])
+        bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -258,7 +264,7 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
     """"Update metrics component."""
 
     # progress bar
-    with tqdm(total=20) as bar:
+    with tqdm(total=21) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -295,6 +301,9 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
         bar.update()
         execute(fab.pip_install_with_req, 'metrics',
                 '~/metrics/ops/sciflo', ndeps, roles=[comp])
+        bar.update()
+        execute(fab.pip_install_with_req, 'metrics',
+                '~/metrics/ops/chimera', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
@@ -353,7 +362,7 @@ def update_grq(conf, ndeps=False, comp='grq'):
     """"Update grq component."""
 
     # progress bar
-    with tqdm(total=22) as bar:
+    with tqdm(total=25) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -394,10 +403,16 @@ def update_grq(conf, ndeps=False, comp='grq'):
                 '~/sciflo/ops/sciflo', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/chimera', ndeps, roles=[comp])
+        bar.update()
+        execute(fab.pip_install_with_req, 'sciflo',
                 '~/sciflo/ops/grq2', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'sciflo',
                 '~/sciflo/ops/tosca', ndeps, roles=[comp])
+        bar.update()
+        execute(fab.pip_install_with_req, 'sciflo',
+                '~/sciflo/ops/pele', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
@@ -423,6 +438,12 @@ def update_grq(conf, ndeps=False, comp='grq'):
                     '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
             execute(
                 fab.chmod, 644, '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
+        bar.update()
+
+        # update pele config
+        set_bar_desc(bar, 'Updating pele config')
+        execute(fab.rm_rf, '~/sciflo/ops/pele/settings.cfg', roles=[comp])
+        execute(fab.send_peleconf, 'pele_settings.cfg.tmpl', roles=[comp])
         bar.update()
 
         # create user_rules index
@@ -459,6 +480,10 @@ def update_grq(conf, ndeps=False, comp='grq'):
                 '~/sciflo/ops/tosca/server.key', roles=[comp])
         execute(fab.ln_sf, '~/ssl/server.pem',
                 '~/sciflo/ops/tosca/server.pem', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.key',
+                '~/sciflo/ops/pele/server.key', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.pem',
+                '~/sciflo/ops/pele/server.pem', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
@@ -484,7 +509,7 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
     """"Update factotum component."""
 
     # progress bar
-    with tqdm(total=14) as bar:
+    with tqdm(total=15) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -523,6 +548,9 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/sciflo', ndeps, roles=[comp])
+        bar.update()
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/chimera', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
@@ -571,7 +599,7 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
     """"Update verdi component."""
 
     # progress bar
-    with tqdm(total=15) as bar:
+    with tqdm(total=16) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -616,6 +644,9 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/sciflo', ndeps, roles=[comp])
+        bar.update()
+        execute(fab.pip_install_with_req, 'verdi',
+                '~/verdi/ops/chimera', ndeps, roles=[comp])
         bar.update()
 
         # update celery config
