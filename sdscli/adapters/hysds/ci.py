@@ -8,6 +8,7 @@ from __future__ import absolute_import
 
 
 from future import standard_library
+
 standard_library.install_aliases()
 import os
 import yaml
@@ -39,9 +40,9 @@ def remove_job(args):
 
     # remove jenkins job for branch or release
     if args.branch is None:
-        execute(fab.remove_ci_job, args.repo, roles=['ci'])
+        execute(fab.remove_ci_job, args.repo, roles=["ci"])
     else:
-        execute(fab.remove_ci_job, args.repo, args.branch, roles=['ci'])
+        execute(fab.remove_ci_job, args.repo, args.branch, roles=["ci"])
 
 
 def add_job(args):
@@ -52,12 +53,13 @@ def add_job(args):
 
     # if using OAuth token, check its defined
     if args.token:
-        if conf.get('GIT_OAUTH_TOKEN') is None:
+        if conf.get("GIT_OAUTH_TOKEN") is None:
             logger.error("Cannot use OAuth token. Undefined in SDS config.")
             return 1
         u = urlparse(args.repo)
-        repo_url = u._replace(netloc="{}@{}".format(
-            conf.get('GIT_OAUTH_TOKEN'), u.netloc)).geturl()
+        repo_url = u._replace(
+            netloc="{}@{}".format(conf.get("GIT_OAUTH_TOKEN"), u.netloc)
+        ).geturl()
     else:
         repo_url = args.repo
 
@@ -65,13 +67,12 @@ def add_job(args):
 
     # add jenkins job for branch or release
     if args.branch is None:
-        execute(fab.add_ci_job_release, repo_url, args.storage, roles=['ci'])
+        execute(fab.add_ci_job_release, repo_url, args.storage, roles=["ci"])
     else:
-        execute(fab.add_ci_job, repo_url, args.storage,
-                args.branch, roles=['ci'])
+        execute(fab.add_ci_job, repo_url, args.storage, args.branch, roles=["ci"])
 
     # reload
-    execute(fab.reload_configuration, roles=['ci'])
+    execute(fab.reload_configuration, roles=["ci"])
 
 
 def build_job(args):
@@ -82,6 +83,6 @@ def build_job(args):
 
     # build jenkins job for branch or release
     if args.branch is None:
-        execute(fab.build_ci_job, args.repo, roles=['ci'])
+        execute(fab.build_ci_job, args.repo, roles=["ci"])
     else:
-        execute(fab.build_ci_job, args.repo, args.branch, roles=['ci'])
+        execute(fab.build_ci_job, args.repo, args.branch, roles=["ci"])

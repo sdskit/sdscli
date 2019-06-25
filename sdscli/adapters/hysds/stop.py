@@ -8,6 +8,7 @@ from __future__ import absolute_import
 
 
 from future import standard_library
+
 standard_library.install_aliases()
 import os
 import yaml
@@ -30,91 +31,89 @@ from sdscli.prompt_utils import YesNoValidator, set_bar_desc
 from . import fabfile as fab
 
 
-prompt_style = style_from_dict({
-    Token.Alert: 'bg:#D8060C',
-    Token.Username: '#D8060C',
-    Token.Param: '#3CFF33',
-})
+prompt_style = style_from_dict(
+    {Token.Alert: "bg:#D8060C", Token.Username: "#D8060C", Token.Param: "#3CFF33"}
+)
 
 
-def stop_mozart(conf, comp='mozart'):
+def stop_mozart(conf, comp="mozart"):
     """"Stop mozart component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
+        set_bar_desc(bar, "Ensuring HySDS venv")
         execute(fab.ensure_venv, comp, roles=[comp])
         bar.update()
 
         # stop services
-        set_bar_desc(bar, 'Stopping mozartd')
+        set_bar_desc(bar, "Stopping mozartd")
         execute(fab.mozartd_stop, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Stopped mozart')
+        set_bar_desc(bar, "Stopped mozart")
 
 
-def stop_metrics(conf, comp='metrics'):
+def stop_metrics(conf, comp="metrics"):
     """"Stop metrics component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
+        set_bar_desc(bar, "Ensuring HySDS venv")
         execute(fab.ensure_venv, comp, roles=[comp])
         bar.update()
 
         # stop services
-        set_bar_desc(bar, 'Stopping metricsd')
+        set_bar_desc(bar, "Stopping metricsd")
         execute(fab.metricsd_stop, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Stopped metrics')
+        set_bar_desc(bar, "Stopped metrics")
 
 
-def stop_grq(conf, comp='grq'):
+def stop_grq(conf, comp="grq"):
     """"Stop grq component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'sciflo', roles=[comp])
+        set_bar_desc(bar, "Ensuring HySDS venv")
+        execute(fab.ensure_venv, "sciflo", roles=[comp])
         bar.update()
 
         # stop services
-        set_bar_desc(bar, 'Stopping grqd')
+        set_bar_desc(bar, "Stopping grqd")
         execute(fab.grqd_stop, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Stopped grq')
+        set_bar_desc(bar, "Stopped grq")
 
 
-def stop_factotum(conf, comp='factotum'):
+def stop_factotum(conf, comp="factotum"):
     """"Stop factotum component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'verdi', roles=[comp])
+        set_bar_desc(bar, "Ensuring HySDS venv")
+        execute(fab.ensure_venv, "verdi", roles=[comp])
         bar.update()
 
         # stop services
-        set_bar_desc(bar, 'Stopping verdid')
+        set_bar_desc(bar, "Stopping verdid")
         execute(fab.verdid_stop, roles=[comp])
         execute(fab.kill_hung, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Stopped factotum')
+        set_bar_desc(bar, "Stopped factotum")
 
 
 def stop_comp(comp, conf):
     """Stop component."""
 
     # if all, create progress bar
-    if comp == 'all':
+    if comp == "all":
 
         # progress bar
         with tqdm(total=4) as bar:
@@ -133,13 +132,13 @@ def stop_comp(comp, conf):
             set_bar_desc(bar, "Stopped all")
             print("")
     else:
-        if comp == 'grq':
+        if comp == "grq":
             stop_grq(conf)
-        if comp == 'mozart':
+        if comp == "mozart":
             stop_mozart(conf)
-        if comp == 'metrics':
+        if comp == "metrics":
             stop_metrics(conf)
-        if comp == 'factotum':
+        if comp == "factotum":
             stop_factotum(conf)
 
 
@@ -148,9 +147,20 @@ def stop(comp, debug=False, force=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
-                                                    "Stopping component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
-                      validator=YesNoValidator(), style=prompt_style) == 'y'
+        cont = (
+            prompt(
+                get_prompt_tokens=lambda x: [
+                    (
+                        Token.Alert,
+                        "Stopping component[s]: {}. Continue [y/n]: ".format(comp),
+                    ),
+                    (Token, " "),
+                ],
+                validator=YesNoValidator(),
+                style=prompt_style,
+            )
+            == "y"
+        )
         if not cont:
             return 0
 
@@ -162,5 +172,5 @@ def stop(comp, debug=False, force=False):
     if debug:
         stop_comp(comp, conf)
     else:
-        with hide('everything'):
+        with hide("everything"):
             stop_comp(comp, conf)

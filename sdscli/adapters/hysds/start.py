@@ -24,93 +24,92 @@ import pwd
 import yaml
 import os
 from future import standard_library
+
 standard_library.install_aliases()
 
 
-prompt_style = style_from_dict({
-    Token.Alert: 'bg:#D8060C',
-    Token.Username: '#D8060C',
-    Token.Param: '#3CFF33',
-})
+prompt_style = style_from_dict(
+    {Token.Alert: "bg:#D8060C", Token.Username: "#D8060C", Token.Param: "#3CFF33"}
+)
 
 
-def start_mozart(conf, comp='mozart'):
+def start_mozart(conf, comp="mozart"):
     """"Start mozart component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
+        set_bar_desc(bar, "Ensuring HySDS venv")
         execute(fab.ensure_venv, comp, roles=[comp])
         bar.update()
 
         # start services
-        set_bar_desc(bar, 'Starting mozartd')
+        set_bar_desc(bar, "Starting mozartd")
         execute(fab.mozartd_start, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started mozart')
+        set_bar_desc(bar, "Started mozart")
 
 
-def start_metrics(conf, comp='metrics'):
+def start_metrics(conf, comp="metrics"):
     """"Start metrics component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
+        set_bar_desc(bar, "Ensuring HySDS venv")
         execute(fab.ensure_venv, comp, roles=[comp])
         bar.update()
 
         # start services
-        set_bar_desc(bar, 'Starting metricsd')
+        set_bar_desc(bar, "Starting metricsd")
         execute(fab.metricsd_start, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started metrics')
+        set_bar_desc(bar, "Started metrics")
 
 
-def start_grq(conf, comp='grq'):
+def start_grq(conf, comp="grq"):
     """"Start grq component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'sciflo', roles=[comp])
+        set_bar_desc(bar, "Ensuring HySDS venv")
+        execute(fab.ensure_venv, "sciflo", roles=[comp])
         bar.update()
 
         # start services
-        set_bar_desc(bar, 'Starting grqd')
+        set_bar_desc(bar, "Starting grqd")
         execute(fab.grqd_start, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started grq')
+        set_bar_desc(bar, "Started grq")
 
 
-def start_factotum(conf, comp='factotum'):
+def start_factotum(conf, comp="factotum"):
     """"Start factotum component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'verdi', roles=[comp])
+        set_bar_desc(bar, "Ensuring HySDS venv")
+        execute(fab.ensure_venv, "verdi", roles=[comp])
         bar.update()
 
         # start services
-        set_bar_desc(bar, 'Starting factotum')
+        set_bar_desc(bar, "Starting factotum")
         execute(fab.verdid_start, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started factotum')
+        set_bar_desc(bar, "Started factotum")
 
 
 def start_comp(comp, conf):
     """Start component."""
 
     # if all, create progress bar
-    if comp == 'all':
+    if comp == "all":
 
         # progress bar
         with tqdm(total=4) as bar:
@@ -129,13 +128,13 @@ def start_comp(comp, conf):
             set_bar_desc(bar, "Started all")
             print("")
     else:
-        if comp == 'grq':
+        if comp == "grq":
             start_grq(conf)
-        if comp == 'mozart':
+        if comp == "mozart":
             start_mozart(conf)
-        if comp == 'metrics':
+        if comp == "metrics":
             start_metrics(conf)
-        if comp == 'factotum':
+        if comp == "factotum":
             start_factotum(conf)
 
 
@@ -144,9 +143,20 @@ def start(comp, debug=False, force=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
-                                                    "Starting component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
-                      validator=YesNoValidator(), style=prompt_style) == 'y'
+        cont = (
+            prompt(
+                get_prompt_tokens=lambda x: [
+                    (
+                        Token.Alert,
+                        "Starting component[s]: {}. Continue [y/n]: ".format(comp),
+                    ),
+                    (Token, " "),
+                ],
+                validator=YesNoValidator(),
+                style=prompt_style,
+            )
+            == "y"
+        )
         if not cont:
             return 0
 
@@ -158,5 +168,5 @@ def start(comp, debug=False, force=False):
     if debug:
         start_comp(comp, conf)
     else:
-        with hide('everything'):
+        with hide("everything"):
             start_comp(comp, conf)

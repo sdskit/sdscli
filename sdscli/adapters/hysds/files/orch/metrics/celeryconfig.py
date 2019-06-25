@@ -19,17 +19,11 @@ task_queue_max_priority = 10
 broker_heartbeat = 300
 broker_heartbeat_checkrate = 5
 
-imports = [
-    "hysds.task_worker",
-    "hysds.job_worker",
-    "hysds.orchestrator",
-]
+imports = ["hysds.task_worker", "hysds.job_worker", "hysds.orchestrator"]
 
 CELERY_SEND_TASK_ERROR_EMAILS = False
-ADMINS = (
-    ('Gerald Manipon', 'pymonger@gmail.com'),
-)
-SERVER_EMAIL = 'ops@{{ MOZART_RABBIT_FQDN }}'
+ADMINS = (("Gerald Manipon", "pymonger@gmail.com"),)
+SERVER_EMAIL = "ops@{{ MOZART_RABBIT_FQDN }}"
 
 HYSDS_HANDLE_SIGNALS = False
 HYSDS_JOB_STATUS_EXPIRES = 86400
@@ -43,17 +37,13 @@ PYMONITOREDRUNNER_CFG = {
     "rabbitmq": {
         "hostname": "{{ MOZART_RABBIT_PVT_IP }}",
         "port": 5672,
-        "queue": "stdouterr"
+        "queue": "stdouterr",
     },
-
     "StreamObserverFileWriter": {
         "stdout_filepath": "_stdout.txt",
-        "stderr_filepath": "_stderr.txt"
+        "stderr_filepath": "_stderr.txt",
     },
-
-    "StreamObserverMessenger": {
-        "send_interval": 1
-    }
+    "StreamObserverMessenger": {"send_interval": 1},
 }
 
 MOZART_URL = "https://{{ MOZART_PVT_IP }}/mozart/"
@@ -87,17 +77,10 @@ REDIS_INSTANCE_METRICS_KEY = "logstash"
 REDIS_UNIX_DOMAIN_SOCKET = "unix://:{{ MOZART_REDIS_PASSWORD }}@/data/redis/redis.sock"
 
 WORKER_CONTIGUOUS_FAILURE_THRESHOLD = 10
-WORKER_CONTIGUOUS_FAILURE_TIME = 5.
+WORKER_CONTIGUOUS_FAILURE_TIME = 5.0
 
 ROOT_WORK_DIR = "/data/work"
 WEBDAV_URL = None
 WEBDAV_PORT = 8085
 
-WORKER_MOUNT_BLACKLIST = [
-    "/dev",
-    "/etc",
-    "/lib",
-    "/proc",
-    "/usr",
-    "/var",
-]
+WORKER_MOUNT_BLACKLIST = ["/dev", "/etc", "/lib", "/proc", "/usr", "/var"]

@@ -8,6 +8,7 @@ from __future__ import absolute_import
 
 
 from future import standard_library
+
 standard_library.install_aliases()
 import os
 import json
@@ -35,9 +36,17 @@ def ls(args):
 
     # check which cloud platforms configured
     for importer, mod_name, ispkg in pkgutil.iter_modules(sdscli.cloud.__path__):
-        mod = get_module('sdscli.cloud.{}.utils'.format(mod_name))
-        print(("{}: {}".format(mod_name, highlight("configured", 'green') if
-                               mod.is_configured() else highlight("unimplemented or not configured", 'red'))))
+        mod = get_module("sdscli.cloud.{}.utils".format(mod_name))
+        print(
+            (
+                "{}: {}".format(
+                    mod_name,
+                    highlight("configured", "green")
+                    if mod.is_configured()
+                    else highlight("unimplemented or not configured", "red"),
+                )
+            )
+        )
 
 
 def asg(args):
@@ -51,10 +60,11 @@ def asg(args):
 
     # get func
     try:
-        func = get_func('sdscli.cloud.{}.{}'.format(
-            args.cloud, args.subparser), args.subparser2)
+        func = get_func(
+            "sdscli.cloud.{}.{}".format(args.cloud, args.subparser), args.subparser2
+        )
     except (ImportError, AttributeError):
-        logger.error('Not implemented yet. Mahalo for trying. ;)')
+        logger.error("Not implemented yet. Mahalo for trying. ;)")
         return 1
 
     # run
@@ -72,10 +82,11 @@ def storage(args):
 
     # get func
     try:
-        func = get_func('sdscli.cloud.{}.{}'.format(
-            args.cloud, args.subparser), args.subparser2)
+        func = get_func(
+            "sdscli.cloud.{}.{}".format(args.cloud, args.subparser), args.subparser2
+        )
     except (ImportError, AttributeError):
-        logger.error('Not implemented yet. Mahalo for trying. ;)')
+        logger.error("Not implemented yet. Mahalo for trying. ;)")
         return 1
 
     # run

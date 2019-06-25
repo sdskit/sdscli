@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 
 from future import standard_library
+
 standard_library.install_aliases()
 import os
 import re
@@ -38,55 +39,65 @@ COLOR_CODE = {
 class YesNoValidator(Validator):
     def validate(self, document):
         text = document.text.lower()
-        if not text in ('yes', 'no', 'y', 'n'):
-            raise ValidationError(message='Input needs to be "y" or "n"',
-                                  cursor_position=len(text))
+        if not text in ("yes", "no", "y", "n"):
+            raise ValidationError(
+                message='Input needs to be "y" or "n"', cursor_position=len(text)
+            )
 
 
 class IpAddressValidator(Validator):
     def validate(self, document):
         text = document.text.lower()
         match = re.search(
-            r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$', text)
+            r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+            text,
+        )
         if not match:
-            raise ValidationError(message='Input needs to be valid IP address',
-                                  cursor_position=len(text))
+            raise ValidationError(
+                message="Input needs to be valid IP address", cursor_position=len(text)
+            )
 
 
 class SelectionValidator(Validator):
     def validate(self, document):
         text = document.text.lower()
-        match = re.search(r'^\s*\d+\s*$', text)
+        match = re.search(r"^\s*\d+\s*$", text)
         if not match:
-            raise ValidationError(message='Input needs to be integer',
-                                  cursor_position=len(text))
+            raise ValidationError(
+                message="Input needs to be integer", cursor_position=len(text)
+            )
 
 
 class MultipleSelectionValidator(Validator):
     def validate(self, document):
         text = document.text.lower()
-        match = re.search(r'^\s*(\d+\s*)+$', text)
+        match = re.search(r"^\s*(\d+\s*)+$", text)
         if not match:
-            raise ValidationError(message='Inputs need to be integer[s] separated by space',
-                                  cursor_position=len(text))
+            raise ValidationError(
+                message="Inputs need to be integer[s] separated by space",
+                cursor_position=len(text),
+            )
 
 
 class Ec2InstanceTypeValidator(Validator):
     def validate(self, document):
         text = document.text.lower()
-        match = re.search(r'^\s*\w+\.\w+\s*$', text)
+        match = re.search(r"^\s*\w+\.\w+\s*$", text)
         if not match:
-            raise ValidationError(message='Input needs to be EC2 instance type',
-                                  cursor_position=len(text))
+            raise ValidationError(
+                message="Input needs to be EC2 instance type", cursor_position=len(text)
+            )
 
 
 class PriceValidator(Validator):
     def validate(self, document):
         text = document.text.lower()
-        match = re.search(r'^\s*\d*\.\d+\s*$', text)
+        match = re.search(r"^\s*\d*\.\d+\s*$", text)
         if not match:
-            raise ValidationError(message='Input needs to be dollar amount e.g. 0.001',
-                                  cursor_position=len(text))
+            raise ValidationError(
+                message="Input needs to be dollar amount e.g. 0.001",
+                cursor_position=len(text),
+            )
 
 
 def set_bar_desc(bar, message):
@@ -111,22 +122,22 @@ def blink(s):
 def print_component_header(comp):
     """Print component header."""
 
-    print((highlight("#" * 40, 'cyan')))
-    print((highlight(comp, 'cyan', True)))
-    print((highlight("#" * 40, 'cyan')))
+    print((highlight("#" * 40, "cyan")))
+    print((highlight(comp, "cyan", True)))
+    print((highlight("#" * 40, "cyan")))
 
 
 def print_tps_header(comp):
     """Print tps header."""
 
-    print((highlight("-" * 40, 'cyan')))
-    print((highlight('third-party services', 'cyan', True)))
-    print((highlight("-" * 40, 'cyan')))
+    print((highlight("-" * 40, "cyan")))
+    print((highlight("third-party services", "cyan", True)))
+    print((highlight("-" * 40, "cyan")))
 
 
 def print_supervisor_header(comp):
     """Print supervisor header."""
 
-    print((highlight("-" * 40, 'cyan')))
-    print((highlight('supervised services', 'cyan', True)))
-    print((highlight("-" * 40, 'cyan')))
+    print((highlight("-" * 40, "cyan")))
+    print((highlight("supervised services", "cyan", True)))
+    print((highlight("-" * 40, "cyan")))

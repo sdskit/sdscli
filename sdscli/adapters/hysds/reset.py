@@ -8,6 +8,7 @@ from __future__ import absolute_import
 
 
 from future import standard_library
+
 standard_library.install_aliases()
 import os
 import yaml
@@ -30,136 +31,134 @@ from sdscli.prompt_utils import YesNoValidator, set_bar_desc
 from . import fabfile as fab
 
 
-prompt_style = style_from_dict({
-    Token.Alert: 'bg:#D8060C',
-    Token.Username: '#D8060C',
-    Token.Param: '#3CFF33',
-})
+prompt_style = style_from_dict(
+    {Token.Alert: "bg:#D8060C", Token.Username: "#D8060C", Token.Param: "#3CFF33"}
+)
 
 
-def reset_mozart(conf, comp='mozart'):
+def reset_mozart(conf, comp="mozart"):
     """"Start mozart component."""
 
     # progress bar
     with tqdm(total=6) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
+        set_bar_desc(bar, "Ensuring HySDS venv")
         execute(fab.ensure_venv, comp, roles=[comp])
         bar.update()
 
         # stop services
-        set_bar_desc(bar, 'Stopping mozartd')
+        set_bar_desc(bar, "Stopping mozartd")
         execute(fab.mozartd_stop, roles=[comp])
         bar.update()
 
         # clear rabbitmq
-        set_bar_desc(bar, 'Clearing rabbitMQ queues')
+        set_bar_desc(bar, "Clearing rabbitMQ queues")
         execute(fab.rabbitmq_queues_flush, roles=[comp])
         bar.update()
 
         # clear redis
-        set_bar_desc(bar, 'Clearing redis')
+        set_bar_desc(bar, "Clearing redis")
         execute(fab.mozart_redis_flush, roles=[comp])
         bar.update()
 
         # clear ES
-        set_bar_desc(bar, 'Clearing ES')
+        set_bar_desc(bar, "Clearing ES")
         execute(fab.mozart_es_flush, roles=[comp])
         bar.update()
 
         # start services
-        set_bar_desc(bar, 'Resetting mozartd')
+        set_bar_desc(bar, "Resetting mozartd")
         execute(fab.mozartd_start, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Reset mozart')
+        set_bar_desc(bar, "Reset mozart")
 
 
-def reset_metrics(conf, comp='metrics'):
+def reset_metrics(conf, comp="metrics"):
     """"Start metrics component."""
 
     # progress bar
     with tqdm(total=4) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
+        set_bar_desc(bar, "Ensuring HySDS venv")
         execute(fab.ensure_venv, comp, roles=[comp])
         bar.update()
 
         # stop services
-        set_bar_desc(bar, 'Stopping metricsd')
+        set_bar_desc(bar, "Stopping metricsd")
         execute(fab.metricsd_stop, roles=[comp])
         bar.update()
 
         # clear redis
-        set_bar_desc(bar, 'Clearing redis')
+        set_bar_desc(bar, "Clearing redis")
         execute(fab.redis_flush, roles=[comp])
         bar.update()
 
         # start services
-        set_bar_desc(bar, 'Resetting metricsd')
+        set_bar_desc(bar, "Resetting metricsd")
         execute(fab.metricsd_clean_start, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Reset metrics')
+        set_bar_desc(bar, "Reset metrics")
 
 
-def reset_grq(conf, comp='grq'):
+def reset_grq(conf, comp="grq"):
     """"Start grq component."""
 
     # progress bar
     with tqdm(total=3) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'sciflo', roles=[comp])
+        set_bar_desc(bar, "Ensuring HySDS venv")
+        execute(fab.ensure_venv, "sciflo", roles=[comp])
         bar.update()
 
         # stop services
-        set_bar_desc(bar, 'Stopping grqd')
+        set_bar_desc(bar, "Stopping grqd")
         execute(fab.grqd_stop, roles=[comp])
         bar.update()
 
         # clear out ES
-        #set_bar_desc(bar, 'Clearing out ES')
-        #execute(fab.clean_hysds_ios, roles=[comp])
+        # set_bar_desc(bar, 'Clearing out ES')
+        # execute(fab.clean_hysds_ios, roles=[comp])
         # bar.update()
 
         # start services
-        set_bar_desc(bar, 'Resetting grqd')
+        set_bar_desc(bar, "Resetting grqd")
         execute(fab.grqd_clean_start, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Reset grq')
+        set_bar_desc(bar, "Reset grq")
 
 
-def reset_factotum(conf, comp='factotum'):
+def reset_factotum(conf, comp="factotum"):
     """"Start factotum component."""
 
     # progress bar
     with tqdm(total=3) as bar:
 
         # ensure venv
-        set_bar_desc(bar, 'Ensuring HySDS venv')
-        execute(fab.ensure_venv, 'verdi', roles=[comp])
+        set_bar_desc(bar, "Ensuring HySDS venv")
+        execute(fab.ensure_venv, "verdi", roles=[comp])
         bar.update()
 
         # stop services
-        set_bar_desc(bar, 'Stopping verdid')
+        set_bar_desc(bar, "Stopping verdid")
         execute(fab.verdid_stop, roles=[comp])
         execute(fab.kill_hung, roles=[comp])
         bar.update()
 
         # start services
-        set_bar_desc(bar, 'Resetting verdid')
+        set_bar_desc(bar, "Resetting verdid")
         execute(fab.verdid_clean_start, roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Reset factotum')
+        set_bar_desc(bar, "Reset factotum")
 
 
 def reset_comp(comp, conf):
     """Start component."""
 
     # if all, create progress bar
-    if comp == 'all':
+    if comp == "all":
 
         # progress bar
         with tqdm(total=4) as bar:
@@ -178,13 +177,13 @@ def reset_comp(comp, conf):
             set_bar_desc(bar, "Reset all")
             print("")
     else:
-        if comp == 'grq':
+        if comp == "grq":
             reset_grq(conf)
-        if comp == 'mozart':
+        if comp == "mozart":
             reset_mozart(conf)
-        if comp == 'metrics':
+        if comp == "metrics":
             reset_metrics(conf)
-        if comp == 'factotum':
+        if comp == "factotum":
             reset_factotum(conf)
 
 
@@ -193,9 +192,20 @@ def reset(comp, debug=False, force=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
-                                                    "Resetting component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
-                      validator=YesNoValidator(), style=prompt_style) == 'y'
+        cont = (
+            prompt(
+                get_prompt_tokens=lambda x: [
+                    (
+                        Token.Alert,
+                        "Resetting component[s]: {}. Continue [y/n]: ".format(comp),
+                    ),
+                    (Token, " "),
+                ],
+                validator=YesNoValidator(),
+                style=prompt_style,
+            )
+            == "y"
+        )
         if not cont:
             return 0
 
@@ -207,5 +217,5 @@ def reset(comp, debug=False, force=False):
     if debug:
         reset_comp(comp, conf)
     else:
-        with hide('everything'):
+        with hide("everything"):
             reset_comp(comp, conf)

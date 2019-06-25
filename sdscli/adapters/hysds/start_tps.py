@@ -8,6 +8,7 @@ from __future__ import absolute_import
 
 
 from future import standard_library
+
 standard_library.install_aliases()
 import os
 import yaml
@@ -30,88 +31,86 @@ from sdscli.prompt_utils import YesNoValidator, set_bar_desc
 from . import fabfile as fab
 
 
-prompt_style = style_from_dict({
-    Token.Alert: 'bg:#D8060C',
-    Token.Username: '#D8060C',
-    Token.Param: '#3CFF33',
-})
+prompt_style = style_from_dict(
+    {Token.Alert: "bg:#D8060C", Token.Username: "#D8060C", Token.Param: "#3CFF33"}
+)
 
 
-def start_mozart(conf, comp='mozart'):
+def start_mozart(conf, comp="mozart"):
     """"Start TPS on mozart component."""
 
     # progress bar
     with tqdm(total=3) as bar:
 
         # start rabbitmq
-        set_bar_desc(bar, 'Starting rabbitmq-server')
-        execute(fab.systemctl, 'start', 'rabbitmq-server', roles=[comp])
+        set_bar_desc(bar, "Starting rabbitmq-server")
+        execute(fab.systemctl, "start", "rabbitmq-server", roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started rabbitmq-server')
+        set_bar_desc(bar, "Started rabbitmq-server")
 
         # start redis
-        set_bar_desc(bar, 'Starting redis')
-        execute(fab.systemctl, 'start', 'redis', roles=[comp])
+        set_bar_desc(bar, "Starting redis")
+        execute(fab.systemctl, "start", "redis", roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started redis')
+        set_bar_desc(bar, "Started redis")
 
         # start elasticsearch
-        set_bar_desc(bar, 'Starting elasticsearch')
-        execute(fab.systemctl, 'start', 'elasticsearch', roles=[comp])
+        set_bar_desc(bar, "Starting elasticsearch")
+        execute(fab.systemctl, "start", "elasticsearch", roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started elasticsearch')
+        set_bar_desc(bar, "Started elasticsearch")
 
 
-def start_metrics(conf, comp='metrics'):
+def start_metrics(conf, comp="metrics"):
     """"Start TPS on metrics component."""
 
     # progress bar
     with tqdm(total=2) as bar:
 
         # start redis
-        set_bar_desc(bar, 'Starting redis')
-        execute(fab.systemctl, 'start', 'redis', roles=[comp])
+        set_bar_desc(bar, "Starting redis")
+        execute(fab.systemctl, "start", "redis", roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started redis')
+        set_bar_desc(bar, "Started redis")
 
         # start elasticsearch
-        set_bar_desc(bar, 'Starting elasticsearch')
-        execute(fab.systemctl, 'start', 'elasticsearch', roles=[comp])
+        set_bar_desc(bar, "Starting elasticsearch")
+        execute(fab.systemctl, "start", "elasticsearch", roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started elasticsearch')
+        set_bar_desc(bar, "Started elasticsearch")
 
 
-def start_grq(conf, comp='grq'):
+def start_grq(conf, comp="grq"):
     """"Start TPS on grq component."""
 
     # progress bar
     with tqdm(total=1) as bar:
 
         # start elasticsearch
-        set_bar_desc(bar, 'Starting elasticsearch')
-        execute(fab.systemctl, 'start', 'elasticsearch', roles=[comp])
+        set_bar_desc(bar, "Starting elasticsearch")
+        execute(fab.systemctl, "start", "elasticsearch", roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started elasticsearch')
+        set_bar_desc(bar, "Started elasticsearch")
 
 
-def start_ci(conf, comp='ci'):
+def start_ci(conf, comp="ci"):
     """"Start TPS on CI component."""
 
     # progress bar
     with tqdm(total=1) as bar:
 
         # start jenkins
-        set_bar_desc(bar, 'Starting jenkins')
-        execute(fab.systemctl, 'start', 'jenkins', roles=[comp])
+        set_bar_desc(bar, "Starting jenkins")
+        execute(fab.systemctl, "start", "jenkins", roles=[comp])
         bar.update()
-        set_bar_desc(bar, 'Started jenkins')
+        set_bar_desc(bar, "Started jenkins")
 
 
 def start_comp(comp, conf):
     """Start component."""
 
     # if all, create progress bar
-    if comp == 'all':
+    if comp == "all":
 
         # progress bar
         with tqdm(total=4) as bar:
@@ -130,13 +129,13 @@ def start_comp(comp, conf):
             set_bar_desc(bar, "Started TPS on all")
             print("")
     else:
-        if comp == 'grq':
+        if comp == "grq":
             start_grq(conf)
-        if comp == 'mozart':
+        if comp == "mozart":
             start_mozart(conf)
-        if comp == 'metrics':
+        if comp == "metrics":
             start_metrics(conf)
-        if comp == 'ci':
+        if comp == "ci":
             start_ci(conf)
 
 
@@ -145,9 +144,22 @@ def start(comp, debug=False, force=False):
 
     # prompt user
     if not force:
-        cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
-                                                    "Starting TPS on component[s]: {}. Continue [y/n]: ".format(comp)), (Token, " ")],
-                      validator=YesNoValidator(), style=prompt_style) == 'y'
+        cont = (
+            prompt(
+                get_prompt_tokens=lambda x: [
+                    (
+                        Token.Alert,
+                        "Starting TPS on component[s]: {}. Continue [y/n]: ".format(
+                            comp
+                        ),
+                    ),
+                    (Token, " "),
+                ],
+                validator=YesNoValidator(),
+                style=prompt_style,
+            )
+            == "y"
+        )
         if not cont:
             return 0
 
@@ -159,5 +171,5 @@ def start(comp, debug=False, force=False):
     if debug:
         start_comp(comp, conf)
     else:
-        with hide('everything'):
+        with hide("everything"):
             start_comp(comp, conf)

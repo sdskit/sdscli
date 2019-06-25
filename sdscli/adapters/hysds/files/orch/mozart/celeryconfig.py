@@ -19,17 +19,11 @@ task_queue_max_priority = 10
 broker_heartbeat = 300
 broker_heartbeat_checkrate = 5
 
-imports = [
-    "hysds.task_worker",
-    "hysds.job_worker",
-    "hysds.orchestrator",
-]
+imports = ["hysds.task_worker", "hysds.job_worker", "hysds.orchestrator"]
 
 CELERY_SEND_TASK_ERROR_EMAILS = False
-ADMINS = (
-    ('Gerald Manipon', 'pymonger@gmail.com'),
-)
-SERVER_EMAIL = 'ops@mozart-rabbitmq'
+ADMINS = (("Gerald Manipon", "pymonger@gmail.com"),)
+SERVER_EMAIL = "ops@mozart-rabbitmq"
 
 HYSDS_HANDLE_SIGNALS = False
 HYSDS_JOB_STATUS_EXPIRES = 86400
@@ -40,20 +34,12 @@ BACKOFF_MAX_TRIES = 10
 HARD_TIME_LIMIT_GAP = 300
 
 PYMONITOREDRUNNER_CFG = {
-    "rabbitmq": {
-        "hostname": "mozart-rabbitmq",
-        "port": 5672,
-        "queue": "stdouterr"
-    },
-
+    "rabbitmq": {"hostname": "mozart-rabbitmq", "port": 5672, "queue": "stdouterr"},
     "StreamObserverFileWriter": {
         "stdout_filepath": "_stdout.txt",
-        "stderr_filepath": "_stderr.txt"
+        "stderr_filepath": "_stderr.txt",
     },
-
-    "StreamObserverMessenger": {
-        "send_interval": 1
-    }
+    "StreamObserverMessenger": {"send_interval": 1},
 }
 
 MOZART_URL = "https://mozart/mozart/"
@@ -82,22 +68,17 @@ REDIS_JOB_STATUS_URL = "redis://:{{ MOZART_REDIS_PASSWORD }}@mozart-redis"
 REDIS_JOB_STATUS_KEY = "logstash"
 REDIS_JOB_INFO_URL = "redis://:{{ METRICS_REDIS_PASSWORD }}@{{ METRICS_REDIS_PVT_IP }}"
 REDIS_JOB_INFO_KEY = "logstash"
-REDIS_INSTANCE_METRICS_URL = "redis://:{{ METRICS_REDIS_PASSWORD }}@{{ METRICS_REDIS_PVT_IP }}"
+REDIS_INSTANCE_METRICS_URL = (
+    "redis://:{{ METRICS_REDIS_PASSWORD }}@{{ METRICS_REDIS_PVT_IP }}"
+)
 REDIS_INSTANCE_METRICS_KEY = "logstash"
 REDIS_UNIX_DOMAIN_SOCKET = "unix://:{{ MOZART_REDIS_PASSWORD }}@/data/redis/redis.sock"
 
 WORKER_CONTIGUOUS_FAILURE_THRESHOLD = 10
-WORKER_CONTIGUOUS_FAILURE_TIME = 5.
+WORKER_CONTIGUOUS_FAILURE_TIME = 5.0
 
 ROOT_WORK_DIR = "/data/work"
 WEBDAV_URL = None
 WEBDAV_PORT = 8085
 
-WORKER_MOUNT_BLACKLIST = [
-    "/dev",
-    "/etc",
-    "/lib",
-    "/proc",
-    "/usr",
-    "/var",
-]
+WORKER_MOUNT_BLACKLIST = ["/dev", "/etc", "/lib", "/proc", "/usr", "/var"]

@@ -15,6 +15,7 @@ import importlib
 import sys
 import os
 from future import standard_library
+
 standard_library.install_aliases()
 
 
@@ -38,7 +39,8 @@ def get_func(mod_name, func_name):
     try:
         return getattr(mod, func_name)
     except AttributeError:
-        logger.error('Failed to get function "%s" from module "%s".' %
-                     (func_name, mod_name))
+        logger.error(
+            'Failed to get function "%s" from module "%s".' % (func_name, mod_name)
+        )
         logger.error(traceback.format_exc())
         raise

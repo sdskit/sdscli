@@ -10,6 +10,7 @@ from __future__ import absolute_import
 from builtins import open
 from builtins import str
 from future import standard_library
+
 standard_library.install_aliases()
 import os
 import yaml
@@ -31,11 +32,9 @@ from sdscli.os_utils import validate_dir
 from sdscli.prompt_utils import YesNoValidator
 
 
-prompt_style = style_from_dict({
-    Token.Alert: 'bg:#D8060C',
-    Token.Username: '#D8060C',
-    Token.Param: '#3CFF33',
-})
+prompt_style = style_from_dict(
+    {Token.Alert: "bg:#D8060C", Token.Username: "#D8060C", Token.Param: "#3CFF33"}
+)
 
 
 CFG_TMPL = """# HySDS config
@@ -171,12 +170,7 @@ USER_RULES_DATASET_INDEX: user_rules
 
 
 CFG_DEFAULTS = {
-    "mozart": [
-        ["MOZART_PVT_IP", ""],
-        ["MOZART_PUB_IP", ""],
-        ["MOZART_FQDN", ""],
-    ],
-
+    "mozart": [["MOZART_PVT_IP", ""], ["MOZART_PUB_IP", ""], ["MOZART_FQDN", ""]],
     "mozart-rabbit": [
         ["MOZART_RABBIT_PVT_IP", ""],
         ["MOZART_RABBIT_PUB_IP", ""],
@@ -184,92 +178,65 @@ CFG_DEFAULTS = {
         ["MOZART_RABBIT_USER", "guest"],
         ["MOZART_RABBIT_PASSWORD", "guest"],
     ],
-
     "mozart-redis": [
         ["MOZART_REDIS_PVT_IP", ""],
         ["MOZART_REDIS_PUB_IP", ""],
         ["MOZART_REDIS_FQDN", ""],
         ["MOZART_REDIS_PASSWORD", ""],
     ],
-
     "mozart-es": [
         ["MOZART_ES_PVT_IP", ""],
         ["MOZART_ES_PUB_IP", ""],
         ["MOZART_ES_FQDN", ""],
     ],
-
     "ops": [
         ["OPS_USER", pwd.getpwuid(os.getuid())[0]],
-        ["OPS_HOME", os.path.expanduser('~')],
+        ["OPS_HOME", os.path.expanduser("~")],
         ["OPS_PASSWORD_HASH", ""],
         ["OPS_PASSWORD_HASH_SHA1", ""],
         ["LDAP_GROUPS", ""],
         ["KEY_FILENAME", ""],
-        ["DATASETS_CFG", os.path.join(os.path.expanduser(
-            '~'), 'verdi', 'etc', 'datasets.json')],
+        [
+            "DATASETS_CFG",
+            os.path.join(os.path.expanduser("~"), "verdi", "etc", "datasets.json"),
+        ],
     ],
-
-    "metrics": [
-        ["METRICS_PVT_IP", ""],
-        ["METRICS_PUB_IP", ""],
-        ["METRICS_FQDN", ""],
-    ],
-
+    "metrics": [["METRICS_PVT_IP", ""], ["METRICS_PUB_IP", ""], ["METRICS_FQDN", ""]],
     "metrics-redis": [
         ["METRICS_REDIS_PVT_IP", ""],
         ["METRICS_REDIS_PUB_IP", ""],
         ["METRICS_REDIS_FQDN", ""],
         ["METRICS_REDIS_PASSWORD", ""],
     ],
-
     "metrics-es": [
         ["METRICS_ES_PVT_IP", ""],
         ["METRICS_ES_PUB_IP", ""],
         ["METRICS_ES_FQDN", ""],
     ],
-
     "grq": [
         ["GRQ_PVT_IP", ""],
         ["GRQ_PUB_IP", ""],
         ["GRQ_FQDN", ""],
         ["GRQ_PORT", 8878],
     ],
-
-    "grq-es": [
-        ["GRQ_ES_PVT_IP", ""],
-        ["GRQ_ES_PUB_IP", ""],
-        ["GRQ_ES_FQDN", ""],
-    ],
-
+    "grq-es": [["GRQ_ES_PVT_IP", ""], ["GRQ_ES_PUB_IP", ""], ["GRQ_ES_FQDN", ""]],
     "factotum": [
         ["FACTOTUM_PVT_IP", ""],
         ["FACTOTUM_PUB_IP", ""],
         ["FACTOTUM_FQDN", ""],
     ],
-
     "ci": [
         ["CI_PVT_IP", ""],
         ["CI_PUB_IP", ""],
         ["CI_FQDN", ""],
         ["JENKINS_USER", "jenkins"],
-        ["JENKINS_DIR", os.path.join(os.path.expanduser('~'), 'jenkins')],
+        ["JENKINS_DIR", os.path.join(os.path.expanduser("~"), "jenkins")],
         ["JENKINS_API_USER", ""],
         ["JENKINS_API_KEY", ""],
         ["GIT_OAUTH_TOKEN", ""],
     ],
-
-    "verdi": [
-        ["VERDI_PVT_IP", ""],
-        ["VERDI_PUB_IP", ""],
-        ["VERDI_FQDN", ""],
-    ],
-
-    "webdav": [
-        ["DAV_SERVER", ""],
-        ["DAV_USER", ""],
-        ["DAV_PASSWORD", ""],
-    ],
-
+    "verdi": [["VERDI_PVT_IP", ""], ["VERDI_PUB_IP", ""], ["VERDI_FQDN", ""]],
+    "webdav": [["DAV_SERVER", ""], ["DAV_USER", ""], ["DAV_PASSWORD", ""]],
     "aws-dataset": [
         ["DATASET_AWS_ACCESS_KEY", ""],
         ["DATASET_AWS_SECRET_KEY", ""],
@@ -278,7 +245,6 @@ CFG_DEFAULTS = {
         ["DATASET_S3_WEBSITE_ENDPOINT", "s3-website-us-west-2.amazonaws.com"],
         ["DATASET_BUCKET", ""],
     ],
-
     "aws-asg": [
         ["AWS_ACCESS_KEY", ""],
         ["AWS_SECRET_KEY", ""],
@@ -292,7 +258,7 @@ CFG_DEFAULTS = {
         ["QUEUES", "dumby-job_worker-small dumby-job_worker-large"],
         ["INSTANCE_TYPES", "t2.micro t2.micro"],
         ["VENUE", "ops"],
-    ]
+    ],
 }
 
 
@@ -300,15 +266,17 @@ def copy_files():
     """Copy templates and files to user config files."""
 
     files_path = get_user_files_path()
-    logger.debug('files_path: %s' % files_path)
+    logger.debug("files_path: %s" % files_path)
     validate_dir(files_path, mode=0o700)
     sds_files_path = resource_filename(
-        'sdscli', os.path.join('adapters', 'hysds', 'files'))
-    sds_files = glob(os.path.join(sds_files_path, '*'))
+        "sdscli", os.path.join("adapters", "hysds", "files")
+    )
+    sds_files = glob(os.path.join(sds_files_path, "*"))
     for sds_file in sds_files:
-        if os.path.basename(sds_file) == 'cluster.py':
-            user_file = os.path.join(os.path.dirname(
-                get_user_config_path()), os.path.basename(sds_file))
+        if os.path.basename(sds_file) == "cluster.py":
+            user_file = os.path.join(
+                os.path.dirname(get_user_config_path()), os.path.basename(sds_file)
+            )
             if not os.path.exists(user_file):
                 shutil.copy(sds_file, user_file)
         else:
@@ -330,12 +298,19 @@ def configure():
     # config file
     cfg_file = get_user_config_path()
     if os.path.exists(cfg_file):
-        cont = prompt(get_prompt_tokens=lambda x: [(Token, cfg_file),
-                                                   (Token, " already exists. "),
-                                                   (Token.Alert,
-                                                    "Customizations will be lost or overwritten!"),
-                                                   (Token, " Continue [y/n]: ")],
-                      validator=YesNoValidator(), style=prompt_style) == 'y'
+        cont = (
+            prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, cfg_file),
+                    (Token, " already exists. "),
+                    (Token.Alert, "Customizations will be lost or overwritten!"),
+                    (Token, " Continue [y/n]: "),
+                ],
+                validator=YesNoValidator(),
+                style=prompt_style,
+            )
+            == "y"
+        )
         # validator=YesNoValidator(), default='n', style=prompt_style) == 'y'
         if not cont:
             return 0
@@ -345,47 +320,66 @@ def configure():
         cfg = {}
 
     # mozart
-    for k, d in CFG_DEFAULTS['mozart']:
-        v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                (Token.Param, "%s" % k),
-                                                (Token, ": ")],
-                   default=str(cfg.get(k, d)),
-                   style=prompt_style)
+    for k, d in CFG_DEFAULTS["mozart"]:
+        v = prompt(
+            get_prompt_tokens=lambda x: [
+                (Token, "Enter value for "),
+                (Token.Param, "%s" % k),
+                (Token, ": "),
+            ],
+            default=str(cfg.get(k, d)),
+            style=prompt_style,
+        )
         cfg[k] = v
 
     # mozart components
-    comps = [('mozart-rabbit', 'rabbitMQ'), ('mozart-redis', 'redis'),
-             ('mozart-es', 'elasticsearch')]
+    comps = [
+        ("mozart-rabbit", "rabbitMQ"),
+        ("mozart-redis", "redis"),
+        ("mozart-es", "elasticsearch"),
+    ]
     for grp, comp in comps:
-        reuse = prompt("Is mozart %s on a different IP [y/n]: " % comp,
-                       validator=YesNoValidator(), default='n') == 'n'
+        reuse = (
+            prompt(
+                "Is mozart %s on a different IP [y/n]: " % comp,
+                validator=YesNoValidator(),
+                default="n",
+            )
+            == "n"
+        )
         for k, d in CFG_DEFAULTS[grp]:
             if reuse:
-                if k.endswith('_PVT_IP'):
-                    cfg[k] = cfg['MOZART_PVT_IP']
+                if k.endswith("_PVT_IP"):
+                    cfg[k] = cfg["MOZART_PVT_IP"]
                     continue
-                elif k.endswith('_PUB_IP'):
-                    cfg[k] = cfg['MOZART_PUB_IP']
+                elif k.endswith("_PUB_IP"):
+                    cfg[k] = cfg["MOZART_PUB_IP"]
                     continue
-                elif k.endswith('_FQDN'):
-                    cfg[k] = cfg['MOZART_FQDN']
+                elif k.endswith("_FQDN"):
+                    cfg[k] = cfg["MOZART_FQDN"]
                     continue
-            if k == 'MOZART_RABBIT_PASSWORD':
+            if k == "MOZART_RABBIT_PASSWORD":
                 while True:
-                    p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter RabbitMQ password for user "),
-                                                             (Token.Username, "%s" %
-                                                              cfg['MOZART_RABBIT_USER']),
-                                                             (Token, ": ")],
-                                default=str(cfg.get(k, d)),
-                                style=prompt_style,
-                                is_password=True)
-                    p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter RabbitMQ password for user "),
-                                                             (Token.Username, "%s" %
-                                                              cfg['MOZART_RABBIT_USER']),
-                                                             (Token, ": ")],
-                                default=str(cfg.get(k, d)),
-                                style=prompt_style,
-                                is_password=True)
+                    p1 = prompt(
+                        get_prompt_tokens=lambda x: [
+                            (Token, "Enter RabbitMQ password for user "),
+                            (Token.Username, "%s" % cfg["MOZART_RABBIT_USER"]),
+                            (Token, ": "),
+                        ],
+                        default=str(cfg.get(k, d)),
+                        style=prompt_style,
+                        is_password=True,
+                    )
+                    p2 = prompt(
+                        get_prompt_tokens=lambda x: [
+                            (Token, "Re-enter RabbitMQ password for user "),
+                            (Token.Username, "%s" % cfg["MOZART_RABBIT_USER"]),
+                            (Token, ": "),
+                        ],
+                        default=str(cfg.get(k, d)),
+                        style=prompt_style,
+                        is_password=True,
+                    )
                     if p1 == p2:
                         if p1 == "":
                             print("Password can't be empty.")
@@ -393,47 +387,63 @@ def configure():
                         v = p1
                         break
                     print("Passwords don't match.")
-            elif k == 'MOZART_REDIS_PASSWORD':
+            elif k == "MOZART_REDIS_PASSWORD":
                 while True:
-                    p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter Redis password: ")],
-                                default=str(cfg.get(k, d)),
-                                style=prompt_style,
-                                is_password=True)
-                    p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter Redis password: ")],
-                                default=str(cfg.get(k, d)),
-                                style=prompt_style,
-                                is_password=True)
+                    p1 = prompt(
+                        get_prompt_tokens=lambda x: [(Token, "Enter Redis password: ")],
+                        default=str(cfg.get(k, d)),
+                        style=prompt_style,
+                        is_password=True,
+                    )
+                    p2 = prompt(
+                        get_prompt_tokens=lambda x: [
+                            (Token, "Re-enter Redis password: ")
+                        ],
+                        default=str(cfg.get(k, d)),
+                        style=prompt_style,
+                        is_password=True,
+                    )
                     if p1 == p2:
                         v = p1
                         break
                     print("Passwords don't match.")
             else:
-                v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                        (Token.Param, "%s" % k),
-                                                        (Token, ": ")],
-                           default=str(cfg.get(k, d)),
-                           style=prompt_style)
+                v = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Enter value for "),
+                        (Token.Param, "%s" % k),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                )
             cfg[k] = v
 
     # ops
     OPS_PASSWORD_HASH_SHA1 = None
-    for k, d in CFG_DEFAULTS['ops']:
-        if k == 'OPS_PASSWORD_HASH':
+    for k, d in CFG_DEFAULTS["ops"]:
+        if k == "OPS_PASSWORD_HASH":
             while True:
-                p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter web interface password for ops user "),
-                                                         (Token.Username, "%s" %
-                                                          cfg['OPS_USER']),
-                                                         (Token, ": ")],
-                            default="",
-                            style=prompt_style,
-                            is_password=True)
-                p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter web interface password for ops user "),
-                                                         (Token.Username, "%s" %
-                                                          cfg['OPS_USER']),
-                                                         (Token, ": ")],
-                            default="",
-                            style=prompt_style,
-                            is_password=True)
+                p1 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Enter web interface password for ops user "),
+                        (Token.Username, "%s" % cfg["OPS_USER"]),
+                        (Token, ": "),
+                    ],
+                    default="",
+                    style=prompt_style,
+                    is_password=True,
+                )
+                p2 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Re-enter web interface password for ops user "),
+                        (Token.Username, "%s" % cfg["OPS_USER"]),
+                        (Token, ": "),
+                    ],
+                    default="",
+                    style=prompt_style,
+                    is_password=True,
+                )
                 if p1 == p2:
                     if p1 == "":
                         print("Password can't be empty.")
@@ -442,253 +452,349 @@ def configure():
                     OPS_PASSWORD_HASH_SHA1 = hashlib.sha1(p1.encode()).hexdigest()
                     break
                 print("Passwords don't match.")
-        elif k == 'OPS_PASSWORD_HASH_SHA1':
+        elif k == "OPS_PASSWORD_HASH_SHA1":
             v = OPS_PASSWORD_HASH_SHA1
         else:
-            v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                    (Token.Param, "%s" % k),
-                                                    (Token, ": ")],
-                       default=str(cfg.get(k, d)),
-                       style=prompt_style)
+            v = prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, "Enter value for "),
+                    (Token.Param, "%s" % k),
+                    (Token, ": "),
+                ],
+                default=str(cfg.get(k, d)),
+                style=prompt_style,
+            )
         cfg[k] = v
 
     # metrics
-    for k, d in CFG_DEFAULTS['metrics']:
-        v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                (Token.Param, "%s" % k),
-                                                (Token, ": ")],
-                   default=str(cfg.get(k, d)),
-                   style=prompt_style)
+    for k, d in CFG_DEFAULTS["metrics"]:
+        v = prompt(
+            get_prompt_tokens=lambda x: [
+                (Token, "Enter value for "),
+                (Token.Param, "%s" % k),
+                (Token, ": "),
+            ],
+            default=str(cfg.get(k, d)),
+            style=prompt_style,
+        )
         cfg[k] = v
 
     # metrics components
-    comps = [('metrics-redis', 'redis'), ('metrics-es', 'elasticsearch')]
+    comps = [("metrics-redis", "redis"), ("metrics-es", "elasticsearch")]
     for grp, comp in comps:
-        reuse = prompt("Is metrics %s on a different IP [y/n]: " % comp,
-                       validator=YesNoValidator(), default='n') == 'n'
+        reuse = (
+            prompt(
+                "Is metrics %s on a different IP [y/n]: " % comp,
+                validator=YesNoValidator(),
+                default="n",
+            )
+            == "n"
+        )
         for k, d in CFG_DEFAULTS[grp]:
             if reuse:
-                if k.endswith('_PVT_IP'):
-                    cfg[k] = cfg['METRICS_PVT_IP']
+                if k.endswith("_PVT_IP"):
+                    cfg[k] = cfg["METRICS_PVT_IP"]
                     continue
-                elif k.endswith('_PUB_IP'):
-                    cfg[k] = cfg['METRICS_PUB_IP']
+                elif k.endswith("_PUB_IP"):
+                    cfg[k] = cfg["METRICS_PUB_IP"]
                     continue
-                elif k.endswith('_FQDN'):
-                    cfg[k] = cfg['METRICS_FQDN']
+                elif k.endswith("_FQDN"):
+                    cfg[k] = cfg["METRICS_FQDN"]
                     continue
-            if k == 'METRICS_REDIS_PASSWORD':
+            if k == "METRICS_REDIS_PASSWORD":
                 while True:
-                    p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter Redis password: ")],
-                                default=str(cfg.get(k, d)),
-                                style=prompt_style,
-                                is_password=True)
-                    p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter Redis password: ")],
-                                default=str(cfg.get(k, d)),
-                                style=prompt_style,
-                                is_password=True)
+                    p1 = prompt(
+                        get_prompt_tokens=lambda x: [(Token, "Enter Redis password: ")],
+                        default=str(cfg.get(k, d)),
+                        style=prompt_style,
+                        is_password=True,
+                    )
+                    p2 = prompt(
+                        get_prompt_tokens=lambda x: [
+                            (Token, "Re-enter Redis password: ")
+                        ],
+                        default=str(cfg.get(k, d)),
+                        style=prompt_style,
+                        is_password=True,
+                    )
                     if p1 == p2:
                         v = p1
                         break
                     print("Passwords don't match.")
             else:
-                v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                        (Token.Param, "%s" % k),
-                                                        (Token, ": ")],
-                           default=str(cfg.get(k, d)),
-                           style=prompt_style)
+                v = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Enter value for "),
+                        (Token.Param, "%s" % k),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                )
             cfg[k] = v
 
     # grq
-    for k, d in CFG_DEFAULTS['grq']:
-        v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                (Token.Param, "%s" % k),
-                                                (Token, ": ")],
-                   default=str(cfg.get(k, d)),
-                   style=prompt_style)
+    for k, d in CFG_DEFAULTS["grq"]:
+        v = prompt(
+            get_prompt_tokens=lambda x: [
+                (Token, "Enter value for "),
+                (Token.Param, "%s" % k),
+                (Token, ": "),
+            ],
+            default=str(cfg.get(k, d)),
+            style=prompt_style,
+        )
         cfg[k] = v
 
     # grq components
-    comps = [('grq-es', 'elasticsearch')]
+    comps = [("grq-es", "elasticsearch")]
     for grp, comp in comps:
-        reuse = prompt("Is grq %s on a different IP [y/n]: " % comp,
-                       validator=YesNoValidator(), default='n') == 'n'
+        reuse = (
+            prompt(
+                "Is grq %s on a different IP [y/n]: " % comp,
+                validator=YesNoValidator(),
+                default="n",
+            )
+            == "n"
+        )
         for k, d in CFG_DEFAULTS[grp]:
             if reuse:
-                if k.endswith('_PVT_IP'):
-                    cfg[k] = cfg['GRQ_PVT_IP']
+                if k.endswith("_PVT_IP"):
+                    cfg[k] = cfg["GRQ_PVT_IP"]
                     continue
-                elif k.endswith('_PUB_IP'):
-                    cfg[k] = cfg['GRQ_PUB_IP']
+                elif k.endswith("_PUB_IP"):
+                    cfg[k] = cfg["GRQ_PUB_IP"]
                     continue
-                elif k.endswith('_FQDN'):
-                    cfg[k] = cfg['GRQ_FQDN']
+                elif k.endswith("_FQDN"):
+                    cfg[k] = cfg["GRQ_FQDN"]
                     continue
-            v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                    (Token.Param, "%s" % k),
-                                                    (Token, ": ")],
-                       default=str(cfg.get(k, d)),
-                       style=prompt_style)
+            v = prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, "Enter value for "),
+                    (Token.Param, "%s" % k),
+                    (Token, ": "),
+                ],
+                default=str(cfg.get(k, d)),
+                style=prompt_style,
+            )
             cfg[k] = v
 
     # factotum
-    for k, d in CFG_DEFAULTS['factotum']:
-        v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                (Token.Param, "%s" % k),
-                                                (Token, ": ")],
-                   default=str(cfg.get(k, d)),
-                   style=prompt_style)
+    for k, d in CFG_DEFAULTS["factotum"]:
+        v = prompt(
+            get_prompt_tokens=lambda x: [
+                (Token, "Enter value for "),
+                (Token.Param, "%s" % k),
+                (Token, ": "),
+            ],
+            default=str(cfg.get(k, d)),
+            style=prompt_style,
+        )
         cfg[k] = v
 
     # ci
-    for k, d in CFG_DEFAULTS['ci']:
-        if k in ('JENKINS_API_KEY', 'GIT_OAUTH_TOKEN'):
+    for k, d in CFG_DEFAULTS["ci"]:
+        if k in ("JENKINS_API_KEY", "GIT_OAUTH_TOKEN"):
             while True:
-                p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                         (Token.Param, "%s" % k),
-                                                         (Token, ": ")],
-                            default=str(cfg.get(k, d)),
-                            style=prompt_style,
-                            is_password=True)
-                p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter value for "),
-                                                         (Token.Param, "%s" % k),
-                                                         (Token, ": ")],
-                            default=str(cfg.get(k, d)),
-                            style=prompt_style,
-                            is_password=True)
+                p1 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Enter value for "),
+                        (Token.Param, "%s" % k),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                    is_password=True,
+                )
+                p2 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Re-enter value for "),
+                        (Token.Param, "%s" % k),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                    is_password=True,
+                )
                 if p1 == p2:
                     v = p1
                     break
                 print("Values don't match.")
         else:
-            v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                    (Token.Param, "%s" % k),
-                                                    (Token, ": ")],
-                       default=str(cfg.get(k, d)),
-                       style=prompt_style)
+            v = prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, "Enter value for "),
+                    (Token.Param, "%s" % k),
+                    (Token, ": "),
+                ],
+                default=str(cfg.get(k, d)),
+                style=prompt_style,
+            )
         cfg[k] = v
 
     # verdi
-    for k, d in CFG_DEFAULTS['verdi']:
-        v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                (Token.Param, "%s" % k),
-                                                (Token, ": ")],
-                   default=str(cfg.get(k, d)),
-                   style=prompt_style)
+    for k, d in CFG_DEFAULTS["verdi"]:
+        v = prompt(
+            get_prompt_tokens=lambda x: [
+                (Token, "Enter value for "),
+                (Token.Param, "%s" % k),
+                (Token, ": "),
+            ],
+            default=str(cfg.get(k, d)),
+            style=prompt_style,
+        )
         cfg[k] = v
 
     # webdav
-    for k, d in CFG_DEFAULTS['webdav']:
-        if k == 'DAV_PASSWORD':
+    for k, d in CFG_DEFAULTS["webdav"]:
+        if k == "DAV_PASSWORD":
             while True:
-                p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter webdav password for user "),
-                                                         (Token.Username, "%s" %
-                                                          cfg['DAV_USER']),
-                                                         (Token, ": ")],
-                            default=str(cfg.get(k, d)),
-                            style=prompt_style,
-                            is_password=True)
-                p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter webdav password for ops user "),
-                                                         (Token.Username, "%s" %
-                                                          cfg['DAV_USER']),
-                                                         (Token, ": ")],
-                            default=str(cfg.get(k, d)),
-                            style=prompt_style,
-                            is_password=True)
+                p1 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Enter webdav password for user "),
+                        (Token.Username, "%s" % cfg["DAV_USER"]),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                    is_password=True,
+                )
+                p2 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Re-enter webdav password for ops user "),
+                        (Token.Username, "%s" % cfg["DAV_USER"]),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                    is_password=True,
+                )
                 if p1 == p2:
                     v = p1
                     break
                 print("Passwords don't match.")
         else:
-            v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                    (Token.Param, "%s" % k),
-                                                    (Token, ": ")],
-                       default=str(cfg.get(k, d)),
-                       style=prompt_style)
+            v = prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, "Enter value for "),
+                    (Token.Param, "%s" % k),
+                    (Token, ": "),
+                ],
+                default=str(cfg.get(k, d)),
+                style=prompt_style,
+            )
         cfg[k] = v
 
     # aws-dataset
-    for k, d in CFG_DEFAULTS['aws-dataset']:
-        if k == 'DATASET_AWS_SECRET_KEY':
-            if cfg['DATASET_AWS_ACCESS_KEY'] == "":
-                cfg['DATASET_AWS_SECRET_KEY'] = ""
+    for k, d in CFG_DEFAULTS["aws-dataset"]:
+        if k == "DATASET_AWS_SECRET_KEY":
+            if cfg["DATASET_AWS_ACCESS_KEY"] == "":
+                cfg["DATASET_AWS_SECRET_KEY"] = ""
                 continue
             while True:
-                p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter AWS secret key for "),
-                                                         (Token.Username, "%s" %
-                                                          cfg['DATASET_AWS_ACCESS_KEY']),
-                                                         (Token, ": ")],
-                            default=str(cfg.get(k, d)),
-                            style=prompt_style,
-                            is_password=True)
-                p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter AWS secret key for "),
-                                                         (Token.Username, "%s" %
-                                                          cfg['DATASET_AWS_ACCESS_KEY']),
-                                                         (Token, ": ")],
-                            default=str(cfg.get(k, d)),
-                            style=prompt_style,
-                            is_password=True)
+                p1 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Enter AWS secret key for "),
+                        (Token.Username, "%s" % cfg["DATASET_AWS_ACCESS_KEY"]),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                    is_password=True,
+                )
+                p2 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Re-enter AWS secret key for "),
+                        (Token.Username, "%s" % cfg["DATASET_AWS_ACCESS_KEY"]),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                    is_password=True,
+                )
                 if p1 == p2:
                     v = p1
                     break
                 print("Keys don't match.")
-        elif k == 'DATASET_AWS_ACCESS_KEY':
-            v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                    (Token.Param, "%s" % k),
-                                                    (Token, ". If using instance roles, just press enter"),
-                                                    (Token, ": ")],
-                       default=str(cfg.get(k, d)),
-                       style=prompt_style)
+        elif k == "DATASET_AWS_ACCESS_KEY":
+            v = prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, "Enter value for "),
+                    (Token.Param, "%s" % k),
+                    (Token, ". If using instance roles, just press enter"),
+                    (Token, ": "),
+                ],
+                default=str(cfg.get(k, d)),
+                style=prompt_style,
+            )
         else:
-            v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                    (Token.Param, "%s" % k),
-                                                    (Token, ": ")],
-                       default=str(cfg.get(k, d)),
-                       style=prompt_style)
+            v = prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, "Enter value for "),
+                    (Token.Param, "%s" % k),
+                    (Token, ": "),
+                ],
+                default=str(cfg.get(k, d)),
+                style=prompt_style,
+            )
         cfg[k] = v
 
     # aws-asg
-    for k, d in CFG_DEFAULTS['aws-asg']:
-        if k == 'AWS_SECRET_KEY':
-            if cfg['AWS_ACCESS_KEY'] == "":
-                cfg['AWS_SECRET_KEY'] = ""
+    for k, d in CFG_DEFAULTS["aws-asg"]:
+        if k == "AWS_SECRET_KEY":
+            if cfg["AWS_ACCESS_KEY"] == "":
+                cfg["AWS_SECRET_KEY"] = ""
                 continue
             while True:
-                p1 = prompt(get_prompt_tokens=lambda x: [(Token, "Enter AWS secret key for "),
-                                                         (Token.Username, "%s" %
-                                                          cfg['AWS_ACCESS_KEY']),
-                                                         (Token, ": ")],
-                            default=str(cfg.get(k, d)),
-                            style=prompt_style,
-                            is_password=True)
-                p2 = prompt(get_prompt_tokens=lambda x: [(Token, "Re-enter AWS secret key for "),
-                                                         (Token.Username, "%s" %
-                                                          cfg['AWS_ACCESS_KEY']),
-                                                         (Token, ": ")],
-                            default=str(cfg.get(k, d)),
-                            style=prompt_style,
-                            is_password=True)
+                p1 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Enter AWS secret key for "),
+                        (Token.Username, "%s" % cfg["AWS_ACCESS_KEY"]),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                    is_password=True,
+                )
+                p2 = prompt(
+                    get_prompt_tokens=lambda x: [
+                        (Token, "Re-enter AWS secret key for "),
+                        (Token.Username, "%s" % cfg["AWS_ACCESS_KEY"]),
+                        (Token, ": "),
+                    ],
+                    default=str(cfg.get(k, d)),
+                    style=prompt_style,
+                    is_password=True,
+                )
                 if p1 == p2:
                     v = p1
                     break
                 print("Keys don't match.")
-        elif k == 'AWS_ACCESS_KEY':
-            v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                    (Token.Param, "%s" % k),
-                                                    (Token, ". If using instance roles, just press enter"),
-                                                    (Token, ": ")],
-                       default=str(cfg.get(k, d)),
-                       style=prompt_style)
+        elif k == "AWS_ACCESS_KEY":
+            v = prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, "Enter value for "),
+                    (Token.Param, "%s" % k),
+                    (Token, ". If using instance roles, just press enter"),
+                    (Token, ": "),
+                ],
+                default=str(cfg.get(k, d)),
+                style=prompt_style,
+            )
         else:
-            v = prompt(get_prompt_tokens=lambda x: [(Token, "Enter value for "),
-                                                    (Token.Param, "%s" % k),
-                                                    (Token, ": ")],
-                       default=str(cfg.get(k, d)),
-                       style=prompt_style)
+            v = prompt(
+                get_prompt_tokens=lambda x: [
+                    (Token, "Enter value for "),
+                    (Token.Param, "%s" % k),
+                    (Token, ": "),
+                ],
+                default=str(cfg.get(k, d)),
+                style=prompt_style,
+            )
         cfg[k] = v
 
     # ensure directory exists
     validate_dir(os.path.dirname(cfg_file), mode=0o700)
     yml = CFG_TMPL.format(**cfg)
-    with open(cfg_file, 'w') as f:
+    with open(cfg_file, "w") as f:
         f.write(yml)

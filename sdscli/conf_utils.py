@@ -7,6 +7,7 @@ from __future__ import absolute_import
 from builtins import super
 from builtins import open
 from future import standard_library
+
 standard_library.install_aliases()
 import os
 import yaml
@@ -19,17 +20,18 @@ from sdscli.log_utils import logger
 def get_user_config_path():
     """Return path to user configuration."""
 
-    return os.path.expanduser(os.path.join('~', '.sds', 'config'))
+    return os.path.expanduser(os.path.join("~", ".sds", "config"))
 
 
 def get_user_files_path():
     """Return path to user configuration templates and files."""
 
-    return os.path.expanduser(os.path.join('~', '.sds', 'files'))
+    return os.path.expanduser(os.path.join("~", ".sds", "files"))
 
 
 class YamlConfError(Exception):
     """Exception class for YamlConf class."""
+
     pass
 
 
@@ -56,14 +58,16 @@ class YamlConf(object):
         try:
             return self._cfg[key]
         except KeyError as e:
-            raise YamlConfError("Configuration '{}' doesn't exist in {}.".format(key, self._file))
+            raise YamlConfError(
+                "Configuration '{}' doesn't exist in {}.".format(key, self._file)
+            )
 
 
 class SettingsConf(YamlConf):
     """Settings YAML configuration class."""
 
     def __init__(self, file=None):
-        "Construct SettingsConf instance."""
+        "Construct SettingsConf instance." ""
 
         if file is None:
             file = get_user_config_path()
