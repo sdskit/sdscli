@@ -17,6 +17,7 @@ from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.styles import style_from_dict
 from prompt_toolkit.shortcuts import prompt, print_tokens
 from tqdm import tqdm
+import asciiplotlib as apl
 from fabric.api import execute, hide
 import traceback
 import pkgutil
@@ -25,6 +26,9 @@ import os
 from xmlrpc.client import ServerProxy
 import ssl
 import netrc
+import requests
+import redis
+import elasticsearch
 from future import standard_library
 standard_library.install_aliases()
 
@@ -452,6 +456,52 @@ def run(comp, cmd):
     run_comp(comp, cmd, conf)
 
 
+def rabbitmq_healthy(ip, u, p):
+    """Return True if RabbitMQ is healthy. False otherwise."""
+
+    url = "http://{}:{}@{}:15672/api/healthchecks/node".format(u, p, ip)
+    try:
+        r = requests.get(url)
+        r.raise_for_status()
+        info = r.json()
+        logger.debug(json.dumps(info))
+        if info['status'] == 'ok':
+            return True
+        elif info['status'] == 'failed':
+            logger.debug("reason: {}".format(info['reason']))
+            return False
+        else:
+            logger.debug("Unknown status: {}".format(info['status']))
+            return False
+    except Exception as e:
+        logger.debug("Error: {}".format(e))
+        return False
+
+
+def es_healthy(ip):
+    """Return True if Elasticsearch is healthy. False otherwise."""
+
+    try:
+        es = elasticsearch.Elasticsearch([ip], verify_certs=False)
+        es.ping()
+        return True
+    except Exception as e:
+        logger.debug("Error: {}".format(e))
+        return False
+
+
+def redis_healthy(ip, password=None):
+    """Return True if Redis is healthy. False otherwise."""
+
+    try:
+        r = redis.StrictRedis(ip, password=password)
+        r.ping()
+        return True
+    except Exception as e:
+        logger.debug("Error: {}".format(e))
+        return False
+
+
 def status_comp(comp, conf):
     """List containers for component."""
 
@@ -464,6 +514,35 @@ def status_comp(comp, conf):
     for c in comps:
         nc = netrc.netrc().hosts
         comp_ip = conf.get('{}_PVT_IP'.format(c.upper()))
+
+        # third-party software status
+        tps_health = [ ["component", "service", "healthy"] ]
+        if c == 'mozart':
+            # rabbitmq
+            if 'mozart-rabbitmq' in nc: 
+                rabbit_u, rabbit_a, rabbit_p = nc['mozart-rabbitmq']
+            else:
+                rabbit_u, rabbit_a, rabbit_p = nc[comp_ip]
+            tps_health.append([c, 'rabbitmq', rabbitmq_healthy(comp_ip, rabbit_u, rabbit_p)])
+
+        if c in ('mozart', 'grq', 'metrics'):
+            # elasticsearch
+            tps_health.append([c, 'elasticsearch', es_healthy(comp_ip)])
+
+        if c in ('mozart', 'grq', 'metrics'):
+            # redis
+            if '{}-redis'.format(c) in nc: 
+                redis_u, redis_a, redis_p = nc['{}-redis'.format(c)]
+            else:
+                redis_p = None
+            tps_health.append([c, 'redis', redis_healthy(comp_ip, redis_p)])
+
+        if len(tps_health) > 1:
+            fig = apl.figure()
+            fig.table(tps_health)
+            fig.show()
+            
+        # supervisor processes
         if comp_ip in nc: 
             u, a, p = nc[comp_ip]
             server_url = "https://{}:{}@{}/supervisor/RPC2".format(u, p, comp_ip)
@@ -472,7 +551,15 @@ def status_comp(comp, conf):
         server = ServerProxy(server_url, context=ssl._create_unverified_context())
         state = server.supervisor.getState() 
         logger.debug("{} state: {}".format(c, json.dumps(state, indent=2)))
-        #execute(fab.ps_sdsadm, roles=[c])
+        info = server.supervisor.getAllProcessInfo()
+        logger.debug("{} info: {}".format(c, json.dumps(info, indent=2)))
+        status_table = [ ["component", "group", "name", "statename", "description"] ]
+        for i in info:
+            status_table.append([c, i['group'], i['name'],
+                                 i['statename'], i['description']])
+        fig = apl.figure()
+        fig.table(status_table)
+        fig.show()
 
 
 def status(comp, debug=False):
