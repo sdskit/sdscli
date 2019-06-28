@@ -916,12 +916,12 @@ def ensure_ssl(node_type):
                         template_dir=get_user_files_path())
         with cd('ssl'):
             with settings(prompts=prompts):
-                run('openssl genrsa -des3 -out server.key 1024')
-                run('OPENSSL_CONF=server.cnf openssl req -new -key server.key -out server.csr')
+                run('openssl genrsa -des3 -out server.key 1024', pty=False)
+                run('OPENSSL_CONF=server.cnf openssl req -new -key server.key -out server.csr', pty=False)
                 run('cp server.key server.key.org')
-                run('openssl rsa -in server.key.org -out server.key')
+                run('openssl rsa -in server.key.org -out server.key', pty=False)
                 run('chmod 600 server.key*')
-                run('openssl x509 -req -days 99999 -in server.csr -signkey server.key -out server.pem')
+                run('openssl x509 -req -days 99999 -in server.csr -signkey server.key -out server.pem', pty=False)
 
 
 ##########################
