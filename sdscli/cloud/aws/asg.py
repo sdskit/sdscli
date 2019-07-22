@@ -150,10 +150,6 @@ def create(args, conf):
     cur_asgs = {i['AutoScalingGroupName']: i for i in get_asgs(c)}
     logger.debug("cur_asgs: {}".format(pformat(cur_asgs)))
 
-    # get current launch configs
-    cur_lcs = {i['LaunchConfigurationName']: i for i in get_lcs(c)}
-    logger.debug("cur_lcs: {}".format(pformat(cur_lcs)))
-
     # get current key pairs
     cur_keypairs = {i['KeyName']: i for i in get_keypairs(ec2)}
     logger.debug("cur_keypairs: {}".format(pformat(cur_keypairs)))
@@ -230,12 +226,34 @@ def create(args, conf):
     logger.debug("subnets: {}".format(pformat(subnets)))
     logger.debug("azs: {}".format(pformat(azs)))
 
+    #prompt for LaunchTemplateName
+    if 'LAUNCH_TEMPLATE_NAME' in asg_cfg:
+        launch_template_name = asg_cfg['LAUNCH_TEMPLATE_NAME']
+    else:
+        launch_template_name = prompt("Launch Template Name: ")
+    logger.debug("launch_template_name: {} ".format(launch_template_name))
+
     # check asgs that need to be configured
     instance_types = conf.get('INSTANCE_TYPES').split(
     ) if 'INSTANCE_TYPES' in conf._cfg else None
     instance_bids = conf.get('INSTANCE_BIDS').split(
     ) if 'INSTANCE_BIDS' in conf._cfg else None
-    for i, queue in enumerate([i.strip() for i in conf.get('QUEUES').split()]):
+
+    #HC-55 changes. Change QUEUES and INSTANCE_TYPES
+    queues = conf.get('QUEUES')
+    for i, q in enumerate(queues):
+        queue = q['QUEUE_NAME']
+        ins_type = q['INSTANCE_TYPES']
+        ins_bids = q['INSTANCE_BIDS']
+        print(str(ins_type))
+        inst_type_arr = []
+        for j in range(len(ins_type)):
+            inst_type_arr.append({'InstanceType':ins_type[j]})
+        #used as parameter in Overrides
+        overrides = str(inst_type_arr)
+        print(overrides)
+
+    #for i, queue in enumerate([i.strip() for i in conf.get('QUEUES').split()]):
         asg = "{}-{}".format(conf.get('VENUE'), queue)
         if asg in cur_asgs:
             print(("ASG {} already exists. Skipping.".format(asg)))
@@ -283,38 +301,27 @@ def create(args, conf):
             if 'Ebs' in bd_map and 'Encrypted' in bd_map['Ebs']:
                 del bd_map['Ebs']['Encrypted']
 
-        # get launch config
-        lc_args = {
-            'ImageId': ami,
-            'KeyName': keypair,
-            # 'IamInstanceProfile': role,
-            'SecurityGroups': sgs,
-            'UserData': user_data,
-            'InstanceType': instance_type,
-            'BlockDeviceMappings': bd_maps,
-        }
-        if use_role:
-            lc_args['IamInstanceProfile'] = role
-
-        if spot_bid is None:
-            lc = "{}-{}-{}-launch-config".format(asg, instance_type, market)
-        else:
-            lc = "{}-{}-{}-{}-launch-config".format(
-                asg, instance_type, market, spot_bid)
-            lc_args['SpotPrice'] = spot_bid
-        lc_args['LaunchConfigurationName'] = lc
-        if lc in cur_lcs:
-            print(("Launch configuration {} already exists. Skipping.".format(lc)))
-        else:
-            lc_info = create_lc(c, **lc_args)
-            logger.debug("Launch configuration {}: {}".format(
-                lc, pformat(lc_info)))
-            print(("Created launch configuration {}.".format(lc)))
 
         # get autoscaling group config
         asg_args = {
             'AutoScalingGroupName': asg,
-            'LaunchConfigurationName': lc,
+            'MixedInstancesPolicy': {
+                'LaunchTemplate': {
+                    'LaunchTemplateSpecification': {
+                        'LaunchTemplateName': launch_template_name,
+                        'Version': '$Latest'
+                    },
+                    'Overrides': overrides
+             },
+                'InstancesDistribution': {
+                    'OnDemandAllocationStrategy': 'prioritized',
+                    'OnDemandBaseCapacity': 1,
+                    'OnDemandPercentageAboveBaseCapacity': 50,
+                    'SpotAllocationStrategy': 'lowest-price',
+                    'SpotInstancePools': 2,
+                    'SpotMaxPrice': str(ins_bids)
+                }
+            },
             'MinSize': 0,
             'MaxSize': 0,
             'DefaultCooldown': 60,
@@ -345,7 +352,7 @@ def create(args, conf):
         logger.debug("asg_args: {}".format(pformat(asg_args)))
         asg_info = create_asg(c, **asg_args)
         logger.debug("Autoscaling group {}: {}".format(asg, pformat(asg_info)))
-        print(("Created autoscaling group {}".format(asg)))
+        print("Created autoscaling group {}".format(asg))
 
         # add target tracking scaling policy
         policy_name = "{}-target-tracking".format(asg)
