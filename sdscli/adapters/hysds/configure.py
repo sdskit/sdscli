@@ -152,6 +152,9 @@ VENUE: {VENUE}
 # git oauth token
 GIT_OAUTH_TOKEN: {GIT_OAUTH_TOKEN}
 
+# container registry
+CONTAINER_REGISTRY: {CONTAINER_REGISTRY}
+
 # DO NOT EDIT ANYTHING BELOW THIS
 
 # user_rules_dataset
@@ -260,6 +263,7 @@ CFG_DEFAULTS = {
         ["VERDI_PVT_IP", ""],
         ["VERDI_PUB_IP", ""],
         ["VERDI_FQDN", ""],
+        ["CONTAINER_REGISTRY", ""],
     ],
 
     "webdav": [

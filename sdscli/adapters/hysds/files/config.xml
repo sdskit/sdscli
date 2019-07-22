@@ -55,11 +55,12 @@ REPO=&quot;${GIT_URL#*://*/}&quot;
 REPO=&quot;${REPO%.git}&quot;
 REPO=&quot;${REPO//\//_}&quot;
 STORAGE=&quot;{{ STORAGE_URL }}&quot;
+CONTAINER_REGISTRY=&quot;{{ CONTAINER_REGISTRY }}&quot;
 export GIT_OAUTH_TOKEN=&quot;{{ GIT_OAUTH_TOKEN }}&quot;
 export MOZART_REST_URL=&quot;https://{{ MOZART_PVT_IP }}/mozart/api/v0.1&quot;
 export GRQ_REST_URL=&quot;http://{{ GRQ_PVT_IP }}:{{ GRQ_PORT }}/api/v0.1&quot;
 {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
-  ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL}</command>
+  ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${CONTAINER_REGISTRY}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
