@@ -234,8 +234,6 @@ def create(args, conf):
     logger.debug("launch_template_name: {} ".format(launch_template_name))
 
     # check asgs that need to be configured
-    instance_types = conf.get('INSTANCE_TYPES').split(
-    ) if 'INSTANCE_TYPES' in conf._cfg else None
     instance_bids = conf.get('INSTANCE_BIDS').split(
     ) if 'INSTANCE_BIDS' in conf._cfg else None
 
@@ -244,13 +242,13 @@ def create(args, conf):
     for i, q in enumerate(queues):
         queue = q['QUEUE_NAME']
         ins_type = q['INSTANCE_TYPES']
-        ins_bids = q['INSTANCE_BIDS']
+        #ins_bids = q['INSTANCE_BIDS']
         print(str(ins_type))
         inst_type_arr = []
         for j in range(len(ins_type)):
             inst_type_arr.append({'InstanceType':ins_type[j]})
         #used as parameter in Overrides
-        overrides = str(inst_type_arr)
+        overrides = inst_type_arr
         print(overrides)
 
     #for i, queue in enumerate([i.strip() for i in conf.get('QUEUES').split()]):
@@ -266,34 +264,6 @@ def create(args, conf):
         user_data = "BUNDLE_URL=s3://{}/{}-{}.tbz2".format(conf.get('CODE_BUCKET'),
                                                            queue, conf.get('VENUE'))
 
-        # prompt instance type
-        if instance_types is None:
-            instance_type = prompt(get_prompt_tokens=lambda x: [(Token, "Refer to https://www.ec2instances.info/ "),
-                                                                (Token, "and enter instance type to use for launch "),
-                                                                (Token, "configuration: ")], style=prompt_style,
-                                   validator=Ec2InstanceTypeValidator()).strip()
-        else:
-            instance_type = instance_types[i]
-        logger.debug("instance type: {}".format(instance_type))
-
-        # use spot?
-        market = "ondemand"
-        spot_bid = None
-        if instance_bids is None:
-            use_spot = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to use spot instances [y/n]: ")],
-                              validator=YesNoValidator(), style=prompt_style).strip() == 'y'
-            if use_spot:
-                market = "spot"
-                spot_bid = prompt(get_prompt_tokens=lambda x: [(Token, "Enter spot price bid: ")],
-                                  style=prompt_style, validator=PriceValidator()).strip()
-        else:
-            spot_bid = instance_bids[i]
-            market = 'spot'
-            if eval(spot_bid) == 0.:
-                market = 'ondemand'
-                spot_bid = None
-        if market == 'spot':
-            logger.debug("spot price bid: {}".format(spot_bid))
 
         # get block device mappings and remove encrypteed flag for spot to fire up
         bd_maps = cur_images[ami]['BlockDeviceMappings']
@@ -315,11 +285,11 @@ def create(args, conf):
              },
                 'InstancesDistribution': {
                     'OnDemandAllocationStrategy': 'prioritized',
-                    'OnDemandBaseCapacity': 1,
-                    'OnDemandPercentageAboveBaseCapacity': 50,
+                    'OnDemandBaseCapacity': 0,
+                    'OnDemandPercentageAboveBaseCapacity': 0,
                     'SpotAllocationStrategy': 'lowest-price',
-                    'SpotInstancePools': 2,
-                    'SpotMaxPrice': str(ins_bids)
+        #            'SpotInstancePools': 2,
+                    'SpotMaxPrice': ''
                 }
             },
             'MinSize': 0,
