@@ -271,6 +271,22 @@ def create(args, conf):
             if 'Ebs' in bd_map and 'Encrypted' in bd_map['Ebs']:
                 del bd_map['Ebs']['Encrypted']
 
+        # get launch template
+        lt_args = {
+            'ImageId': ami,
+            'KeyName': keypair,
+            'IamInstanceProfile': role,
+            'SecurityGroups': sgs,
+            'UserData': user_data,
+            'BlockDeviceMappings': bd_maps,
+        }
+
+        lt = "{}-launch-template".format(asg)
+        lt_args['LaunchTemplateName'] = lt
+        lt_info = create_lt(c, **lt_args)
+        logger.debug("Launch template {}: {}".format(
+            lt, pformat(lt_info)))
+        print(("Created launch template {}.".format(lt)))
 
         # get autoscaling group config
         asg_args = {
@@ -278,7 +294,7 @@ def create(args, conf):
             'MixedInstancesPolicy': {
                 'LaunchTemplate': {
                     'LaunchTemplateSpecification': {
-                        'LaunchTemplateName': launch_template_name,
+                        'LaunchTemplateName': lt,
                         'Version': '$Latest'
                     },
                     'Overrides': overrides
@@ -288,7 +304,7 @@ def create(args, conf):
                     'OnDemandBaseCapacity': 0,
                     'OnDemandPercentageAboveBaseCapacity': 0,
                     'SpotAllocationStrategy': 'lowest-price',
-        #            'SpotInstancePools': 2,
+                    'SpotInstancePools': len(ins_type),
                     'SpotMaxPrice': ''
                 }
             },
