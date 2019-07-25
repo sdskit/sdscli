@@ -226,12 +226,6 @@ def create(args, conf):
     logger.debug("subnets: {}".format(pformat(subnets)))
     logger.debug("azs: {}".format(pformat(azs)))
 
-    #prompt for LaunchTemplateName
-    if 'LAUNCH_TEMPLATE_NAME' in asg_cfg:
-        launch_template_name = asg_cfg['LAUNCH_TEMPLATE_NAME']
-    else:
-        launch_template_name = prompt("Launch Template Name: ")
-    logger.debug("launch_template_name: {} ".format(launch_template_name))
 
     # check asgs that need to be configured
     instance_bids = conf.get('INSTANCE_BIDS').split(
