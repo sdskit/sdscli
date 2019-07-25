@@ -11,6 +11,7 @@ standard_library.install_aliases()
 import os
 import re
 import json
+import base64
 import boto3
 from pprint import pformat
 from collections import OrderedDict
@@ -228,24 +229,17 @@ def create(args, conf):
 
 
     # check asgs that need to be configured
-    instance_bids = conf.get('INSTANCE_BIDS').split(
-    ) if 'INSTANCE_BIDS' in conf._cfg else None
-
-    #HC-55 changes. Change QUEUES and INSTANCE_TYPES
     queues = conf.get('QUEUES')
     for i, q in enumerate(queues):
         queue = q['QUEUE_NAME']
         ins_type = q['INSTANCE_TYPES']
         #ins_bids = q['INSTANCE_BIDS']
-        print(str(ins_type))
         inst_type_arr = []
         for j in range(len(ins_type)):
             inst_type_arr.append({'InstanceType':ins_type[j]})
         #used as parameter in Overrides
         overrides = inst_type_arr
-        print(overrides)
 
-    #for i, queue in enumerate([i.strip() for i in conf.get('QUEUES').split()]):
         asg = "{}-{}".format(conf.get('VENUE'), queue)
         if asg in cur_asgs:
             print(("ASG {} already exists. Skipping.".format(asg)))
@@ -258,7 +252,6 @@ def create(args, conf):
         user_data = "BUNDLE_URL=s3://{}/{}-{}.tbz2".format(conf.get('CODE_BUCKET'),
                                                            queue, conf.get('VENUE'))
 
-
         # get block device mappings and remove encrypteed flag for spot to fire up
         bd_maps = cur_images[ami]['BlockDeviceMappings']
         for bd_map in bd_maps:
@@ -268,9 +261,15 @@ def create(args, conf):
         # get launch template
         lt_args = {
             'LaunchTemplateData': {
-                'ImageId': ami
+                'ImageId': ami,
+                'KeyName': keypair,
+                'SecurityGroupIds': sgs,
+                'UserData': base64.b64encode(user_data.encode()).decode(),
+                'BlockDeviceMappings': bd_maps,
             }
         }
+        if use_role:
+            lt_args['LaunchTemplateData']['IamInstanceProfile'] = { 'Name': role }
 
         lt = "{}-launch-template".format(asg)
         lt_args['LaunchTemplateName'] = lt
