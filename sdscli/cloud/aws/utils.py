@@ -109,6 +109,13 @@ def create_lc(c=None, **kargs):
         c = boto3.client('autoscaling')
     return c.create_launch_configuration(**kargs)
 
+@cloud_config_check
+def create_lt(c=None, **kargs):
+    """Create launch template."""
+
+    if c is None:
+        c = boto3.client('ec2')
+    return c.create_launch_template(**kargs)
 
 @cloud_config_check
 def create_asg(c=None, **kargs):

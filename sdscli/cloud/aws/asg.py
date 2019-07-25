@@ -11,6 +11,7 @@ standard_library.install_aliases()
 import os
 import re
 import json
+import base64
 import boto3
 from pprint import pformat
 from collections import OrderedDict
@@ -150,10 +151,6 @@ def create(args, conf):
     cur_asgs = {i['AutoScalingGroupName']: i for i in get_asgs(c)}
     logger.debug("cur_asgs: {}".format(pformat(cur_asgs)))
 
-    # get current launch configs
-    cur_lcs = {i['LaunchConfigurationName']: i for i in get_lcs(c)}
-    logger.debug("cur_lcs: {}".format(pformat(cur_lcs)))
-
     # get current key pairs
     cur_keypairs = {i['KeyName']: i for i in get_keypairs(ec2)}
     logger.debug("cur_keypairs: {}".format(pformat(cur_keypairs)))
@@ -230,12 +227,19 @@ def create(args, conf):
     logger.debug("subnets: {}".format(pformat(subnets)))
     logger.debug("azs: {}".format(pformat(azs)))
 
+
     # check asgs that need to be configured
-    instance_types = conf.get('INSTANCE_TYPES').split(
-    ) if 'INSTANCE_TYPES' in conf._cfg else None
-    instance_bids = conf.get('INSTANCE_BIDS').split(
-    ) if 'INSTANCE_BIDS' in conf._cfg else None
-    for i, queue in enumerate([i.strip() for i in conf.get('QUEUES').split()]):
+    queues = conf.get('QUEUES')
+    for i, q in enumerate(queues):
+        queue = q['QUEUE_NAME']
+        ins_type = q['INSTANCE_TYPES']
+        #ins_bids = q['INSTANCE_BIDS']
+        inst_type_arr = []
+        for j in range(len(ins_type)):
+            inst_type_arr.append({'InstanceType':ins_type[j]})
+        #used as parameter in Overrides
+        overrides = inst_type_arr
+
         asg = "{}-{}".format(conf.get('VENUE'), queue)
         if asg in cur_asgs:
             print(("ASG {} already exists. Skipping.".format(asg)))
@@ -248,73 +252,52 @@ def create(args, conf):
         user_data = "BUNDLE_URL=s3://{}/{}-{}.tbz2".format(conf.get('CODE_BUCKET'),
                                                            queue, conf.get('VENUE'))
 
-        # prompt instance type
-        if instance_types is None:
-            instance_type = prompt(get_prompt_tokens=lambda x: [(Token, "Refer to https://www.ec2instances.info/ "),
-                                                                (Token, "and enter instance type to use for launch "),
-                                                                (Token, "configuration: ")], style=prompt_style,
-                                   validator=Ec2InstanceTypeValidator()).strip()
-        else:
-            instance_type = instance_types[i]
-        logger.debug("instance type: {}".format(instance_type))
-
-        # use spot?
-        market = "ondemand"
-        spot_bid = None
-        if instance_bids is None:
-            use_spot = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to use spot instances [y/n]: ")],
-                              validator=YesNoValidator(), style=prompt_style).strip() == 'y'
-            if use_spot:
-                market = "spot"
-                spot_bid = prompt(get_prompt_tokens=lambda x: [(Token, "Enter spot price bid: ")],
-                                  style=prompt_style, validator=PriceValidator()).strip()
-        else:
-            spot_bid = instance_bids[i]
-            market = 'spot'
-            if eval(spot_bid) == 0.:
-                market = 'ondemand'
-                spot_bid = None
-        if market == 'spot':
-            logger.debug("spot price bid: {}".format(spot_bid))
-
         # get block device mappings and remove encrypteed flag for spot to fire up
         bd_maps = cur_images[ami]['BlockDeviceMappings']
         for bd_map in bd_maps:
             if 'Ebs' in bd_map and 'Encrypted' in bd_map['Ebs']:
                 del bd_map['Ebs']['Encrypted']
 
-        # get launch config
-        lc_args = {
-            'ImageId': ami,
-            'KeyName': keypair,
-            # 'IamInstanceProfile': role,
-            'SecurityGroups': sgs,
-            'UserData': user_data,
-            'InstanceType': instance_type,
-            'BlockDeviceMappings': bd_maps,
+        # get launch template
+        lt_args = {
+            'LaunchTemplateData': {
+                'ImageId': ami,
+                'KeyName': keypair,
+                'SecurityGroupIds': sgs,
+                'UserData': base64.b64encode(user_data.encode()).decode(),
+                'BlockDeviceMappings': bd_maps,
+            }
         }
         if use_role:
-            lc_args['IamInstanceProfile'] = role
+            lt_args['LaunchTemplateData']['IamInstanceProfile'] = { 'Name': role }
 
-        if spot_bid is None:
-            lc = "{}-{}-{}-launch-config".format(asg, instance_type, market)
-        else:
-            lc = "{}-{}-{}-{}-launch-config".format(
-                asg, instance_type, market, spot_bid)
-            lc_args['SpotPrice'] = spot_bid
-        lc_args['LaunchConfigurationName'] = lc
-        if lc in cur_lcs:
-            print(("Launch configuration {} already exists. Skipping.".format(lc)))
-        else:
-            lc_info = create_lc(c, **lc_args)
-            logger.debug("Launch configuration {}: {}".format(
-                lc, pformat(lc_info)))
-            print(("Created launch configuration {}.".format(lc)))
+        lt = "{}-launch-template".format(asg)
+        lt_args['LaunchTemplateName'] = lt
+        lt_info = create_lt(ec2, **lt_args)
+        logger.debug("Launch template {}: {}".format(
+            lt, pformat(lt_info)))
+        print(("Created launch template {}.".format(lt)))
 
         # get autoscaling group config
         asg_args = {
             'AutoScalingGroupName': asg,
-            'LaunchConfigurationName': lc,
+            'MixedInstancesPolicy': {
+                'LaunchTemplate': {
+                    'LaunchTemplateSpecification': {
+                        'LaunchTemplateName': lt,
+                        'Version': '$Latest'
+                    },
+                    'Overrides': overrides
+             },
+                'InstancesDistribution': {
+                    'OnDemandAllocationStrategy': 'prioritized',
+                    'OnDemandBaseCapacity': 0,
+                    'OnDemandPercentageAboveBaseCapacity': 0,
+                    'SpotAllocationStrategy': 'lowest-price',
+                    'SpotInstancePools': len(ins_type),
+                    'SpotMaxPrice': ''
+                }
+            },
             'MinSize': 0,
             'MaxSize': 0,
             'DefaultCooldown': 60,
@@ -345,7 +328,7 @@ def create(args, conf):
         logger.debug("asg_args: {}".format(pformat(asg_args)))
         asg_info = create_asg(c, **asg_args)
         logger.debug("Autoscaling group {}: {}".format(asg, pformat(asg_info)))
-        print(("Created autoscaling group {}".format(asg)))
+        print("Created autoscaling group {}".format(asg))
 
         # add target tracking scaling policy
         policy_name = "{}-target-tracking".format(asg)
