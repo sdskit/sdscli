@@ -273,17 +273,14 @@ def create(args, conf):
 
         # get launch template
         lt_args = {
-            'ImageId': ami,
-            'KeyName': keypair,
-            'IamInstanceProfile': role,
-            'SecurityGroups': sgs,
-            'UserData': user_data,
-            'BlockDeviceMappings': bd_maps,
+            'LaunchTemplateData': {
+                'ImageId': ami
+            }
         }
 
         lt = "{}-launch-template".format(asg)
         lt_args['LaunchTemplateName'] = lt
-        lt_info = create_lt(c, **lt_args)
+        lt_info = create_lt(ec2, **lt_args)
         logger.debug("Launch template {}: {}".format(
             lt, pformat(lt_info)))
         print(("Created launch template {}.".format(lt)))
