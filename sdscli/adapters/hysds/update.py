@@ -757,7 +757,7 @@ def ship_verdi(conf, encrypt=False, comp='mozart'):
 
     venue = conf.get('VENUE')
     #queues = [i.strip() for i in conf.get('QUEUES').split()]
-    queues = [q['QUEUE_NAME'] for q in enumerate(conf.get('QUEUES'))]
+    queues = [q['QUEUE_NAME'] for q in conf.get('QUEUES')]
     # progress bar
     with tqdm(total=len(queues)+1) as bar:
 
