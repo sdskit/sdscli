@@ -54,11 +54,24 @@ cd /data/work
 tar xvfj $BASE_PATH/beefed-autoindex-open_in_new_win.tbz2
 
 # prime verdi docker image
-export AWS_ACCESS_KEY_ID="$(grep aws_access_key_id $HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-export AWS_SECRET_ACCESS_KEY="$(grep aws_secret_access_key $HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+if [[ -f $HOME/.aws/credentials ]]; then
+  export AWS_ACCESS_KEY_ID="$(grep aws_access_key_id $HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+  export AWS_SECRET_ACCESS_KEY="$(grep aws_secret_access_key $HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+fi
+
 export VERDI_PRIMER_IMAGE="{{ VERDI_PRIMER_IMAGE }}"
 export VERDI_PRIMER_IMAGE_BASENAME="$(basename $VERDI_PRIMER_IMAGE 2>/dev/null)"
+
+# Start up Docker Registry if CONTAINER_REGISTRY is defined
+export CONTAINER_REGISTRY="{{ CONTAINER_REGISTRY }}"
+export CONTAINER_REGISTRY_BUCKET="{{ CONTAINER_REGISTRY_BUCKET }}"
+if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]
+then
+  docker run -p 5050:5000 -e REGISTRY_STORAGE=s3 -e REGISTRY_STORAGE_S3_BUCKET={{ CONTAINER_REGISTRY_BUCKET }} -e REGISTRY_STORAGE_S3_REGION={{ AWS_REGION }} --name=registry -d registry:2
+fi
+
 rm -rf /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
 aws s3 cp ${VERDI_PRIMER_IMAGE} /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
 docker load -i /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
+
 docker tag hysds/verdi:{{ VERDI_TAG }} hysds/verdi:latest
