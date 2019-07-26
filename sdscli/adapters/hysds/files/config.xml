@@ -66,10 +66,10 @@ export CONTAINER_REGISTRY_BUCKET=&quot;{{ CONTAINER_REGISTRY_BUCKET }}&quot;
 if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]
 then
   {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
-  ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${CONTAINER_REGISTRY} --build-arg GIT_OAUTH_TOKEN=${GIT_OAUTH_TOKEN} --build-arg BRANCH=${TAG}
+  ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${CONTAINER_REGISTRY}
 else
   {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
-  ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} "" --build-arg GIT_OAUTH_TOKEN=${GIT_OAUTH_TOKEN} --build-arg BRANCH=${TAG}
+  ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ""
 fi
       </command>
     </hudson.tasks.Shell>
