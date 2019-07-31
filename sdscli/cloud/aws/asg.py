@@ -231,10 +231,10 @@ def create(args, conf):
     # check asgs that need to be configured
     queues = conf._cfg.get('QUEUES', [])
     if len(queues) == 0:
-        queue_names = prompt('Please enter queue names, separate by space: ')
+        queue_names = prompt('Please enter queue names, separate by space, for example: job_worker-small job_worker-large: ')
         q_list = queue_names.split()
         for i in range(len(q_list)):
-            inst = prompt('Please enter instance names, separate by space for ' + q_list[i] + ': ')
+            inst = prompt('Please enter instance names, separate by space for ' + q_list[i] + ', for example, t2.small t3.small t3a.small')
             i_list = inst.split()
             print(str(q_list))
             d = {'QUEUE_NAME': q_list[i], 'INSTANCE_TYPES': i_list}
