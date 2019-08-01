@@ -145,8 +145,6 @@ VERDI_PRIMER_IMAGE: {VERDI_PRIMER_IMAGE}
 VERDI_TAG: {VERDI_TAG}
 VERDI_UID: {VERDI_UID}
 VERDI_GID: {VERDI_GID}
-QUEUES: {QUEUES}
-INSTANCE_TYPES: {INSTANCE_TYPES}
 VENUE: {VENUE}
 
 # git oauth token
@@ -293,8 +291,6 @@ CFG_DEFAULTS = {
         ["VERDI_TAG", ""],
         ["VERDI_UID", os.getuid()],
         ["VERDI_GID", os.getgid()],
-        ["QUEUES", "dumby-job_worker-small dumby-job_worker-large"],
-        ["INSTANCE_TYPES", "t2.micro t2.micro"],
         ["VENUE", "ops"],
     ]
 }

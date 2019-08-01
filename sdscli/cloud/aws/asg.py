@@ -229,11 +229,22 @@ def create(args, conf):
 
 
     # check asgs that need to be configured
-    queues = conf.get('QUEUES')
+    queues = conf._cfg.get('QUEUES', [])
+    if len(queues) == 0:
+        queue_names = prompt(
+            'Please enter queue names, separate by space, for example: [job_worker-small job_worker-large]: ',
+            default='job_worker-small job_worker-large')
+        q_list = queue_names.split()
+        for i in range(len(q_list)):
+            inst = prompt('Please enter instance names, separate by space, for ' + q_list[
+                i] + ', for example: [t2.medium t3.medium t3a.medium]: ', default='t2.medium t3.medium t3a.medium')
+            i_list = inst.split()
+            d = {'QUEUE_NAME': q_list[i], 'INSTANCE_TYPES': i_list}
+            queues.append(d)
+            logger.debug(str(queues))
     for i, q in enumerate(queues):
         queue = q['QUEUE_NAME']
         ins_type = q['INSTANCE_TYPES']
-        #ins_bids = q['INSTANCE_BIDS']
         inst_type_arr = []
         for j in range(len(ins_type)):
             inst_type_arr.append({'InstanceType':ins_type[j]})
