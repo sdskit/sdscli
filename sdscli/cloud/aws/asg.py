@@ -237,7 +237,7 @@ def create(args, conf):
         q_list = queue_names.split()
         for i in range(len(q_list)):
             inst = prompt('Please enter instance names, separate by space, for ' + q_list[
-                i] + ', for example: [t2.small t3.small t3a.small]: ', default='t2.small t3.small t3a.small')
+                i] + ', for example: [t2.medium t3.medium t3a.medium]: ', default='t2.medium t3.medium t3a.medium')
             i_list = inst.split()
             d = {'QUEUE_NAME': q_list[i], 'INSTANCE_TYPES': i_list}
             queues.append(d)
