@@ -70,10 +70,10 @@ fi
 if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]
 then
   {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
-  ${REPO} ${BRANCH} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${CONTAINER_REGISTRY}
+  ${REPO} ${BRANCH} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${SKIP_PUBLISH} ${CONTAINER_REGISTRY}
 else
   {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
-  ${REPO} ${BRANCH} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ""
+  ${REPO} ${BRANCH} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${SKIP_PUBLISH} ""
 fi
       </command>
     </hudson.tasks.Shell>
