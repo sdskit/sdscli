@@ -436,8 +436,7 @@ def ensure_venv(hysds_dir, update_bash_profile=True, system_site_packages=True, 
             run('pip install -U pip')
             run('pip install -U setuptools')
             if install_supervisor:
-                #run('pip install --ignore-installed supervisor')
-                run('pip install --ignore-installed git+https://github.com/Supervisor/supervisor')
+                run('pip install --ignore-installed supervisor')
     mkdir('%s/etc' % hysds_dir,
           context['OPS_USER'], context['OPS_USER'])
     mkdir('%s/log' % hysds_dir,

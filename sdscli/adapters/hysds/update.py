@@ -41,7 +41,7 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
     """"Update mozart component."""
 
     # progress bar
-    with tqdm(total=39) as bar:
+    with tqdm(total=37) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -63,9 +63,6 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         bar.update()
         execute(fab.pip_install_with_req, 'mozart',
                 '~/mozart/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'mozart',
                 '~/mozart/ops/hysds', ndeps, roles=[comp])
@@ -212,9 +209,6 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
                 '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/hysds', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
@@ -264,7 +258,7 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
     """"Update metrics component."""
 
     # progress bar
-    with tqdm(total=21) as bar:
+    with tqdm(total=20) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -292,9 +286,6 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
         bar.update()
         execute(fab.pip_install_with_req, 'metrics',
                 '~/metrics/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'metrics',
-                '~/metrics/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'metrics',
                 '~/metrics/ops/hysds', ndeps, roles=[comp])
@@ -362,7 +353,7 @@ def update_grq(conf, ndeps=False, comp='grq'):
     """"Update grq component."""
 
     # progress bar
-    with tqdm(total=25) as bar:
+    with tqdm(total=24) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -392,9 +383,6 @@ def update_grq(conf, ndeps=False, comp='grq'):
         bar.update()
         execute(fab.pip_install_with_req, 'sciflo',
                 '~/sciflo/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'sciflo',
                 '~/sciflo/ops/hysds', ndeps, roles=[comp])
@@ -509,7 +497,7 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
     """"Update factotum component."""
 
     # progress bar
-    with tqdm(total=15) as bar:
+    with tqdm(total=14) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -539,9 +527,6 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/hysds', ndeps, roles=[comp])
@@ -599,7 +584,7 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
     """"Update verdi component."""
 
     # progress bar
-    with tqdm(total=16) as bar:
+    with tqdm(total=15) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -635,9 +620,6 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds/third_party/celery-v4.2.1', ndeps, roles=[comp])
         bar.update()
         execute(fab.pip_install_with_req, 'verdi',
                 '~/verdi/ops/hysds', ndeps, roles=[comp])

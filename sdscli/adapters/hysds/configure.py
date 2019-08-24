@@ -146,6 +146,17 @@ VERDI_TAG: {VERDI_TAG}
 VERDI_UID: {VERDI_UID}
 VERDI_GID: {VERDI_GID}
 VENUE: {VENUE}
+QUEUES:
+  - QUEUE_NAME: dumby-job_worker-small
+    INSTANCE_TYPES:
+      - t2.medium
+      - t3a.medium
+      - t3.medium
+  - QUEUE_NAME: dumby-job_worker-large
+    INSTANCE_TYPES:
+      - t2.medium
+      - t3a.medium
+      - t3.medium
 
 # git oauth token
 GIT_OAUTH_TOKEN: {GIT_OAUTH_TOKEN}

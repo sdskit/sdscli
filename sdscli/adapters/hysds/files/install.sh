@@ -18,8 +18,6 @@ cd $BASE_PATH/osaka
 pip install -e .
 cd $BASE_PATH/hysds_commons
 pip install -e .
-cd $BASE_PATH/hysds/third_party/celery-v4.2.1
-pip install -e .
 cd $BASE_PATH/hysds
 pip install -e .
 cd $BASE_PATH/sciflo
