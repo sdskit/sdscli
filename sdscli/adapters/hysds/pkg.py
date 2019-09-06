@@ -281,7 +281,7 @@ def import_pkg(args):
     # index hysds_ios in ES
     for hysds_io in manifest['hysds_ios']:
         component = hysds_io.get('component', 'tosca')
-        es_url = mozart_es_url if component == 'mozart' else grq_es_url
+        es_url = mozart_es_url if component in ('mozart', 'figaro') else grq_es_url
         r = requests.put("{}/hysds_ios/hysds_io/{}".format(es_url, hysds_io['id']),
                          data=json.dumps(hysds_io))
         r.raise_for_status()
