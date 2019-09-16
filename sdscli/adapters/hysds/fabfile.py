@@ -881,8 +881,8 @@ def send_peleconf(send_file='settings.cfg.tmpl', template_dir=get_user_files_pat
     with prefix('source ~/sciflo/bin/activate'):
         with cd('~/sciflo/ops/pele'):
             run('flask create-db')
-            run('flask db init')
-            run('flask db migrate')
+            run('flask db init', warn_only=True)
+            run('flask db migrate', warn_only=True)
 
 
 def create_user_rules_index():

@@ -70,7 +70,7 @@ def update(args):
     logger.debug("sds_type: %s" % sds_type)
     func = get_adapter_func(sds_type, 'update', 'update')
     logger.debug("func: %s" % func)
-    func(args.component, args.debug, args.force, args.ndeps)
+    func(args.component, args.debug, args.force, args.ndeps, args.config_only)
 
 
 def ship(args):
@@ -264,19 +264,21 @@ def main():
                                help="force update without user confirmation")
     parser_update.add_argument('--ndeps', '-n', action='store_true',
                                help="skip the external accesses for dependencies")
+    parser_update.add_argument('--config-only', '-c', action='store_true',
+                               help="update configuration files only")
     parser_update.set_defaults(func=update)
 
     # parser for kibana
-    parser_update = subparsers.add_parser(
+    parser_kibana = subparsers.add_parser(
         'kibana', help="update SDS components")
-    parser_update.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
+    parser_kibana.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
                                choices=['hysds', 'sdskit'])
-    parser_update.add_argument('--force', '-f', action='store_true',
+    parser_kibana.add_argument('--force', '-f', action='store_true',
                                help="force update without user confirmation")
 
-    parser_update.add_argument(
+    parser_kibana.add_argument(
         'job_type', choices=['import', 'export', 'delete'])
-    parser_update.set_defaults(func=kibana)
+    parser_kibana.set_defaults(func=kibana)
 
     # parser for ship
     parser_ship = subparsers.add_parser(
@@ -474,18 +476,6 @@ def main():
     parser_job_list.add_argument(
         "status", help="job status to list counts for")
     parser_job_list.set_defaults(func=job_list)
-
-    parser_update = subparsers.add_parser(
-        'update', help="update SDS components")
-    parser_update.add_argument('--type', '-t', default='hysds', const='hysds', nargs='?',
-                               choices=['hysds', 'sdskit'])
-    parser_update.add_argument('component', choices=['mozart', 'grq', 'metrics',
-                                                     'factotum', 'ci', 'verdi', 'all'])
-    parser_update.add_argument('--force', '-f', action='store_true',
-                               help="force update without user confirmation")
-    parser_update.add_argument('--ndeps', '-n', action='store_true',
-                               help="skip the external accesses for dependencies")
-    parser_update.set_defaults(func=update)
 
     # parser for container orchestration
     parser_orch = subparsers.add_parser(
