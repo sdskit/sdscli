@@ -37,11 +37,14 @@ prompt_style = style_from_dict({
 })
 
 
-def update_mozart(conf, ndeps=False, comp='mozart'):
+def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
+    # number of progress bar updates
+    num_updates = 30 if config_only else 37
+
     # progress bar
-    with tqdm(total=37) as bar:
+    with tqdm(total=num_updates) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -54,28 +57,29 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         bar.update()
 
         # update reqs
-        set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/osaka', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/prov_es', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/hysds', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/sciflo', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/chimera', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'mozart',
-                '~/mozart/ops/mozart', ndeps, roles=[comp])
-        bar.update()
+        if not config_only:
+            set_bar_desc(bar, 'Updating HySDS core')
+            execute(fab.pip_install_with_req, 'mozart',
+                    '~/mozart/ops/osaka', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'mozart',
+                    '~/mozart/ops/prov_es', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'mozart',
+                    '~/mozart/ops/hysds_commons', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'mozart',
+                    '~/mozart/ops/hysds', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'mozart',
+                    '~/mozart/ops/sciflo', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'mozart',
+                    '~/mozart/ops/chimera', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'mozart',
+                    '~/mozart/ops/mozart', ndeps, roles=[comp])
+            bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -254,11 +258,14 @@ def update_mozart(conf, ndeps=False, comp='mozart'):
         set_bar_desc(bar, 'Updated verdi code/config')
 
 
-def update_metrics(conf, ndeps=False, comp='metrics'):
+def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
     """"Update metrics component."""
 
+    # number of progress bar updates
+    num_updates = 13 if config_only else 20
+
     # progress bar
-    with tqdm(total=20) as bar:
+    with tqdm(total=num_updates) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -271,31 +278,32 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
         bar.update()
 
         # update
-        set_bar_desc(bar, 'Syncing packages')
-        execute(fab.rm_rf, '~/metrics/ops/*', roles=[comp])
-        execute(fab.rsync_code, 'metrics', roles=[comp])
-        bar.update()
+        if not config_only:
+            set_bar_desc(bar, 'Syncing packages')
+            execute(fab.rm_rf, '~/metrics/ops/*', roles=[comp])
+            execute(fab.rsync_code, 'metrics', roles=[comp])
+            bar.update()
 
-        # update reqs
-        set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'metrics',
-                '~/metrics/ops/osaka', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'metrics',
-                '~/metrics/ops/prov_es', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'metrics',
-                '~/metrics/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'metrics',
-                '~/metrics/ops/hysds', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'metrics',
-                '~/metrics/ops/sciflo', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'metrics',
-                '~/metrics/ops/chimera', ndeps, roles=[comp])
-        bar.update()
+            # update reqs
+            set_bar_desc(bar, 'Updating HySDS core')
+            execute(fab.pip_install_with_req, 'metrics',
+                    '~/metrics/ops/osaka', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'metrics',
+                    '~/metrics/ops/prov_es', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'metrics',
+                    '~/metrics/ops/hysds_commons', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'metrics',
+                    '~/metrics/ops/hysds', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'metrics',
+                    '~/metrics/ops/sciflo', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'metrics',
+                    '~/metrics/ops/chimera', ndeps, roles=[comp])
+            bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -349,11 +357,14 @@ def update_metrics(conf, ndeps=False, comp='metrics'):
         set_bar_desc(bar, 'Updated metrics')
 
 
-def update_grq(conf, ndeps=False, comp='grq'):
+def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
+    # number of progress bar updates
+    num_updates = 14 if config_only else 24
+
     # progress bar
-    with tqdm(total=24) as bar:
+    with tqdm(total=num_updates) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -366,42 +377,43 @@ def update_grq(conf, ndeps=False, comp='grq'):
         bar.update()
 
         # update
-        set_bar_desc(bar, 'Syncing packages')
-        execute(fab.rm_rf, '~/sciflo/ops/*', roles=[comp])
-        execute(fab.rsync_code, 'grq', 'sciflo', roles=[comp])
-        execute(fab.pip_upgrade, 'gunicorn', 'sciflo',
-                roles=[comp])  # ensure latest gunicorn
-        bar.update()
+        if not config_only:
+            set_bar_desc(bar, 'Syncing packages')
+            execute(fab.rm_rf, '~/sciflo/ops/*', roles=[comp])
+            execute(fab.rsync_code, 'grq', 'sciflo', roles=[comp])
+            execute(fab.pip_upgrade, 'gunicorn', 'sciflo',
+                    roles=[comp])  # ensure latest gunicorn
+            bar.update()
 
-        # update reqs
-        set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/osaka', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/prov_es', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/hysds', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/sciflo', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/chimera', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/grq2', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/tosca', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'sciflo',
-                '~/sciflo/ops/pele', ndeps, roles=[comp])
-        bar.update()
+            # update reqs
+            set_bar_desc(bar, 'Updating HySDS core')
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/osaka', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/prov_es', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/hysds_commons', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/hysds', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/sciflo', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/chimera', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/grq2', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/tosca', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'sciflo',
+                    '~/sciflo/ops/pele', ndeps, roles=[comp])
+            bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -493,11 +505,14 @@ def update_grq(conf, ndeps=False, comp='grq'):
         set_bar_desc(bar, 'Updated grq')
 
 
-def update_factotum(conf, ndeps=False, comp='factotum'):
+def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
     """"Update factotum component."""
 
+    # number of progress bar updates
+    num_updates = 7 if config_only else 14
+
     # progress bar
-    with tqdm(total=14) as bar:
+    with tqdm(total=num_updates) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -511,32 +526,33 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
         bar.update()
 
         # update
-        set_bar_desc(bar, 'Syncing packages')
-        execute(fab.rm_rf, '~/verdi/ops/*', roles=[comp])
-        execute(fab.rsync_code, 'factotum', 'verdi', roles=[comp])
-        execute(fab.set_spyddder_settings, roles=[comp])
-        bar.update()
+        if not config_only:
+            set_bar_desc(bar, 'Syncing packages')
+            execute(fab.rm_rf, '~/verdi/ops/*', roles=[comp])
+            execute(fab.rsync_code, 'factotum', 'verdi', roles=[comp])
+            execute(fab.set_spyddder_settings, roles=[comp])
+            bar.update()
 
-        # update reqs
-        set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/osaka', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/prov_es', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/sciflo', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/chimera', ndeps, roles=[comp])
-        bar.update()
+            # update reqs
+            set_bar_desc(bar, 'Updating HySDS core')
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/osaka', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/prov_es', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/hysds', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/sciflo', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/chimera', ndeps, roles=[comp])
+            bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -580,11 +596,14 @@ def update_factotum(conf, ndeps=False, comp='factotum'):
         set_bar_desc(bar, 'Updated factotum')
 
 
-def update_verdi(conf, ndeps=False, comp='verdi'):
+def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
     """"Update verdi component."""
 
+    # number of progress bar updates
+    num_updates = 8 if config_only else 15
+
     # progress bar
-    with tqdm(total=15) as bar:
+    with tqdm(total=num_updates) as bar:
 
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
@@ -604,32 +623,33 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
         bar.update()
 
         # update
-        set_bar_desc(bar, 'Syncing packages')
-        execute(fab.rm_rf, '~/verdi/ops/*', roles=[comp])
-        execute(fab.rsync_code, 'verdi', roles=[comp])
-        execute(fab.set_spyddder_settings, roles=[comp])
-        bar.update()
+        if not config_only:
+            set_bar_desc(bar, 'Syncing packages')
+            execute(fab.rm_rf, '~/verdi/ops/*', roles=[comp])
+            execute(fab.rsync_code, 'verdi', roles=[comp])
+            execute(fab.set_spyddder_settings, roles=[comp])
+            bar.update()
 
-        # update reqs
-        set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/osaka', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/prov_es', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/sciflo', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/chimera', ndeps, roles=[comp])
-        bar.update()
+            # update reqs
+            set_bar_desc(bar, 'Updating HySDS core')
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/osaka', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/prov_es', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/hysds', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/sciflo', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/chimera', ndeps, roles=[comp])
+            bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -673,7 +693,7 @@ def update_verdi(conf, ndeps=False, comp='verdi'):
         set_bar_desc(bar, 'Updated verdi')
 
 
-def update_comp(comp, conf, ndeps=False):
+def update_comp(comp, conf, ndeps=False, config_only=False):
     """Update component."""
 
     # if all, create progress bar
@@ -682,36 +702,36 @@ def update_comp(comp, conf, ndeps=False):
         # progress bar
         with tqdm(total=5) as bar:
             set_bar_desc(bar, "Updating grq")
-            update_grq(conf, ndeps)
+            update_grq(conf, ndeps, config_only)
             bar.update()
             set_bar_desc(bar, "Updating mozart")
-            update_mozart(conf, ndeps)
+            update_mozart(conf, ndeps, config_only)
             bar.update()
             set_bar_desc(bar, "Updating metrics")
-            update_metrics(conf, ndeps)
+            update_metrics(conf, ndeps, config_only)
             bar.update()
             set_bar_desc(bar, "Updating factotum")
-            update_factotum(conf, ndeps)
+            update_factotum(conf, ndeps, config_only)
             bar.update()
             set_bar_desc(bar, "Updating verdi")
-            update_verdi(conf, ndeps)
+            update_verdi(conf, ndeps, config_only)
             bar.update()
             set_bar_desc(bar, "Updated all")
             print("")
     else:
         if comp == 'grq':
-            update_grq(conf, ndeps)
+            update_grq(conf, ndeps, config_only)
         if comp == 'mozart':
-            update_mozart(conf, ndeps)
+            update_mozart(conf, ndeps, config_only)
         if comp == 'metrics':
-            update_metrics(conf, ndeps)
+            update_metrics(conf, ndeps, config_only)
         if comp == 'factotum':
-            update_factotum(conf, ndeps)
+            update_factotum(conf, ndeps, config_only)
         if comp == 'verdi':
-            update_verdi(conf, ndeps)
+            update_verdi(conf, ndeps, config_only)
 
 
-def update(comp, debug=False, force=False, ndeps=False):
+def update(comp, debug=False, force=False, ndeps=False, config_only=False):
     """Update components."""
 
     # prompt user
@@ -728,10 +748,10 @@ def update(comp, debug=False, force=False, ndeps=False):
     logger.debug("Updating %s" % comp)
 
     if debug:
-        update_comp(comp, conf, ndeps)
+        update_comp(comp, conf, ndeps, config_only)
     else:
         with hide('everything'):
-            update_comp(comp, conf, ndeps)
+            update_comp(comp, conf, ndeps, config_only)
 
 
 def ship_verdi(conf, encrypt=False, comp='mozart'):
