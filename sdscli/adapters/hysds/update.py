@@ -864,14 +864,15 @@ def import_kibana(comp='metrics'):
         execute(fab.rm_rf, '~/metrics/ops/kibana_metrics', roles=[comp])
         execute(fab.mkdir, '~/metrics/ops/kibana_metrics',
                 'ops', 'ops', roles=[comp])
-        execute(fab.send_template, 'import_dashboard.sh.tmpl',
-                '~/metrics/ops/kibana_metrics/import_dashboard.sh', '~/mozart/ops/swot-pcm/conf/sds/files/kibana_dashboard_import',
+        execute(fab.send_template_user_override, 'import_dashboard.sh.tmpl',
+                '~/metrics/ops/kibana_metrics/import_dashboard.sh',
+                '~/mozart/ops/sdscli/sdscli/adapters/hysds/files/kibana_dashboard_import',
                 roles=[comp])
         execute(fab.chmod, 755,
                 '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
-        execute(fab.copy, '~/mozart/ops/swot-pcm/conf/sds/files/kibana_dashboard_import/job-dashboards.json',
+        execute(fab.copy, '~/.sds/files/kibana_dashboard_import/job-dashboards.json',
                 '~/metrics/ops/kibana_metrics/job-dashboards.json', roles=[comp])
-        execute(fab.copy, '~/mozart/ops/swot-pcm/conf/sds/files/kibana_dashboard_import/worker-dashboards.json',
+        execute(fab.copy, '~/.sds/files/kibana_dashboard_import/worker-dashboards.json',
                 '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
         execute(fab.import_kibana,
                 '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
