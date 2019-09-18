@@ -618,7 +618,7 @@ def kill_hung():
 
 def import_kibana(path):
     with cd(path):
-    run("./import_dashboard.sh")
+        run("./import_dashboard.sh")
 
 
 def verdid_start(force=False):
