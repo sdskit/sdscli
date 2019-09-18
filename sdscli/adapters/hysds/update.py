@@ -875,7 +875,7 @@ def import_kibana(comp='metrics'):
         execute(fab.copy, '~/.sds/files/kibana_dashboard_import/worker-dashboards.json',
                 '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
         execute(fab.import_kibana,
-                '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
+                '~/metrics/ops/kibana_metrics', roles=[comp])
 
 
 def process_kibana_job(job_type, conf):
