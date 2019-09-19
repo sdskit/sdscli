@@ -874,6 +874,10 @@ def import_kibana(comp='metrics'):
                 '~/metrics/ops/kibana_metrics/job-dashboards.json', roles=[comp])
         execute(fab.copy, '~/.sds/files/kibana_dashboard_import/worker-dashboards.json',
                 '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
+        execute(fab.copy, '~/.sds/files/kibana_dashboard_import/wait-for-it.sh',
+                '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
+        execute(fab.chmod, 755,
+                '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
         execute(fab.import_kibana,
                 '~/metrics/ops/kibana_metrics', roles=[comp])
 
