@@ -447,7 +447,7 @@ def ensure_venv(hysds_dir, update_bash_profile=True, system_site_packages=True, 
         append('.bash_profile',
                "source $HOME/{}/bin/activate".format(hysds_dir), escape=True)
         append('.bash_profile',
-               "export FACTER_ipaddress=$(ifconfig $(route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')", escape=True)
+               "export FACTER_ipaddress=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')", escape=True)
 
 
 def install_pkg_es_templates():
