@@ -1,4 +1,5 @@
 #!/bin/bash
+./wait-for-it.sh {{METRICS_FQDN}}:5601 -t 120
 curl -f -XDELETE -H 'Content-Type: application/json' -H 'kbn-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/saved_objects/index-pattern/logstash-*'
 curl -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/saved_objects/index-pattern/logstash-*' '-d{"attributes":{"title":"logstash-*","timeFieldName":"@timestamp"}}'
 curl -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/kibana/settings/defaultIndex' -d'{"value": "logstash-*"}'
