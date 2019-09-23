@@ -188,7 +188,7 @@ def create_staging_area(args, conf):
         }
     }
     if args.suffix:
-        filter_rules = bn_args['NotificationConfiguration']['TopicConfigurations']['Filter']['Key']['FilterRules']
+        filter_rules = bn_args['NotificationConfiguration']['TopicConfigurations'][0]['Filter']['Key']['FilterRules']
         suffix_filter = {
             'Name': 'suffix',
             'Value': args.suffix[0]
