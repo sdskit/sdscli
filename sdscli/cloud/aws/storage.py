@@ -305,7 +305,7 @@ def create_staging_area(args, conf):
     }
     if args.suffix:
         cf_args["Environment"]["Variables"]["SIGNAL_FILE_SUFFIX"] = \
-            args.suffix[0]
+            args.suffix
     lambda_resp = lambda_client.create_function(**cf_args)
     logger.debug("lambda_resp: {}".format(lambda_resp))
 
