@@ -191,7 +191,7 @@ def create_staging_area(args, conf):
         filter_rules = bn_args['NotificationConfiguration']['TopicConfigurations']['Filter']['Key']['FilterRules']
         suffix_filter = {
             'Name': 'suffix',
-            'Value': args.suffix
+            'Value': args.suffix[0]
         }
         filter_rules.append(suffix_filter)
     configure_bucket_notification(bucket_name, c=s3_res, **bn_args)
@@ -299,13 +299,13 @@ def create_staging_area(args, conf):
                 "JOB_TYPE": job_type,
                 "JOB_RELEASE": job_release,
                 "JOB_QUEUE": job_queue,
-                "MOZART_URL": "https://{}/mozart".format(conf.get('MOZART_PVT_IP')),
-                "IS_SIGNAL_FILE": False
+                "MOZART_URL": "https://{}/mozart".format(conf.get('MOZART_PVT_IP'))
             }
         }
     }
     if args.suffix:
-        cf_args["Environment"]["Variables"]["IS_SIGNAL_FILE"] = True
+        cf_args["Environment"]["Variables"]["SIGNAL_FILE_SUFFIX"] = \
+            args.suffix[0]
     lambda_resp = lambda_client.create_function(**cf_args)
     logger.debug("lambda_resp: {}".format(lambda_resp))
 
