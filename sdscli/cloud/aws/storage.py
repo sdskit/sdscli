@@ -191,7 +191,7 @@ def create_staging_area(args, conf):
         filter_rules = bn_args['NotificationConfiguration']['TopicConfigurations'][0]['Filter']['Key']['FilterRules']
         suffix_filter = {
             'Name': 'suffix',
-            'Value': args.suffix[0]
+            'Value': args.suffix
         }
         filter_rules.append(suffix_filter)
     configure_bucket_notification(bucket_name, c=s3_res, **bn_args)
