@@ -179,11 +179,7 @@ def create_staging_area(args, conf):
                                 {
                                     'Name': 'prefix',
                                     'Value': args.prefix,
-                                },
-                                {
-                                    'Name': 'suffix',
-                                    'Value': args.suffix,
-                                },
+                                }
                             ]
                         }
                     }
@@ -191,6 +187,13 @@ def create_staging_area(args, conf):
             ]
         }
     }
+    if args.suffix:
+        filter_rules = bn_args['NotificationConfiguration']['TopicConfigurations'][0]['Filter']['Key']['FilterRules']
+        suffix_filter = {
+            'Name': 'suffix',
+            'Value': args.suffix
+        }
+        filter_rules.append(suffix_filter)
     configure_bucket_notification(bucket_name, c=s3_res, **bn_args)
 
     # create lambda zip file and upload to code bucket
@@ -277,7 +280,7 @@ def create_staging_area(args, conf):
     lambda_client = boto3.client('lambda')
     cf_args = {
         "FunctionName": function_name,
-        "Runtime": "python2.7",
+        "Runtime": "python3.7",
         "Role": role,
         "Handler": "lambda_function.lambda_handler",
         "Code": {
@@ -300,6 +303,9 @@ def create_staging_area(args, conf):
             }
         }
     }
+    if args.suffix:
+        cf_args["Environment"]["Variables"]["SIGNAL_FILE_SUFFIX"] = \
+            args.suffix
     lambda_resp = lambda_client.create_function(**cf_args)
     logger.debug("lambda_resp: {}".format(lambda_resp))
 

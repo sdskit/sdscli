@@ -444,8 +444,8 @@ def main():
         '--bucket', '-b', default=None, help="bucket name")
     parser_cloud_storage_create_staging_area.add_argument('--prefix', '-p', default="staging_area/",
                                                           help="staging area prefix")
-    parser_cloud_storage_create_staging_area.add_argument('--suffix', '-s', default=".signal.json",
-                                                          help="staging area signal file suffix")
+    parser_cloud_storage_create_staging_area.add_argument(
+        '--suffix', help="staging area signal file suffix")
     parser_cloud.set_defaults(func=cloud)
 
     # parser for user rules
