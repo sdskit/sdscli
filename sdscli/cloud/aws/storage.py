@@ -340,7 +340,7 @@ def create_staging_area(args, conf):
         }
     }
     if job_types:
-        cf_args["Environment"]["Variables"]["JOB_TYPES"] = job_types
+        cf_args["Environment"]["Variables"]["JOB_TYPES"] = json.dumps(job_types)
 
     if args.suffix:
         cf_args["Environment"]["Variables"]["SIGNAL_FILE_SUFFIX"] = \
