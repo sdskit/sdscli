@@ -252,27 +252,63 @@ def create_staging_area(args, conf):
     logger.debug("Selected role: {}".format(role))
 
     # prompt for job type, release, and queue
-    if 'JOB_TYPE' in sa_cfg:
-        job_type = sa_cfg['JOB_TYPE']
+    """
+    TODO: Need to update to support the interactive use-case. 
+    
+    Below is an example of how this could be done to fill out the job 
+    type mapping:
+    
+    values = prompt('Please enter job types to submit on data '
+                    'staged event, separate by space. '
+                    'Leave blank if no mapping is needed: ')
+    value_list = values.split()
+    for type in value_list:
+        regex_value = prompt("Please enter a regex pattern to associate "
+                             "for the '{}' job type: ".format(type))
+        # Need to compile the regex: re.compile(pattern)
+        job_types[type] = re.compile(regex_value)
+    """
+    job_types = {}
+    default_job_type = "INGEST_STAGED"
+    if 'JOB_TYPES' in sa_cfg and 'DEFAULT' in sa_cfg['JOB_TYPES']:
+        default_job_type_info = sa_cfg['JOB_TYPES']['DEFAULT']
+        if 'TYPE' in default_job_type_info:
+            default_job_type = default_job_type_info['TYPE']
+        else:
+            default_job_type = prompt(get_prompt_tokens=lambda x:
+            [(Token, "Enter default job type to submit on data staged event: ")],
+                                      style=prompt_style).strip()
+        logger.debug("default job type: {}".format(default_job_type))
+
+        if 'RELEASE' in default_job_type_info:
+            default_job_release = default_job_type_info['RELEASE']
+        else:
+            default_job_release = prompt(get_prompt_tokens=lambda x:
+            [(Token, "Enter default release version for {}: ".format(
+                default_job_type))], style=prompt_style).strip()
+
+        logger.debug("default job release: {}".format(default_job_release))
+
+        if 'QUEUE' in default_job_type_info:
+            default_job_queue = default_job_type_info['QUEUE']
+        else:
+            default_job_queue = prompt(get_prompt_tokens=lambda x:
+            [(Token,
+              "Enter queue name to submit {}-{} jobs to: ".format(
+                  default_job_type, default_job_release))],
+                               style=prompt_style).strip()
+
+        logger.debug("default job queue: {}".format(default_job_queue))
+
+        if 'TYPES' in sa_cfg['JOB_TYPES']:
+            job_types = sa_cfg['JOB_TYPES']['TYPES']
+
     else:
-        job_type = prompt(get_prompt_tokens=lambda x:
-                          [(Token, "Enter job type to submit on data staged event: ")],
-                          style=prompt_style).strip()
-    logger.debug("job type: {}".format(job_type))
-    if 'JOB_RELEASE' in sa_cfg:
-        job_release = sa_cfg['JOB_RELEASE']
-    else:
-        job_release = prompt(get_prompt_tokens=lambda x:
-                             [(Token, "Enter release version for {}: ".format(job_type))],
-                             style=prompt_style).strip()
-    logger.debug("job release: {}".format(job_release))
-    if 'JOB_QUEUE' in sa_cfg:
-        job_queue = sa_cfg['JOB_QUEUE']
-    else:
-        job_queue = prompt(get_prompt_tokens=lambda x:
-                           [(Token, "Enter queue name to submit {}-{} jobs to: ".format(job_type, job_release))],
-                           style=prompt_style).strip()
-    logger.debug("job queue: {}".format(job_queue))
+        raise RuntimeError("JOB_TYPES area is missing a DEFAULT and an "
+                           "optional TYPES area")
+
+    logger.debug("job types: {}".format(job_types))
+
 
     # create lambda
     function_name = "{}-dataset-{}-submit_ingest".format(conf.get('VENUE'),
@@ -296,13 +332,16 @@ def create_staging_area(args, conf):
         "Environment": {
             "Variables": {
                 "DATASET_S3_ENDPOINT": conf.get('DATASET_S3_ENDPOINT'),
-                "JOB_TYPE": job_type,
-                "JOB_RELEASE": job_release,
-                "JOB_QUEUE": job_queue,
+                "DEFAULT_JOB_TYPE": default_job_type,
+                "DEFAULT_JOB_RELEASE": default_job_release,
+                "DEFAULT_JOB_QUEUE": default_job_queue,
                 "MOZART_URL": "https://{}/mozart".format(conf.get('MOZART_PVT_IP'))
             }
         }
     }
+    if job_types:
+        cf_args["Environment"]["Variables"]["JOB_TYPES"] = job_types
+
     if args.suffix:
         cf_args["Environment"]["Variables"]["SIGNAL_FILE_SUFFIX"] = \
             args.suffix
