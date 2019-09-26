@@ -251,6 +251,7 @@ def create_staging_area(args, conf):
         role = prompt_role(cur_roles)
     logger.debug("Selected role: {}".format(role))
 
+
     # prompt for job type, release, and queue
     if 'JOB_TYPE' in sa_cfg:
         job_type = sa_cfg['JOB_TYPE']
@@ -273,6 +274,15 @@ def create_staging_area(args, conf):
                            [(Token, "Enter queue name to submit {}-{} jobs to: ".format(job_type, job_release))],
                            style=prompt_style).strip()
     logger.debug("job queue: {}".format(job_queue))
+
+    job_types = {}
+
+    # If an optional JOB_TYPES mapping was set in the config, read it in.
+    if 'JOB_TYPES' in sa_cfg:
+        job_types = sa_cfg['JOB_TYPES']
+
+    logger.debug("job types: {}".format(job_types))
+
 
     # create lambda
     function_name = "{}-dataset-{}-submit_ingest".format(conf.get('VENUE'),
@@ -303,6 +313,9 @@ def create_staging_area(args, conf):
             }
         }
     }
+    if job_types:
+        cf_args["Environment"]["Variables"]["JOB_TYPES"] = json.dumps(job_types)
+
     if args.suffix:
         cf_args["Environment"]["Variables"]["SIGNAL_FILE_SUFFIX"] = \
             args.suffix
