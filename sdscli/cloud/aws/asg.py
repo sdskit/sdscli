@@ -289,6 +289,9 @@ def create(args, conf):
             lt, pformat(lt_info)))
         print(("Created launch template {}.".format(lt)))
 
+        #get tag
+        tag = conf._cfg.get('TAGS', []) #list of {key,value}
+
         # get autoscaling group config
         asg_args = {
             'AutoScalingGroupName': asg,
@@ -332,6 +335,11 @@ def create(args, conf):
                 {
                     'Key': 'Queue',
                     'Value': queue,
+                    'PropagateAtLaunch': True,
+                },
+                {
+                    'Key': 'Bravo',
+                    'Value': 'pcm',
                     'PropagateAtLaunch': True,
                 },
             ],
