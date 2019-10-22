@@ -289,7 +289,6 @@ def create(args, conf):
             lt, pformat(lt_info)))
         print(("Created launch template {}.".format(lt)))
 
-
         # get autoscaling group config
         asg_args = {
             'AutoScalingGroupName': asg,
