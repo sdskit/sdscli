@@ -334,6 +334,11 @@ def create(args, conf):
                     'Value': queue,
                     'PropagateAtLaunch': True,
                 },
+                {
+                    'Key': 'Bravo',
+                    'Value': 'pcm',
+                    'PropagateAtLaunch': True,
+                },
             ],
         }
         logger.debug("asg_args: {}".format(pformat(asg_args)))
