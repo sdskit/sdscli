@@ -12,7 +12,10 @@ cp -rp $HOME/verdi/ops/hysds/celeryconfig.py $HOME/verdi/etc/
 # detect GPUs/NVIDIA driver configuration
 GPUS=0
 if [ -e "/usr/bin/nvidia-smi" ]; then
-  GPUS=$(/usr/bin/nvidia-smi -L | /usr/bin/wc -l)
+  NVIDIA_SMI_OUTPUT=$(/usr/bin/nvidia-smi -L)
+  if [ "$?" -eq 0 ]; then
+    GPUS=$(echo "$NVIDIA_SMI_OUTPUT" | /usr/bin/wc -l)
+  fi
 fi
 
 # write supervisord from template
