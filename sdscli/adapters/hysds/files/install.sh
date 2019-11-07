@@ -4,41 +4,23 @@ BASE_PATH=$(cd "${BASE_PATH}"; pwd)
 
 source $HOME/verdi/bin/activate
 
-# move code
-#mv $BASE_PATH/<some_code> $HOME/
-
-# update rpm
-#sudo yum remove -y some_package
-#sudo yum install -y $BASE_PATH/some_package-*.rpm
-
-# install python packages
-cd $BASE_PATH/prov_es
-pip install -e .
-cd $BASE_PATH/osaka
-pip install -e .
-cd $BASE_PATH/hysds_commons
-pip install -e .
-cd $BASE_PATH/hysds
-pip install -e .
-cd $BASE_PATH/sciflo
-pip install -e .
-
 # copy hysds configs
 rm -rf $HOME/verdi/etc
 cp -rp $BASE_PATH/etc $HOME/verdi/etc
 cp -rp $HOME/verdi/ops/hysds/celeryconfig.py $HOME/verdi/etc/
 
+# detect GPUs/NVIDIA driver configuration
+GPUS=0
+if [ -e "/usr/bin/nvidia-smi" ]; then
+  GPUS=$(/usr/bin/nvidia-smi -L | /usr/bin/wc -l)
+fi
+
 # write supervisord from template
 IPADDRESS_ETH0=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}') 
-#FQDN=$(python -c "import socket; print socket.getfqdn()")
 FQDN=$IPADDRESS_ETH0
 sed "s/__IPADDRESS_ETH0__/$IPADDRESS_ETH0/g" $HOME/verdi/etc/supervisord.conf.tmpl | \
+  sed "s/__HYSDS_GPU_AVAILABLE__/$GPUS/g" | \
   sed "s/__FQDN__/$FQDN/g" > $HOME/verdi/etc/supervisord.conf
-
-# move ariamh and tropmap
-#rm -rf $HOME/ariamh $HOME/tropmap
-#mv -f $BASE_PATH/ariamh $HOME/
-#mv -f $BASE_PATH/tropmap $HOME/
 
 # move creds
 rm -rf $HOME/.aws
@@ -63,8 +45,13 @@ export VERDI_PRIMER_IMAGE_BASENAME="$(basename $VERDI_PRIMER_IMAGE 2>/dev/null)"
 # Start up Docker Registry if CONTAINER_REGISTRY is defined
 export CONTAINER_REGISTRY="{{ CONTAINER_REGISTRY }}"
 export CONTAINER_REGISTRY_BUCKET="{{ CONTAINER_REGISTRY_BUCKET }}"
+export DOCKER_REGISTRY_IMAGE="s3://{{ CODE_BUCKET }}/docker-registry-2.tar.gz"
+export DOCKER_REGISTRY_IMAGE_BASENAME="$(basename $DOCKER_REGISTRY_IMAGE 2>/dev/null)"
 if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]
 then
+  rm -rf /tmp/docker-registry-2.tar.gz
+  aws s3 cp ${DOCKER_REGISTRY_IMAGE} /tmp/${DOCKER_REGISTRY_IMAGE_BASENAME}
+  docker load -i /tmp/${DOCKER_REGISTRY_IMAGE_BASENAME}
   docker run -p 5050:5000 -e REGISTRY_STORAGE=s3 -e REGISTRY_STORAGE_S3_BUCKET={{ CONTAINER_REGISTRY_BUCKET }} -e REGISTRY_STORAGE_S3_REGION={{ AWS_REGION }} --name=registry -d registry:2
 fi
 
