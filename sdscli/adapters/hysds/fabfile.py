@@ -904,24 +904,18 @@ def ensure_ssl(node_type):
         commonName = ctx['MOZART_FQDN']
     else:
         raise RuntimeError("Unknown node type: %s" % node_type)
-    prompts = {
-        'Enter pass phrase for server.key:': 'hysds',
-        'Enter pass phrase for server.key.org:': 'hysds',
-        'Verifying - Enter pass phrase for server.key:': 'hysds',
-    }
     if not exists('ssl/server.key') or not exists('ssl/server.pem'):
         mkdir('ssl', context['OPS_USER'], context['OPS_USER'])
         upload_template('ssl_server.cnf', 'ssl/server.cnf', use_jinja=True,
                         context={'commonName': commonName},
                         template_dir=get_user_files_path())
         with cd('ssl'):
-            with settings(prompts=prompts):
-                run('openssl genrsa -des3 -out server.key 1024', pty=False)
-                run('OPENSSL_CONF=server.cnf openssl req -new -key server.key -out server.csr', pty=False)
-                run('cp server.key server.key.org')
-                run('openssl rsa -in server.key.org -out server.key', pty=False)
-                run('chmod 600 server.key*')
-                run('openssl x509 -req -days 99999 -in server.csr -signkey server.key -out server.pem', pty=False)
+            run('openssl genrsa -des3 -passout pass:hysds -out server.key 1024', pty=False)
+            run('OPENSSL_CONF=server.cnf openssl req -passin pass:hysds -new -key server.key -out server.csr', pty=False)
+            run('cp server.key server.key.org')
+            run('openssl rsa -passin pass:hysds -in server.key.org -out server.key', pty=False)
+            run('chmod 600 server.key*')
+            run('openssl x509 -passin pass:hysds -req -days 99999 -in server.csr -signkey server.key -out server.pem', pty=False)
 
 
 ##########################
