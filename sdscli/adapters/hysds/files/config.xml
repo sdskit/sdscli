@@ -55,9 +55,6 @@ REPO=&quot;${GIT_URL#*://*/}&quot;
 REPO=&quot;${REPO%.git}&quot;
 REPO=&quot;${REPO//\//_}&quot;
 STORAGE=&quot;{{ STORAGE_URL }}&quot;
-SKIP_PUBLISH=&quot;{{ SKIP_PUBLISH }}&quot;
-CONTAINER_REGISTRY=&quot;{{ CONTAINER_REGISTRY }}&quot;
-CONTAINER_REGISTRY_BUCKET=&quot;{{ CONTAINER_REGISTRY_BUCKET }}&quot;
 export GIT_OAUTH_TOKEN=&quot;{{ GIT_OAUTH_TOKEN }}&quot;
 export MOZART_REST_URL=&quot;https://{{ MOZART_PVT_IP }}/mozart/api/v0.1&quot;
 export GRQ_REST_URL=&quot;http://{{ GRQ_PVT_IP }}:{{ GRQ_PORT }}/api/v0.1&quot;
@@ -70,6 +67,10 @@ then
   export SKIP_PUBLISH=&quot;noskip&quot;
 fi
 
+# exit on any error
+set -ex
+
+# build image
 if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]
 then
   {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
@@ -77,6 +78,12 @@ then
 else
   {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
   ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${SKIP_PUBLISH} ""
+fi
+
+if [ -f "./docker/extract_artifacts.sh" ]; then
+  # extract artifacts
+  IMAGE=&quot;container-${REPO,,}&quot;
+  ./docker/extract_artifacts.sh ${IMAGE}:${TAG,,}
 fi
       </command>
     </hudson.tasks.Shell>

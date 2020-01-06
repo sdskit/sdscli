@@ -48,32 +48,41 @@
       <command>#!/bin/bash
 source {{ OPS_HOME }}/verdi/bin/activate
 #Get the tag from the end of the GIT_BRANCH
-BRANCH=&quot;${GIT_BRANCH##*/}&quot;
+TAG=&quot;${GIT_BRANCH##*/}&quot;
 #Get repo path by removing http://*/ and .git from GIT_URL
 REPO=&quot;${GIT_URL#*://*/}&quot;
 REPO=&quot;${REPO%.git}&quot;
 REPO=&quot;${REPO//\//_}&quot;
 STORAGE=&quot;{{ STORAGE_URL }}&quot;
-SKIP_PUBLISH=&quot;{{ SKIP_PUBLISH }}&quot;
-CONTAINER_REGISTRY=&quot;{{ CONTAINER_REGISTRY }}&quot;
-CONTAINER_REGISTRY_BUCKET=&quot;{{ CONTAINER_REGISTRY_BUCKET }}&quot;
 export GIT_OAUTH_TOKEN=&quot;{{ GIT_OAUTH_TOKEN }}&quot;
 export MOZART_REST_URL=&quot;https://{{ MOZART_PVT_IP }}/mozart/api/v0.1&quot;
 export GRQ_REST_URL=&quot;http://{{ GRQ_PVT_IP }}:{{ GRQ_PORT }}/api/v0.1&quot;
 export CONTAINER_REGISTRY=&quot;{{ CONTAINER_REGISTRY }}&quot;
 export CONTAINER_REGISTRY_BUCKET=&quot;{{ CONTAINER_REGISTRY_BUCKET }}&quot;
 export SKIP_PUBLISH=&quot;{{ SKIP_PUBLISH }}&quot;
+
 if [ -z "$SKIP_PUBLISH" ]
 then 
   export SKIP_PUBLISH=&quot;noskip&quot;
 fi
+
+# exit on any error
+set -ex
+
+# build image
 if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]
 then
   {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
-  ${REPO} ${BRANCH} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${SKIP_PUBLISH} ${CONTAINER_REGISTRY}
+  ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${SKIP_PUBLISH} ${CONTAINER_REGISTRY}
 else
   {{ OPS_HOME }}/verdi/ops/container-builder/build-container.bash \
-  ${REPO} ${BRANCH} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${SKIP_PUBLISH} ""
+  ${REPO} ${TAG} ${STORAGE} ${MOZART_REST_URL} ${GRQ_REST_URL} ${SKIP_PUBLISH} ""
+fi
+
+if [ -f "./docker/extract_artifacts.sh" ]; then
+  # extract artifacts
+  IMAGE=&quot;container-${REPO,,}&quot;
+  ./docker/extract_artifacts.sh ${IMAGE}:${TAG,,}
 fi
       </command>
     </hudson.tasks.Shell>
