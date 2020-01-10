@@ -78,7 +78,7 @@ def export(args):
 
     # set export directory
     outdir = normpath(args.outdir)
-    export_name = "{}.sdspkg".format(cont_id)
+    export_name = "{}.sdspkg".format(cont_id.replace(':', '-'))
     export_dir = os.path.join(outdir, export_name)
     logger.debug("export_dir: {}".format(export_dir))
 
