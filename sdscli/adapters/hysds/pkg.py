@@ -40,11 +40,12 @@ def ls(args):
 
     # query for containers
     es_url = "http://{}:9200".format(conf.get('MOZART_ES_PVT_IP'))
-    hits = run_query(es_url, "containers", {
+    query = {
         "query": {
             "match_all": {}
         }
-    })
+    }
+    hits = run_query(es_url, "containers", query)
 
     # list
     for hit in hits:
@@ -65,11 +66,12 @@ def export(args):
     # query for container
     mozart_es_url = "http://{}:9200".format(conf.get('MOZART_ES_PVT_IP'))
     grq_es_url = "http://{}:9200".format(conf.get('GRQ_ES_PVT_IP'))
-    hits = run_query(mozart_es_url, "containers", {
+    query = {
         "query": {
             "term": {"_id": cont_id}
         }
-    })
+    }
+    hits = run_query(mozart_es_url, "containers", query)
     if len(hits) == 0:
         logger.error("SDS package id {} not found.".format(cont_id))
         return 1
@@ -96,23 +98,25 @@ def export(args):
     cont_info['url'] = os.path.basename(cont_info['url'])
 
     # query job specs
-    job_specs = [i['_source'] for i in run_query(mozart_es_url, "job_specs", {
+    query = {
         "query": {
-            "term": {"container.raw": cont_id}
+            "term": {"container.keyword": cont_id}
         }
-    })]
+    }
+    job_specs = [i['_source'] for i in run_query(mozart_es_url, "job_specs", query)]
     logger.debug("job_specs: {}".format(json.dumps(job_specs, indent=2)))
 
     # backwards-compatible query
     if len(job_specs) == 0:
         logger.debug("Got no job_specs. Checking deprecated mappings:")
-        job_specs = [i['_source'] for i in run_query(mozart_es_url, "job_specs", {
+        query = {
             "query": {
                 "query_string": {
                     "query": "container:\"{}\"".format(cont_id)
                 }
             }
-        })]
+        }
+        job_specs = [i['_source'] for i in run_query(mozart_es_url, "job_specs", query)]
         logger.debug("job_specs: {}".format(json.dumps(job_specs, indent=2)))
 
     # pull hysds_ios for each job_spec and download any dependency images
@@ -132,51 +136,49 @@ def export(args):
                            ] = d['container_image_url']
 
         # collect hysds_ios from mozart
-        mozart_hysds_ios = [i['_source'] for i in run_query(mozart_es_url, "hysds_ios", {
+        query = {
             "query": {
-                "term": {"job-specification.raw": job_spec['id']}
+                "term": {"job-specification.keyword": job_spec['id']}
             }
-        })]
-        logger.debug("Found {} hysds_ios on mozart for {}.".format(
-            len(mozart_hysds_ios), job_spec['id']))
+        }
+        mozart_hysds_ios = [i['_source'] for i in run_query(mozart_es_url, "hysds_ios", query)]
+        logger.debug("Found {} hysds_ios on mozart for {}.".format(len(mozart_hysds_ios), job_spec['id']))
 
         # backwards-compatible query
         if len(mozart_hysds_ios) == 0:
-            logger.debug(
-                "Got no hysds_ios from mozart. Checking deprecated mappings:")
-            mozart_hysds_ios = [i['_source'] for i in run_query(mozart_es_url, "hysds_ios", {
+            logger.debug("Got no hysds_ios from mozart. Checking deprecated mappings:")
+            query = {
                 "query": {
                     "query_string": {
                         "query": "job-specification:\"{}\"".format(job_spec['id'])
                     }
                 }
-            })]
-            logger.debug("Found {} hysds_ios on mozart for {}.".format(
-                len(mozart_hysds_ios), job_spec['id']))
+            }
+            mozart_hysds_ios = [i['_source'] for i in run_query(mozart_es_url, "hysds_ios", query)]
+            logger.debug("Found {} hysds_ios on mozart for {}.".format(len(mozart_hysds_ios), job_spec['id']))
         hysds_ios.extend(mozart_hysds_ios)
 
         # collect hysds_ios from grq
-        grq_hysds_ios = [i['_source'] for i in run_query(grq_es_url, "hysds_ios", {
+        query = {
             "query": {
-                "term": {"job-specification.raw": job_spec['id']}
+                "term": {"job-specification.keyword": job_spec['id']}
             }
-        })]
-        logger.debug("Found {} hysds_ios on grq for {}.".format(
-            len(grq_hysds_ios), job_spec['id']))
+        }
+        grq_hysds_ios = [i['_source'] for i in run_query(grq_es_url, "hysds_ios", query)]
+        logger.debug("Found {} hysds_ios on grq for {}.".format(len(grq_hysds_ios), job_spec['id']))
 
         # backwards-compatible query
         if len(mozart_hysds_ios) == 0:
-            logger.debug(
-                "Got no hysds_ios from grq. Checking deprecated mappings:")
-            grq_hysds_ios = [i['_source'] for i in run_query(grq_es_url, "hysds_ios", {
+            logger.debug("Got no hysds_ios from grq. Checking deprecated mappings:")
+            query = {
                 "query": {
                     "query_string": {
                         "query": "job-specification:\"{}\"".format(job_spec['id'])
                     }
                 }
-            })]
-            logger.debug("Found {} hysds_ios on grq for {}.".format(
-                len(grq_hysds_ios), job_spec['id']))
+            }
+            grq_hysds_ios = [i['_source'] for i in run_query(grq_es_url, "hysds_ios", query)]
+            logger.debug("Found {} hysds_ios on grq for {}.".format(len(grq_hysds_ios), job_spec['id']))
         hysds_ios.extend(grq_hysds_ios)
     logger.debug("Found {} hysds_ios total.".format(len(hysds_ios)))
 
@@ -254,7 +256,7 @@ def import_pkg(args):
     cont_info['url'] = "{}/{}".format(code_bucket_url, cont_info['url'])
     put(cont_image, cont_info['url'])
 
-    header = {'Content-Type': 'application/json'}
+    header = {'Content-Type': 'application/json'}  # ES7+ requires headers in every PUT/POST request
 
     container_endpoint = "{}/containers/_doc/{}".format(mozart_es_url, cont_info['id'])
     r = requests.put(container_endpoint, data=json.dumps(cont_info), header=header)
@@ -276,8 +278,9 @@ def import_pkg(args):
                 put(dep_img, d['container_image_url'])
                 dep_images[d['container_image_name']
                            ] = d['container_image_url']
-        r = requests.put("{}/job_specs/job_spec/{}".format(mozart_es_url, job_spec['id']),
-                         data=json.dumps(job_spec))
+
+        job_spec_endpoint = "{}/job_specs/_doc/{}".format(mozart_es_url, job_spec['id'])
+        r = requests.put(job_spec_endpoint, data=json.dumps(job_spec), header=header)
         r.raise_for_status()
         logger.debug(r.json())
 
@@ -307,11 +310,12 @@ def rm(args):
     # query for container
     mozart_es_url = "http://{}:9200".format(conf.get('MOZART_ES_PVT_IP'))
     grq_es_url = "http://{}:9200".format(conf.get('GRQ_ES_PVT_IP'))
-    hits = run_query(mozart_es_url, "containers", {
+    query = {
         "query": {
             "term": {"_id": cont_id}
         }
-    })
+    }
+    hits = run_query(mozart_es_url, "containers", query)
     if len(hits) == 0:
         logger.error("SDS package id {} not found.".format(cont_id))
         return 1
@@ -320,46 +324,49 @@ def rm(args):
 
     # delete container from code bucket and ES
     rmall(cont_info['url'])
-    r = requests.delete(
-        "{}/containers/container/{}".format(mozart_es_url, cont_info['id']))
+
+    container_endpoint = "{}/containers/_doc/{}".format(mozart_es_url, cont_info['id'])
+    r = requests.delete(container_endpoint)
     r.raise_for_status()
     logger.debug(r.json())
 
     # query job specs
-    job_specs = [i['_source'] for i in run_query(mozart_es_url, "job_specs", {
+    query = {
         "query": {
-            "term": {"container.raw": cont_id}
+            "term": {"container.keyword": cont_id}
         }
-    })]
+    }
+    job_specs = [i['_source'] for i in run_query(mozart_es_url, "job_specs", query)]
     logger.debug("job_specs: {}".format(json.dumps(job_specs, indent=2)))
 
     # delete job_specs and hysds_ios
     for job_spec in job_specs:
         # collect hysds_ios from mozart
-        mozart_hysds_ios = [i['_source'] for i in run_query(mozart_es_url, "hysds_ios", {
+        query = {
             "query": {
-                "term": {"job-specification.raw": job_spec['id']}
+                "term": {"job-specification.keyword": job_spec['id']}
             }
-        })]
-        logger.debug("Found {} hysds_ios on mozart for {}.".format(
-            len(mozart_hysds_ios), job_spec['id']))
+        }
+        mozart_hysds_ios = [i['_source'] for i in run_query(mozart_es_url, "hysds_ios", query)]
+        logger.debug("Found {} hysds_ios on mozart for {}.".format(len(mozart_hysds_ios), job_spec['id']))
         for hysds_io in mozart_hysds_ios:
-            r = requests.delete(
-                "{}/hysds_ios/hysds_io/{}".format(mozart_es_url, hysds_io['id']))
+            hysds_io_endpoint = "{}/hysds_ios/_doc/{}".format(mozart_es_url, hysds_io['id'])
+            r = requests.delete(hysds_io_endpoint)
             r.raise_for_status()
             logger.debug(r.json())
 
         # collect hysds_ios from mozart
-        grq_hysds_ios = [i['_source'] for i in run_query(grq_es_url, "hysds_ios", {
+        query = {
             "query": {
-                "term": {"job-specification.raw": job_spec['id']}
+                "term": {"job-specification.keyword": job_spec['id']}
             }
-        })]
-        logger.debug("Found {} hysds_ios on grq for {}.".format(
-            len(grq_hysds_ios), job_spec['id']))
+        }
+        grq_hysds_ios = [i['_source'] for i in run_query(grq_es_url, "hysds_ios", query)]
+        logger.debug("Found {} hysds_ios on grq for {}.".format(len(grq_hysds_ios), job_spec['id']))
+
         for hysds_io in grq_hysds_ios:
-            r = requests.delete(
-                "{}/hysds_ios/hysds_io/{}".format(grq_es_url, hysds_io['id']))
+            hysds_io_endpoint = "{}/hysds_ios/_doc/{}".format(grq_es_url, hysds_io['id'])
+            r = requests.delete(hysds_io_endpoint)
             r.raise_for_status()
             logger.debug(r.json())
 
