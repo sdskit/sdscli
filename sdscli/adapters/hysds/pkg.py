@@ -253,8 +253,11 @@ def import_pkg(args):
     cont_image = os.path.join(export_dir, cont_info['url'])
     cont_info['url'] = "{}/{}".format(code_bucket_url, cont_info['url'])
     put(cont_image, cont_info['url'])
-    r = requests.put("{}/containers/container/{}".format(mozart_es_url, cont_info['id']),
-                     data=json.dumps(cont_info))
+
+    header = {'Content-Type': 'application/json'}
+
+    container_endpoint = "{}/containers/_doc/{}".format(mozart_es_url, cont_info['id'])
+    r = requests.put(container_endpoint, data=json.dumps(cont_info), header=header)
     r.raise_for_status()
     logger.debug(r.json())
 
@@ -282,8 +285,9 @@ def import_pkg(args):
     for hysds_io in manifest['hysds_ios']:
         component = hysds_io.get('component', 'tosca')
         es_url = mozart_es_url if component in ('mozart', 'figaro') else grq_es_url
-        r = requests.put("{}/hysds_ios/hysds_io/{}".format(es_url, hysds_io['id']),
-                         data=json.dumps(hysds_io))
+
+        hysds_io_endpoint = "{}/hysds_ios/_doc/{}".format(es_url, hysds_io['id'])
+        r = requests.put(hysds_io_endpoint, data=json.dumps(hysds_io), header=header)
         r.raise_for_status()
         logger.debug(r.json())
 
