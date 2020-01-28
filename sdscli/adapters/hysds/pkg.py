@@ -256,10 +256,10 @@ def import_pkg(args):
     cont_info['url'] = "{}/{}".format(code_bucket_url, cont_info['url'])
     put(cont_image, cont_info['url'])
 
-    header = {'Content-Type': 'application/json'}  # ES7+ requires headers in every PUT/POST request
+    headers = {'Content-Type': 'application/json'}  # ES7+ requires headerss in every PUT/POST request
 
     container_endpoint = "{}/containers/_doc/{}".format(mozart_es_url, cont_info['id'])
-    r = requests.put(container_endpoint, data=json.dumps(cont_info), header=header)
+    r = requests.put(container_endpoint, data=json.dumps(cont_info), headers=headers)
     r.raise_for_status()
     logger.debug(r.json())
 
@@ -280,7 +280,7 @@ def import_pkg(args):
                            ] = d['container_image_url']
 
         job_spec_endpoint = "{}/job_specs/_doc/{}".format(mozart_es_url, job_spec['id'])
-        r = requests.put(job_spec_endpoint, data=json.dumps(job_spec), header=header)
+        r = requests.put(job_spec_endpoint, data=json.dumps(job_spec), headers=headers)
         r.raise_for_status()
         logger.debug(r.json())
 
@@ -290,7 +290,7 @@ def import_pkg(args):
         es_url = mozart_es_url if component in ('mozart', 'figaro') else grq_es_url
 
         hysds_io_endpoint = "{}/hysds_ios/_doc/{}".format(es_url, hysds_io['id'])
-        r = requests.put(hysds_io_endpoint, data=json.dumps(hysds_io), header=header)
+        r = requests.put(hysds_io_endpoint, data=json.dumps(hysds_io), headers=headers)
         r.raise_for_status()
         logger.debug(r.json())
 
