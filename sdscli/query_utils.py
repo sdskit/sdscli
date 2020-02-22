@@ -12,7 +12,6 @@ import backoff
 from elasticsearch import Elasticsearch, NotFoundError, RequestsHttpConnection, RequestError, ElasticsearchException
 from sdscli.log_utils import logger
 
-
 # backoff settings
 BACKOFF_MAX_VALUE = 64
 BACKOFF_MAX_TRIES = 10

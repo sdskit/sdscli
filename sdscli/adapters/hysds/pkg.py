@@ -9,7 +9,6 @@ standard_library.install_aliases()
 
 import os
 import json
-import requests
 import tarfile
 import shutil
 # import yaml
@@ -23,7 +22,6 @@ import shutil
 
 from sdscli.log_utils import logger
 from sdscli.conf_utils import get_user_files_path, SettingsConf
-from sdscli.query_utils import run_query
 from sdscli.os_utils import validate_dir, normpath
 
 from osaka.main import get, put, rmall
@@ -70,8 +68,7 @@ def export(args):
     export_dir = os.path.join(outdir, export_name)
     logger.debug("export_dir: %d" % export_dir)
 
-    # if directory exists, stop
-    if os.path.exists(export_dir):
+    if os.path.exists(export_dir):  # if directory exists, stop
         logger.error("SDS package export directory {} exists. Not continuing.".format(export_dir))
         return 1
 

@@ -41,7 +41,7 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
     # number of progress bar updates
-    num_updates = 30 if config_only else 37
+    num_updates = 24 if config_only else 37
 
     # progress bar
     with tqdm(total=num_updates) as bar:
@@ -202,25 +202,26 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         bar.update()
 
         # update reqs
-        set_bar_desc(bar, 'Updating HySDS core')
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/osaka', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/prov_es', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/hysds', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/sciflo', ndeps, roles=[comp])
-        bar.update()
-        execute(fab.pip_install_with_req, 'verdi',
-                '~/verdi/ops/chimera', ndeps, roles=[comp])
-        bar.update()
+        if not config_only:
+            set_bar_desc(bar, 'Updating HySDS core')
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/osaka', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/prov_es', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/hysds_commons', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/hysds', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/sciflo', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.pip_install_with_req, 'verdi',
+                    '~/verdi/ops/chimera', ndeps, roles=[comp])
+            bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
