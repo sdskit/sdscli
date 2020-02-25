@@ -1,100 +1,77 @@
-"""
-SDS user rules management functions.
-"""
+"""SDS user rules management functions."""
 from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-
-
 from builtins import open
 from future import standard_library
 standard_library.install_aliases()
+
 import os
 import json
-import yaml
-import requests
-import tarfile
-import shutil
-import traceback
-from fabric.api import execute, hide
-
-from prompt_toolkit.shortcuts import prompt, print_tokens
-from prompt_toolkit.styles import style_from_dict
-from prompt_toolkit.validation import Validator, ValidationError
-from pygments.token import Token
 
 from sdscli.log_utils import logger
-from sdscli.conf_utils import get_user_files_path, SettingsConf
-from sdscli.query_utils import run_query
 from sdscli.os_utils import validate_dir, normpath
+from sdscli.adapters import mozart_es
+
+USER_RULES_MOZART = 'user_rules-mozart'
+USER_RULES_GRQ = 'user_rules-grq'
 
 
 def export(args):
     """Export HySDS user rules."""
+    query = {
+        "query": {
+            "match_all": {}
+        }
+    }
 
-    # get user's SDS conf settings
-    conf = SettingsConf()
-
-    # query for mozart and grq rules
-    mozart_es_url = "http://{}:9200".format(conf.get('MOZART_ES_PVT_IP'))
-    grq_es_url = "http://{}:9200".format(conf.get('GRQ_ES_PVT_IP'))
     rules = {}
-    for comp, es_url in [('mozart', mozart_es_url), ('grq', grq_es_url)]:
-        hits = run_query(es_url, "user_rules", {
-            "query": {
-                "match_all": {}
-            }
-        }, doc_type=".percolator")
-        if len(hits) == 0:
-            logger.error("No user rules found on {}.".format(comp))
-            rules[comp] = []
-        else:
-            rules[comp] = [i['_source'] for i in hits]
+
+    mozart_rules = mozart_es.query(USER_RULES_MOZART, query)
+    rules['mozart'] = [rule['_source'] for rule in mozart_rules]
+    logger.debug('%d mozart user rules found' % len(mozart_rules))
+
+    grq_rules = mozart_es.query(USER_RULES_MOZART, query)
+    rules['grq'] = [rule['_source'] for rule in grq_rules]
+    logger.debug('%d grq user rules found' % len(grq_rules))
+
     logger.debug("rules: {}".format(json.dumps(rules, indent=2)))
 
-    # set export directory
-    outfile = normpath(args.outfile)
+    outfile = normpath(args.outfile)  # set export directory
     export_dir = os.path.dirname(outfile)
     logger.debug("export_dir: {}".format(export_dir))
 
-    # create export directory
-    validate_dir(export_dir)
+    validate_dir(export_dir)  # create export directory
 
-    # dump user rules JSON
     with open(outfile, 'w') as f:
-        json.dump(rules, f, indent=2, sort_keys=True)
+        json.dump(rules, f, indent=2, sort_keys=True)  # dump user rules JSON
 
 
 def import_rules(args):
-    """Import HySDS user rules."""
+    """
+    Import HySDS user rules.
+    rules json structure: {
+        "mozart": [...],
+        "grq": [...],
+    }
+    """
 
-    # get user's SDS conf settings
-    conf = SettingsConf()
-
-    # user rules JSON file
-    rules_file = normpath(args.file)
-    if not os.path.isfile(rules_file):
-        logger.error(
-            "HySDS user rules file {} doesn't exist.".format(rules_file))
-        return 1
+    rules_file = normpath(args.file)  # user rules JSON file
     logger.debug("rules_file: {}".format(rules_file))
 
-    # read in user rules
+    if not os.path.isfile(rules_file):
+        logger.error("HySDS user rules file {} doesn't exist.".format(rules_file))
+        return 1
+
     with open(rules_file) as f:
-        rules = json.load(f)
-    logger.debug("rules: {}".format(json.dumps(
-        rules_file, indent=2, sort_keys=True)))
+        user_rules = json.load(f)  # read in user rules
+    logger.debug("rules: {}".format(json.dumps(rules_file, indent=2, sort_keys=True)))
 
-    # get ES endpoints
-    mozart_es_url = "http://{}:9200".format(conf.get('MOZART_ES_PVT_IP'))
-    grq_es_url = "http://{}:9200".format(conf.get('GRQ_ES_PVT_IP'))
+    for rule in user_rules['mozart']:
+        result = mozart_es.index_document(USER_RULES_MOZART, rule)  # indexing mozart rules
+        logger.debug(result)
 
-    # index user rules in ES
-    for comp, es_url in [('mozart', mozart_es_url), ('grq', grq_es_url)]:
-        for rule in rules[comp]:
-            r = requests.post("{}/user_rules/.percolator/".format(es_url),
-                              data=json.dumps(rule))
-            logger.debug(r.content)
-            r.raise_for_status()
-            logger.debug(r.json())
+    for rule in user_rules['grq']:
+        result = mozart_es.index_document(USER_RULES_GRQ, rule)  # indexing GRQ rules
+        logger.debug(result)
