@@ -9,16 +9,6 @@ standard_library.install_aliases()
 
 import os
 import json
-# import yaml
-# import tarfile
-# import shutil
-# import traceback
-# from fabric.api import execute, hide
-
-# from prompt_toolkit.shortcuts import prompt, print_tokens
-# from prompt_toolkit.styles import style_from_dict
-# from prompt_toolkit.validation import Validator, ValidationError
-# from pygments.token import Token
 
 from sdscli.log_utils import logger
 from sdscli.os_utils import validate_dir, normpath
