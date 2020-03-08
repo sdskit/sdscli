@@ -496,7 +496,7 @@ def clean_hysds_ios():
 
 def create_grq_user_rules_index():
     with prefix('source ~/sciflo/bin/activate'):
-        with cd('~/sciflo/ops/tosca/scripts'):
+        with cd('~/sciflo/ops/grq2/scripts'):
             run('./create_user_rules_index.py')
 
 
@@ -881,7 +881,7 @@ def send_peleconf(send_file='settings.cfg.tmpl', template_dir=get_user_files_pat
                     template_dir=tmpl_dir)
     with prefix('source ~/sciflo/bin/activate'):
         with cd('~/sciflo/ops/pele'):
-            run('flask db init')
+            run('flask create-db')
             run('flask db init', warn_only=True)
             run('flask db migrate', warn_only=True)
 
