@@ -496,7 +496,7 @@ def clean_hysds_ios():
 
 def create_grq_user_rules_index():
     with prefix('source ~/sciflo/bin/activate'):
-        with cd('~/sciflo/ops/tosca/scripts'):
+        with cd('~/sciflo/ops/grq2/scripts'):
             run('./create_user_rules_index.py')
 
 
