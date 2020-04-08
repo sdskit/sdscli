@@ -862,7 +862,8 @@ def send_hysds_ui_conf():
     dest_file = '~/mozart/ops/hysds_ui/src/conf/index.js'
     upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
                     template_dir=get_user_files_path())
-    # TODO: not sure if i need to run ./db_create.py
+    with cd('~/mozart/ops/hysds_ui'):
+        run('npm run build')
 
 
 def send_grq2conf():
