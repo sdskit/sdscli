@@ -130,12 +130,6 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
                 '~/mozart/ops/mozart/actions_config.json', roles=[comp])
         bar.update()
 
-        # update figaro config
-        set_bar_desc(bar, 'Updating figaro config')
-        execute(fab.rm_rf, '~/mozart/ops/figaro/settings.cfg', roles=[comp])
-        execute(fab.send_figaroconf, roles=[comp])
-        bar.update()
-
         # update hysds_ui config
         set_bar_desc(bar, 'Updating hysds_ui config')
         execute(fab.rm_rf, '~/mozart/ops/hysds_ui/src/config/index.js', roles=[comp])
@@ -414,9 +408,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
                     '~/sciflo/ops/grq2', ndeps, roles=[comp])
             bar.update()
             execute(fab.pip_install_with_req, 'sciflo',
-                    '~/sciflo/ops/tosca', ndeps, roles=[comp])
-            bar.update()
-            execute(fab.pip_install_with_req, 'sciflo',
                     '~/sciflo/ops/pele', ndeps, roles=[comp])
             bar.update()
 
@@ -431,18 +422,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         set_bar_desc(bar, 'Updating grq2 config')
         execute(fab.rm_rf, '~/sciflo/ops/grq2/settings.cfg', roles=[comp])
         execute(fab.send_grq2conf, roles=[comp])
-        bar.update()
-
-        # update tosca config and facetview.html
-        set_bar_desc(bar, 'Updating tosca config and facetview.html')
-        execute(fab.rm_rf, '~/sciflo/ops/tosca/settings.cfg', roles=[comp])
-        execute(fab.send_toscaconf, 'tosca_settings.cfg.tmpl', roles=[comp])
-        tosca_fv = os.path.join(get_user_files_path(), 'tosca_facetview.html')
-        if os.path.exists(tosca_fv):
-            execute(fab.copy, tosca_fv,
-                    '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
-            execute(
-                fab.chmod, 644, '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
         bar.update()
 
         # update pele config
@@ -481,10 +460,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
                 '~/sciflo/ops/grq2/server.key', roles=[comp])
         execute(fab.ln_sf, '~/ssl/server.pem',
                 '~/sciflo/ops/grq2/server.pem', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.key',
-                '~/sciflo/ops/tosca/server.key', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.pem',
-                '~/sciflo/ops/tosca/server.pem', roles=[comp])
         execute(fab.ln_sf, '~/ssl/server.key',
                 '~/sciflo/ops/pele/server.key', roles=[comp])
         execute(fab.ln_sf, '~/ssl/server.pem',

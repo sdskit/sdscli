@@ -291,31 +291,30 @@ def rsync_code(node_type, dir_path=None):
     rm_rf('%s/ops/hysds-dockerfiles' % dir_path)
     rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/hysds-dockerfiles'),
                   extra_opts=extra_opts, ssh_opts=ssh_opts)
-    if node_type in ('mozart'):
+
+    if node_type == 'mozart':
         rm_rf('%s/ops/mozart' % dir_path)
-        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/mozart'),
-                      extra_opts=extra_opts, ssh_opts=ssh_opts)
-        rm_rf('%s/ops/figaro' % dir_path)
-        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/figaro'),
-                      extra_opts=extra_opts, ssh_opts=ssh_opts)
+        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/mozart'), extra_opts=extra_opts,
+                      ssh_opts=ssh_opts)
+
     if node_type == 'verdi':
         rm_rf('%s/ops/spyddder-man' % dir_path)
-        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/spyddder-man'),
-                      extra_opts=extra_opts, ssh_opts=ssh_opts)
+        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/spyddder-man'), extra_opts=extra_opts,
+                      ssh_opts=ssh_opts)
+
     if node_type == 'factotum':
         rm_rf('%s/ops/spyddder-man' % dir_path)
-        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/spyddder-man'),
-                      extra_opts=extra_opts, ssh_opts=ssh_opts)
+        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/spyddder-man'), extra_opts=extra_opts,
+                      ssh_opts=ssh_opts)
+
     if node_type == 'grq':
         rm_rf('%s/ops/grq2' % dir_path)
-        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/grq2'),
-                      extra_opts=extra_opts, ssh_opts=ssh_opts)
-        rm_rf('%s/ops/tosca' % dir_path)
-        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/tosca'),
-                      extra_opts=extra_opts, ssh_opts=ssh_opts)
+        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/grq2'), extra_opts=extra_opts,
+                      ssh_opts=ssh_opts)
+
         rm_rf('%s/ops/pele' % dir_path)
-        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/pele'),
-                      extra_opts=extra_opts, ssh_opts=ssh_opts)
+        rsync_project('%s/ops/' % dir_path, os.path.join(ops_dir, 'mozart/ops/pele'), extra_opts=extra_opts,
+                      ssh_opts=ssh_opts)
 
 
 def svn_co(path, svn_url):
@@ -489,7 +488,7 @@ def install_es_template():
 
 def clean_hysds_ios():
     with prefix('source sciflo/bin/activate'):
-        run('sciflo/ops/tosca/scripts/clean_hysds_ios_indexes.sh http://localhost:9200')
+        run('sciflo/ops/grq2/scripts/clean_hysds_ios_indexes.sh http://localhost:9200')
 
 
 def create_grq_user_rules_index():
@@ -842,19 +841,6 @@ def send_mozartconf():
             run('./db_create.py')
 
 
-def send_figaroconf():
-    dest_file = '~/mozart/ops/figaro/settings.cfg'
-    # upload_template('settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('mozart'),
-    #                template_dir=os.path.join(ops_dir, 'mozart/ops/figaro/settings'))
-    upload_template('figaro_settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('mozart'),
-                    template_dir=get_user_files_path())
-    with prefix('source ~/mozart/bin/activate'):
-        with cd('~/mozart/ops/figaro'):
-            mkdir('~/mozart/ops/figaro/data',
-                  context['OPS_USER'], context['OPS_USER'])
-            run('./db_create.py')
-
-
 def send_hysds_ui_conf():
     dest_file = '~/mozart/ops/hysds_ui/src/config/index.js'
     upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
@@ -865,16 +851,6 @@ def send_grq2conf():
     dest_file = '~/sciflo/ops/grq2/settings.cfg'
     upload_template('settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('grq'),
                     template_dir=os.path.join(ops_dir, 'mozart/ops/grq2/config'))
-
-
-def send_toscaconf(send_file='settings.cfg.tmpl', template_dir=get_user_files_path()):
-    tmpl_dir = os.path.expanduser(template_dir)
-    dest_file = '~/sciflo/ops/tosca/settings.cfg'
-    upload_template(send_file, dest_file, use_jinja=True, context=get_context('grq'),
-                    template_dir=tmpl_dir)
-    with prefix('source ~/sciflo/bin/activate'):
-        with cd('~/sciflo/ops/tosca'):
-            run('./db_create.py')
 
 
 def send_peleconf(send_file='settings.cfg.tmpl', template_dir=get_user_files_path()):
