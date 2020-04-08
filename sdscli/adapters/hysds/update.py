@@ -147,6 +147,11 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         execute(fab.send_hysds_ui_conf, roles=[comp])
         bar.update()
 
+        # building HySDS UI
+        set_bar_desc(bar, 'Building HySDS UI')
+        execute(fab.build_hysds_ui, roles=[comp])
+        bar.update()
+
         # create user_rules index
         set_bar_desc(bar, 'Creating user_rules index')
         execute(fab.create_user_rules_index, roles=[comp])

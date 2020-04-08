@@ -862,8 +862,6 @@ def send_hysds_ui_conf():
     dest_file = '~/mozart/ops/hysds_ui/src/conf/index.js'
     upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
                     template_dir=get_user_files_path())
-    with cd('~/mozart/ops/hysds_ui'):
-        run('npm run build')
 
 
 def send_grq2conf():
@@ -892,6 +890,11 @@ def send_peleconf(send_file='settings.cfg.tmpl', template_dir=get_user_files_pat
             run('flask create-db')
             run('flask db init', warn_only=True)
             run('flask db migrate', warn_only=True)
+
+
+def build_hysds_ui():
+    with cd('~/mozart/ops/hysds_ui'):
+        run('npm run build')
 
 
 def create_user_rules_index():
