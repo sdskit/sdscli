@@ -858,6 +858,13 @@ def send_figaroconf():
             run('./db_create.py')
 
 
+def send_hysds_ui_conf():
+    dest_file = '~/mozart/ops/hysds_ui/src/conf/index.js'
+    upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
+                    template_dir=get_user_files_path())
+    # TODO: not sure if i need to run ./db_create.py
+
+
 def send_grq2conf():
     dest_file = '~/sciflo/ops/grq2/settings.cfg'
     upload_template('settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('grq'),
