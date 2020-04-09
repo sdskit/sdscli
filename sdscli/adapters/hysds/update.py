@@ -364,7 +364,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    num_updates = 14 if config_only else 22  # number of progress bar updates
+    num_updates = 13 if config_only else 22  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
