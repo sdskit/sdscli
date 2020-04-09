@@ -100,21 +100,11 @@ def init_grq(conf, comp='grq'):
 
         # configure for cluster
         set_bar_desc(bar, 'Configuring grq')
-        execute(fab.conf_sdsadm, 'celeryconfig.py',
-                '~/sciflo/etc/celeryconfig.py',
-                roles=[comp])
+        execute(fab.conf_sdsadm, 'celeryconfig.py', '~/sciflo/etc/celeryconfig.py', roles=[comp])
         bar.update()
-        execute(fab.conf_sdsadm, 'datasets.json',
-                '~/sciflo/etc/datasets.json', True,
-                roles=[comp])
+        execute(fab.conf_sdsadm, 'datasets.json', '~/sciflo/etc/datasets.json', True, roles=[comp])
         bar.update()
-        execute(fab.conf_sdsadm, 'tosca_settings.cfg',
-                '~/sciflo/etc/tosca_settings.cfg',
-                roles=[comp])
-        bar.update()
-        execute(fab.conf_sdsadm, 'pele_settings.cfg',
-                '~/sciflo/etc/pele_settings.cfg',
-                roles=[comp])
+        execute(fab.conf_sdsadm, 'pele_settings.cfg', '~/sciflo/etc/pele_settings.cfg', roles=[comp])
         bar.update()
         netrc = os.path.join(get_user_files_path(), 'netrc')
         if os.path.exists(netrc):

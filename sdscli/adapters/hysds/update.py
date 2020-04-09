@@ -40,12 +40,9 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    # number of progress bar updates
-    num_updates = 24 if config_only else 37
+    num_updates = 27 if config_only else 41  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -130,10 +127,15 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
                 '~/mozart/ops/mozart/actions_config.json', roles=[comp])
         bar.update()
 
-        # update figaro config
-        set_bar_desc(bar, 'Updating figaro config')
-        execute(fab.rm_rf, '~/mozart/ops/figaro/settings.cfg', roles=[comp])
-        execute(fab.send_figaroconf, roles=[comp])
+        # update hysds_ui config
+        set_bar_desc(bar, 'Updating hysds_ui config')
+        execute(fab.rm_rf, '~/mozart/ops/hysds_ui/src/config/index.js', roles=[comp])
+        execute(fab.send_hysds_ui_conf, roles=[comp])
+        bar.update()
+
+        # building HySDS UI
+        set_bar_desc(bar, 'Building HySDS UI')
+        execute(fab.build_hysds_ui, roles=[comp])
         bar.update()
 
         # update hysds_ui config
@@ -266,12 +268,9 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
 def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
     """"Update metrics component."""
 
-    # number of progress bar updates
-    num_updates = 13 if config_only else 20
+    num_updates = 13 if config_only else 20  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -365,12 +364,9 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    # number of progress bar updates
-    num_updates = 14 if config_only else 24
+    num_updates = 13 if config_only else 22  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, 'sciflo', roles=[comp])
@@ -414,9 +410,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
                     '~/sciflo/ops/grq2', ndeps, roles=[comp])
             bar.update()
             execute(fab.pip_install_with_req, 'sciflo',
-                    '~/sciflo/ops/tosca', ndeps, roles=[comp])
-            bar.update()
-            execute(fab.pip_install_with_req, 'sciflo',
                     '~/sciflo/ops/pele', ndeps, roles=[comp])
             bar.update()
 
@@ -431,18 +424,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         set_bar_desc(bar, 'Updating grq2 config')
         execute(fab.rm_rf, '~/sciflo/ops/grq2/settings.cfg', roles=[comp])
         execute(fab.send_grq2conf, roles=[comp])
-        bar.update()
-
-        # update tosca config and facetview.html
-        set_bar_desc(bar, 'Updating tosca config and facetview.html')
-        execute(fab.rm_rf, '~/sciflo/ops/tosca/settings.cfg', roles=[comp])
-        execute(fab.send_toscaconf, 'tosca_settings.cfg.tmpl', roles=[comp])
-        tosca_fv = os.path.join(get_user_files_path(), 'tosca_facetview.html')
-        if os.path.exists(tosca_fv):
-            execute(fab.copy, tosca_fv,
-                    '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
-            execute(
-                fab.chmod, 644, '~/sciflo/ops/tosca/tosca/templates/facetview.html', roles=[comp])
         bar.update()
 
         # update pele config
@@ -482,10 +463,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         execute(fab.ln_sf, '~/ssl/server.pem',
                 '~/sciflo/ops/grq2/server.pem', roles=[comp])
         execute(fab.ln_sf, '~/ssl/server.key',
-                '~/sciflo/ops/tosca/server.key', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.pem',
-                '~/sciflo/ops/tosca/server.pem', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.key',
                 '~/sciflo/ops/pele/server.key', roles=[comp])
         execute(fab.ln_sf, '~/ssl/server.pem',
                 '~/sciflo/ops/pele/server.pem', roles=[comp])
@@ -513,12 +490,9 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
 def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
     """"Update factotum component."""
 
-    # number of progress bar updates
-    num_updates = 7 if config_only else 14
+    num_updates = 7 if config_only else 14  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, 'verdi', roles=[comp])
@@ -604,12 +578,9 @@ def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
 def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
     """"Update verdi component."""
 
-    # number of progress bar updates
-    num_updates = 8 if config_only else 15
+    num_updates = 8 if config_only else 15  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -701,9 +672,7 @@ def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
 def update_comp(comp, conf, ndeps=False, config_only=False):
     """Update component."""
 
-    # if all, create progress bar
-    if comp == 'all':
-
+    if comp == 'all':  # if all, create progress bar
         # progress bar
         with tqdm(total=5) as bar:
             set_bar_desc(bar, "Updating grq")
@@ -856,9 +825,7 @@ def ship(encrypt, debug=False):
 def import_kibana(comp='metrics'):
     """"Update metrics component."""
 
-    # progress bar
-    with tqdm(total=20) as bar:
-
+    with tqdm(total=20) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -897,8 +864,7 @@ def process_kibana_job(job_type, conf):
 def kibana(job_type, debug=False, force=False):
     """Update components."""
 
-    # prompt user
-    if not force:
+    if not force:  # prompt user
         cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
                                                     "Updating Kibana: {}. Continue [y/n]: ".format(job_type)), (Token, " ")],
                       validator=YesNoValidator(), style=prompt_style) == 'y'
