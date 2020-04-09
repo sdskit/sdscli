@@ -59,26 +59,21 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         # update reqs
         if not config_only:
             set_bar_desc(bar, 'Updating HySDS core')
-            execute(fab.pip_install_with_req, 'mozart',
-                    '~/mozart/ops/osaka', ndeps, roles=[comp])
+            execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/osaka', ndeps, roles=[comp])
             bar.update()
-            execute(fab.pip_install_with_req, 'mozart',
-                    '~/mozart/ops/prov_es', ndeps, roles=[comp])
+            execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/prov_es', ndeps, roles=[comp])
             bar.update()
-            execute(fab.pip_install_with_req, 'mozart',
-                    '~/mozart/ops/hysds_commons', ndeps, roles=[comp])
+            execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/hysds_commons', ndeps, roles=[comp])
             bar.update()
-            execute(fab.pip_install_with_req, 'mozart',
-                    '~/mozart/ops/hysds', ndeps, roles=[comp])
+            execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/hysds', ndeps, roles=[comp])
             bar.update()
-            execute(fab.pip_install_with_req, 'mozart',
-                    '~/mozart/ops/sciflo', ndeps, roles=[comp])
+            execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/sciflo', ndeps, roles=[comp])
             bar.update()
-            execute(fab.pip_install_with_req, 'mozart',
-                    '~/mozart/ops/chimera', ndeps, roles=[comp])
+            execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/chimera', ndeps, roles=[comp])
             bar.update()
-            execute(fab.pip_install_with_req, 'mozart',
-                    '~/mozart/ops/mozart', ndeps, roles=[comp])
+            execute(fab.pip_install_with_req, 'mozart', '~/mozart/ops/mozart', ndeps, roles=[comp])
+            bar.update()
+            execute(fab.npm_install_package_json, '~/mozart/ops/hysds_ui', roles=[comp])
             bar.update()
 
         # update celery config
@@ -141,6 +136,17 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         execute(fab.send_figaroconf, roles=[comp])
         bar.update()
 
+        # update hysds_ui config
+        set_bar_desc(bar, 'Updating hysds_ui config')
+        execute(fab.rm_rf, '~/mozart/ops/hysds_ui/src/config/index.js', roles=[comp])
+        execute(fab.send_hysds_ui_conf, roles=[comp])
+        bar.update()
+
+        # building HySDS UI
+        set_bar_desc(bar, 'Building HySDS UI')
+        execute(fab.build_hysds_ui, roles=[comp])
+        bar.update()
+
         # create user_rules index
         set_bar_desc(bar, 'Creating user_rules index')
         execute(fab.create_user_rules_index, roles=[comp])
@@ -152,10 +158,8 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         bar.update()
 
         # link ssl certs to apps
-        execute(fab.ln_sf, '~/ssl/server.key',
-                '~/mozart/ops/mozart/server.key', roles=[comp])
-        execute(fab.ln_sf, '~/ssl/server.pem',
-                '~/mozart/ops/mozart/server.pem', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.key', '~/mozart/ops/mozart/server.key', roles=[comp])
+        execute(fab.ln_sf, '~/ssl/server.pem', '~/mozart/ops/mozart/server.pem', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav

@@ -106,11 +106,10 @@ env.timeout = 60
 # define ops home directory
 ops_dir = context['OPS_HOME']
 
+
 ##########################
 # general functions
 ##########################
-
-
 def get_context(node_type=None):
     """Modify context based on host string."""
 
@@ -462,7 +461,6 @@ def install_pkg_es_templates():
 ##########################
 # grq functions
 ##########################
-
 def grqd_start(force=False):
     mkdir('sciflo/run', context['OPS_USER'], context['OPS_USER'])
     if not exists('sciflo/run/supervisord.pid') or force:
@@ -503,7 +501,6 @@ def create_grq_user_rules_index():
 ##########################
 # mozart functions
 ##########################
-
 def mozartd_start(force=False):
     if not exists('mozart/run/supervisord.pid') or force:
         with prefix('source mozart/bin/activate'):
@@ -569,10 +566,14 @@ def mozart_es_flush():
     #run('~/mozart/ops/hysds/scripts/clean_job_spec_container_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
 
 
+def npm_install_package_json(dest):
+    with cd(dest):
+        run('npm install --silent')
+
+
 ##########################
 # metrics functions
 ##########################
-
 def metricsd_start(force=False):
     if not exists('metrics/run/supervisord.pid') or force:
         with prefix('source metrics/bin/activate'):
@@ -588,9 +589,6 @@ def metricsd_stop():
     if exists('metrics/run/supervisor.sock'):
         with prefix('source metrics/bin/activate'):
             run('supervisorctl shutdown')
-
-
-##########################
 
 
 ##########################
@@ -686,7 +684,6 @@ def python_setup_develop(node_type, dest):
     with prefix('source ~/%s/bin/activate' % node_type):
         with cd(dest):
             run('python setup.py develop')
-
 
 ##########################
 # ci functions
@@ -858,6 +855,12 @@ def send_figaroconf():
             run('./db_create.py')
 
 
+def send_hysds_ui_conf():
+    dest_file = '~/mozart/ops/hysds_ui/src/config/index.js'
+    upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
+                    template_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'))
+
+
 def send_grq2conf():
     dest_file = '~/sciflo/ops/grq2/settings.cfg'
     upload_template('settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('grq'),
@@ -884,6 +887,11 @@ def send_peleconf(send_file='settings.cfg.tmpl', template_dir=get_user_files_pat
             run('flask create-db')
             run('flask db init', warn_only=True)
             run('flask db migrate', warn_only=True)
+
+
+def build_hysds_ui():
+    with cd('~/mozart/ops/hysds_ui'):
+        run('npm run build')
 
 
 def create_user_rules_index():
@@ -921,7 +929,6 @@ def ensure_ssl(node_type):
 ##########################
 # ship code
 ##########################
-
 def ship_code(cwd, tar_file, encrypt=False):
     ctx = get_context()
     with cd(cwd):
@@ -935,7 +942,6 @@ def ship_code(cwd, tar_file, encrypt=False):
 ##########################
 # ship creds
 ##########################
-
 def send_awscreds(suffix=None):
     ctx = get_context()
     if suffix is None:
@@ -971,7 +977,6 @@ def send_awscreds(suffix=None):
 ##########################
 # ship verdi code bundle
 ##########################
-
 def send_queue_config(queue):
     ctx = get_context()
     ctx.update({'queue': queue})
@@ -986,7 +991,6 @@ def send_queue_config(queue):
 ##########################
 # ship s3-bucket style
 ##########################
-
 def ship_style(bucket=None, encrypt=False):
     ctx = get_context()
     if bucket is None:
@@ -1010,7 +1014,6 @@ def ship_style(bucket=None, encrypt=False):
 ##########################
 # create cloud function zip
 ##########################
-
 def create_zip(zip_dir, zip_file):
     if exists(zip_file):
         run('rm -rf %s' % zip_file)
@@ -1021,7 +1024,6 @@ def create_zip(zip_dir, zip_file):
 ##########################
 # container orchestration
 ##########################
-
 def rsync_sdsadm():
     role, hysds_dir, hostname = resolve_role()
     rm_rf('%s/ops/sdsadm' % hysds_dir)
@@ -1083,5 +1085,4 @@ def conf_sdsadm(tmpl, dest, shared=False):
             tmpl_dir = os.path.join(get_user_files_path(), 'orch', 'verdi')
         else:
             tmpl_dir = os.path.join(get_user_files_path(), 'orch', role)
-    upload_template(tmpl, dest, use_jinja=True, context=get_context(role),
-                    template_dir=tmpl_dir)
+    upload_template(tmpl, dest, use_jinja=True, context=get_context(role), template_dir=tmpl_dir)
