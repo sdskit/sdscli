@@ -40,12 +40,9 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    # number of progress bar updates
-    num_updates = 24 if config_only else 37
+    num_updates = 24 if config_only else 37  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -271,12 +268,9 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
 def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
     """"Update metrics component."""
 
-    # number of progress bar updates
-    num_updates = 13 if config_only else 20
+    num_updates = 13 if config_only else 20  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -370,12 +364,9 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    # number of progress bar updates
-    num_updates = 14 if config_only else 24
+    num_updates = 14 if config_only else 22  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, 'sciflo', roles=[comp])
@@ -499,12 +490,9 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
 def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
     """"Update factotum component."""
 
-    # number of progress bar updates
-    num_updates = 7 if config_only else 14
+    num_updates = 7 if config_only else 14  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, 'verdi', roles=[comp])
@@ -590,12 +578,9 @@ def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
 def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
     """"Update verdi component."""
 
-    # number of progress bar updates
-    num_updates = 8 if config_only else 15
+    num_updates = 8 if config_only else 15  # number of progress bar updates
 
-    # progress bar
-    with tqdm(total=num_updates) as bar:
-
+    with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -687,9 +672,7 @@ def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
 def update_comp(comp, conf, ndeps=False, config_only=False):
     """Update component."""
 
-    # if all, create progress bar
-    if comp == 'all':
-
+    if comp == 'all':  # if all, create progress bar
         # progress bar
         with tqdm(total=5) as bar:
             set_bar_desc(bar, "Updating grq")
@@ -842,9 +825,7 @@ def ship(encrypt, debug=False):
 def import_kibana(comp='metrics'):
     """"Update metrics component."""
 
-    # progress bar
-    with tqdm(total=20) as bar:
-
+    with tqdm(total=20) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -883,8 +864,7 @@ def process_kibana_job(job_type, conf):
 def kibana(job_type, debug=False, force=False):
     """Update components."""
 
-    # prompt user
-    if not force:
+    if not force:  # prompt user
         cont = prompt(get_prompt_tokens=lambda x: [(Token.Alert,
                                                     "Updating Kibana: {}. Continue [y/n]: ".format(job_type)), (Token, " ")],
                       validator=YesNoValidator(), style=prompt_style) == 'y'
