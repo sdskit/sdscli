@@ -847,6 +847,12 @@ def send_hysds_ui_conf():
                     template_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'))
 
 
+def send_hysds_ui_conf():
+    dest_file = '~/mozart/ops/hysds_ui/src/config/index.js'
+    upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
+                    template_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'))
+
+
 def send_grq2conf():
     dest_file = '~/sciflo/ops/grq2/settings.cfg'
     upload_template('settings.cfg.tmpl', dest_file, use_jinja=True, context=get_context('grq'),
