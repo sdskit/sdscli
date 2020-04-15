@@ -474,15 +474,15 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         execute(fab.ln_sf, '~/sciflo/log', '/data/work/log', roles=[comp])
         bar.update()
 
+        # installing ingest pipeline
+        set_bar_desc(bar, 'Install GRQ Elasticsearch ingest pipeline')
+        execute(fab.install_ingest_pipeline, roles=[comp])
+        bar.update()
+
         # update ES template
         set_bar_desc(bar, 'Update ES template')
         execute(fab.install_es_template, roles=[comp])
         execute(fab.install_pkg_es_templates, roles=[comp])
-        bar.update()
-
-        # installing ingest pipeline
-        set_bar_desc(bar, 'Install GRQ Elasticsearch ingest pipeline')
-        execute(fab.install_ingest_pipeline, roles=[comp])
         bar.update()
 
         # ship AWS creds
