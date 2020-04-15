@@ -58,7 +58,7 @@ def export(args):
     outdir = normpath(args.outdir)
     export_name = "{}.sdspkg".format(cont_id.replace(':', '-'))
     export_dir = os.path.join(outdir, export_name)
-    logger.debug("export_dir: {}".format(export_dir))
+    logger.debug("export_dir: %s" % export_dir)
 
     if os.path.exists(export_dir):  # if directory exists, stop
         logger.error("SDS package export directory {} exists. Not continuing.".format(export_dir))
