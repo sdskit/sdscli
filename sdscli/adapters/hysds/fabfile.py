@@ -497,6 +497,11 @@ def create_grq_user_rules_index():
             run('./create_user_rules_index.py')
 
 
+def install_ingest_pipeline():
+    with cd('~/sciflo/ops/grq2/scripts'):
+        run('python install_ingest_pipeline.py')
+
+
 ##########################
 # mozart functions
 ##########################
