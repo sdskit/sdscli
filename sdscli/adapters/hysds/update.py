@@ -33,7 +33,7 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    num_updates = 27 if config_only else 41  # number of progress bar updates
+    num_updates = 25 if config_only else 39  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -118,17 +118,6 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
                 roles=[comp])
         execute(fab.copy, '~/mozart/ops/mozart/configs/actions_config.json.example',
                 '~/mozart/ops/mozart/actions_config.json', roles=[comp])
-        bar.update()
-
-        # update hysds_ui config
-        set_bar_desc(bar, 'Updating hysds_ui config')
-        execute(fab.rm_rf, '~/mozart/ops/hysds_ui/src/config/index.js', roles=[comp])
-        execute(fab.send_hysds_ui_conf, roles=[comp])
-        bar.update()
-
-        # building HySDS UI
-        set_bar_desc(bar, 'Building HySDS UI')
-        execute(fab.build_hysds_ui, roles=[comp])
         bar.update()
 
         # update hysds_ui config
