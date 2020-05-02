@@ -5,26 +5,19 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
-
-
 from future import standard_library
 standard_library.install_aliases()
+
 import os
-import yaml
-import pwd
-import hashlib
-import traceback
 from fabric.api import execute, hide
 from tqdm import tqdm
 
 from prompt_toolkit.shortcuts import prompt, print_tokens
 from prompt_toolkit.styles import style_from_dict
-from prompt_toolkit.validation import Validator, ValidationError
 from pygments.token import Token
 
 from sdscli.log_utils import logger
 from sdscli.conf_utils import get_user_files_path, SettingsConf
-from sdscli.os_utils import validate_dir
 from sdscli.prompt_utils import YesNoValidator, set_bar_desc
 
 from . import fabfile as fab
@@ -482,7 +475,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         # update ES template
         set_bar_desc(bar, 'Update ES template')
         execute(fab.install_es_template, roles=[comp])
-        execute(fab.install_pkg_es_templates, roles=[comp])
         bar.update()
 
         # ship AWS creds
