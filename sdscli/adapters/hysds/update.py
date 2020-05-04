@@ -5,26 +5,19 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
-
-
 from future import standard_library
 standard_library.install_aliases()
+
 import os
-import yaml
-import pwd
-import hashlib
-import traceback
 from fabric.api import execute, hide
 from tqdm import tqdm
 
 from prompt_toolkit.shortcuts import prompt, print_tokens
 from prompt_toolkit.styles import style_from_dict
-from prompt_toolkit.validation import Validator, ValidationError
 from pygments.token import Token
 
 from sdscli.log_utils import logger
 from sdscli.conf_utils import get_user_files_path, SettingsConf
-from sdscli.os_utils import validate_dir
 from sdscli.prompt_utils import YesNoValidator, set_bar_desc
 
 from . import fabfile as fab
@@ -40,7 +33,7 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    num_updates = 27 if config_only else 41  # number of progress bar updates
+    num_updates = 25 if config_only else 39  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -125,17 +118,6 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
                 roles=[comp])
         execute(fab.copy, '~/mozart/ops/mozart/configs/actions_config.json.example',
                 '~/mozart/ops/mozart/actions_config.json', roles=[comp])
-        bar.update()
-
-        # update hysds_ui config
-        set_bar_desc(bar, 'Updating hysds_ui config')
-        execute(fab.rm_rf, '~/mozart/ops/hysds_ui/src/config/index.js', roles=[comp])
-        execute(fab.send_hysds_ui_conf, roles=[comp])
-        bar.update()
-
-        # building HySDS UI
-        set_bar_desc(bar, 'Building HySDS UI')
-        execute(fab.build_hysds_ui, roles=[comp])
         bar.update()
 
         # update hysds_ui config
@@ -482,7 +464,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         # update ES template
         set_bar_desc(bar, 'Update ES template')
         execute(fab.install_es_template, roles=[comp])
-        execute(fab.install_pkg_es_templates, roles=[comp])
         bar.update()
 
         # ship AWS creds
