@@ -17,23 +17,19 @@ from sdscli.conf_utils import get_user_files_path, SettingsConf
 from sdscli.os_utils import validate_dir, normpath
 
 from osaka.main import get, put, rmall
-
-from sdscli.adapters import mozart_es
+from hysds.es_utils import get_mozart_es
 
 CONTAINERS_INDEX = "containers"
 JOB_SPECS_INDEX = "job_specs"
 HYSDS_IOS_MOZART_INDEX = "hysds_ios-mozart"
 HYSDS_IOS_GRQ_INDEX = "hysds_ios-grq"
 
+mozart_es = get_mozart_es()
+
 
 def ls(args):
     """List HySDS packages."""
-    query = {
-        "query": {
-            "match_all": {}
-        }
-    }
-    hits = mozart_es.query(CONTAINERS_INDEX, query)  # query for containers
+    hits = mozart_es.query(index=CONTAINERS_INDEX)  # query for containers
 
     for hit in hits:
         logger.debug(json.dumps(hit, indent=2))
@@ -46,7 +42,7 @@ def export(args):
     cont_id = args.id  # container id
 
     # query for container
-    cont = mozart_es.get_by_id(CONTAINERS_INDEX, cont_id, safe=True)
+    cont = mozart_es.get_by_id(index=CONTAINERS_INDEX, id=cont_id, ignore=404)
     if cont['found'] is False:
         logger.error("SDS package id {} not found.".format(cont_id))
         return 1
@@ -75,7 +71,7 @@ def export(args):
             "term": {"container.keyword": cont_id}  # query job specs
         }
     }
-    job_specs = mozart_es.query(JOB_SPECS_INDEX, query)
+    job_specs = mozart_es.query(index=JOB_SPECS_INDEX, body=query)
     job_specs = [job_spec['_source'] for job_spec in job_specs]
     logger.debug("job_specs: %s" % json.dumps(job_specs, indent=2))
 
@@ -89,7 +85,7 @@ def export(args):
                 }
             }
         }
-        job_specs = mozart_es.query(JOB_SPECS_INDEX, query)
+        job_specs = mozart_es.query(index=JOB_SPECS_INDEX, body=query)
         job_specs = [job_spec['_source'] for job_spec in job_specs]
         logger.debug("job_specs: %s" % json.dumps(job_specs, indent=2))
 
@@ -112,7 +108,7 @@ def export(args):
                 "term": {"job-specification.keyword": job_spec['id']}
             }
         }
-        mozart_hysds_ios = mozart_es.query(HYSDS_IOS_MOZART_INDEX, query)
+        mozart_hysds_ios = mozart_es.query(index=HYSDS_IOS_MOZART_INDEX, body=query)
         mozart_hysds_ios = [hysds_io['_source'] for hysds_io in mozart_hysds_ios]
         logger.debug("Found %d hysds_ios on mozart for %s." % (len(mozart_hysds_ios), job_spec['id']))
 
@@ -126,7 +122,7 @@ def export(args):
                     }
                 }
             }
-            mozart_hysds_ios = mozart_es.query(HYSDS_IOS_MOZART_INDEX, query)
+            mozart_hysds_ios = mozart_es.query(index=HYSDS_IOS_MOZART_INDEX, body=query)
             mozart_hysds_ios = [hysds_io['_source'] for hysds_io in mozart_hysds_ios]
             logger.debug("Found %d hysds_ios on mozart for %s." % (len(mozart_hysds_ios), job_spec['id']))
         hysds_ios.extend(mozart_hysds_ios)
@@ -137,7 +133,7 @@ def export(args):
                 "term": {"job-specification.keyword": job_spec['id']}
             }
         }
-        grq_hysds_ios = mozart_es.query(HYSDS_IOS_GRQ_INDEX, query)
+        grq_hysds_ios = mozart_es.query(index=HYSDS_IOS_GRQ_INDEX, body=query)
         grq_hysds_ios = [hysds_io['_source'] for hysds_io in grq_hysds_ios]
         logger.debug("Found %d hysds_ios on grq for %s." % (len(grq_hysds_ios), job_spec['id']))
 
@@ -151,7 +147,7 @@ def export(args):
                     }
                 }
             }
-            grq_hysds_ios = mozart_es.query(HYSDS_IOS_GRQ_INDEX, query)
+            grq_hysds_ios = mozart_es.query(index=HYSDS_IOS_GRQ_INDEX, body=query)
             grq_hysds_ios = [hysds_io['_source'] for hysds_io in grq_hysds_ios]
             logger.debug("Found %d hysds_ios on grq for %s." % (len(grq_hysds_ios), job_spec['id']))
 
@@ -226,7 +222,7 @@ def import_pkg(args):
     put(cont_image, cont_info['url'])
 
     # index container in ES
-    indexed_container = mozart_es.index_document(CONTAINERS_INDEX, cont_info, _id=cont_info['id'])
+    indexed_container = mozart_es.index_document(index=CONTAINERS_INDEX, body=cont_info, id=cont_info['id'])
     logger.debug(indexed_container)
 
     # index job_specs in ES and upload any dependency containers
@@ -243,7 +239,7 @@ def import_pkg(args):
                 put(dep_img, d['container_image_url'])
                 dep_images[d['container_image_name']] = d['container_image_url']
 
-        indexed_job_spec = mozart_es.index_document(JOB_SPECS_INDEX, job_spec, _id=job_spec['id'])
+        indexed_job_spec = mozart_es.index_document(index=JOB_SPECS_INDEX, body=job_spec, id=job_spec['id'])
         logger.debug(indexed_job_spec)
 
     # index hysds_ios to ES
@@ -252,10 +248,10 @@ def import_pkg(args):
 
         hysds_io_id = hysds_io['id']
         if component in ('mozart', 'figaro'):
-            indexed_hysds_io = mozart_es.index_document(HYSDS_IOS_MOZART_INDEX, hysds_io, _id=hysds_io_id)
+            indexed_hysds_io = mozart_es.index_document(index=HYSDS_IOS_MOZART_INDEX, body=hysds_io, id=hysds_io_id)
             logger.debug(indexed_hysds_io)
         else:
-            indexed_hysds_io = mozart_es.index_document(HYSDS_IOS_GRQ_INDEX, hysds_io, _id=hysds_io_id)
+            indexed_hysds_io = mozart_es.index_document(index=HYSDS_IOS_GRQ_INDEX, body=hysds_io, id=hysds_io_id)
             logger.debug(indexed_hysds_io)
 
     shutil.rmtree(export_dir)  # remove package dir
@@ -265,7 +261,7 @@ def rm(args):
     """Remove HySDS package."""
     cont_id = args.id  # container id
 
-    cont_info = mozart_es.get_by_id(CONTAINERS_INDEX, cont_id, safe=True)  # query for container
+    cont_info = mozart_es.get_by_id(index=CONTAINERS_INDEX, id=cont_id, safe=True)  # query for container
     if cont_info['found'] is False:
         logger.error("SDS package id {} not found.".format(cont_id))
         return 1
@@ -275,7 +271,7 @@ def rm(args):
 
     rmall(cont_info['url'])  # delete container from code bucket and ES
 
-    deleted_container = mozart_es.delete_by_id(CONTAINERS_INDEX, cont_info['id'])
+    deleted_container = mozart_es.delete_by_id(index=CONTAINERS_INDEX, id=cont_info['id'])
     logger.debug(deleted_container)
 
     query = {
@@ -284,7 +280,7 @@ def rm(args):
         }
     }
 
-    job_specs = mozart_es.query(JOB_SPECS_INDEX, query)
+    job_specs = mozart_es.query(index=JOB_SPECS_INDEX, body=query)
     job_specs = [job_spec['_source'] for job_spec in job_specs]
     logger.debug("job_specs: %s" % json.dumps(job_specs, indent=2))
 
@@ -295,13 +291,13 @@ def rm(args):
                 "term": {"job-specification.keyword": job_spec['id']}  # collect hysds_ios from mozart
             }
         }
-        mozart_hysds_ios = mozart_es.query(HYSDS_IOS_MOZART_INDEX, query)
+        mozart_hysds_ios = mozart_es.query(index=HYSDS_IOS_MOZART_INDEX, body=query)
         mozart_hysds_ios = [hysds_io['_source'] for hysds_io in mozart_hysds_ios]
         logger.debug("Found %d hysds_ios on mozart for %s" % (len(mozart_hysds_ios), job_spec['id']))
 
         for hysds_io in mozart_hysds_ios:  # deleting hysds_io in mozart
             hysds_io_id = hysds_io['id']
-            deleted_hysds_io = mozart_es.delete_by_id(HYSDS_IOS_MOZART_INDEX, hysds_io_id)
+            deleted_hysds_io = mozart_es.delete_by_id(index=HYSDS_IOS_MOZART_INDEX, id=hysds_io_id)
             logger.debug(deleted_hysds_io)
 
         query = {
@@ -309,14 +305,14 @@ def rm(args):
                 "term": {"job-specification.keyword": job_spec['id']}  # collect hysds_ios from GRQ
             }
         }
-        grq_hysds_ios = mozart_es.query(HYSDS_IOS_GRQ_INDEX, query)
+        grq_hysds_ios = mozart_es.query(index=HYSDS_IOS_GRQ_INDEX, body=query)
         grq_hysds_ios = [hysds_io['_source'] for hysds_io in grq_hysds_ios]
         logger.debug("Found %d hysds_ios on grq for %s." % (len(grq_hysds_ios), job_spec['id']))
 
         for hysds_io in grq_hysds_ios:
             hysds_io_id = hysds_io['id']
-            deleted_hysds_io = mozart_es.delete_by_id(HYSDS_IOS_GRQ_INDEX, hysds_io_id)
+            deleted_hysds_io = mozart_es.delete_by_id(index=HYSDS_IOS_GRQ_INDEX, id=hysds_io_id)
             logger.debug(deleted_hysds_io)
 
-        deleted_job_spec = mozart_es.delete_by_id(JOB_SPECS_INDEX, job_spec['id'])  # delete job_spec from ES
+        deleted_job_spec = mozart_es.delete_by_id(index=JOB_SPECS_INDEX, id=job_spec['id'])  # delete job_spec from ES
         logger.debug(deleted_job_spec)
