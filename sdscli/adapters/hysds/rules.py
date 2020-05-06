@@ -12,27 +12,23 @@ import json
 
 from sdscli.log_utils import logger
 from sdscli.os_utils import validate_dir, normpath
-from sdscli.adapters import mozart_es
+from hysds.es_utils import get_mozart_es
 
 USER_RULES_MOZART = 'user_rules-mozart'
 USER_RULES_GRQ = 'user_rules-grq'
 
+mozart_es = get_mozart_es()
+
 
 def export(args):
     """Export HySDS user rules."""
-    query = {
-        "query": {
-            "match_all": {}
-        }
-    }
-
     rules = {}
 
-    mozart_rules = mozart_es.query(USER_RULES_MOZART, query)
+    mozart_rules = mozart_es.query(index=USER_RULES_MOZART)
     rules['mozart'] = [rule['_source'] for rule in mozart_rules]
     logger.debug('%d mozart user rules found' % len(mozart_rules))
 
-    grq_rules = mozart_es.query(USER_RULES_MOZART, query)
+    grq_rules = mozart_es.query(index=USER_RULES_MOZART)
     rules['grq'] = [rule['_source'] for rule in grq_rules]
     logger.debug('%d grq user rules found' % len(grq_rules))
 
@@ -69,9 +65,9 @@ def import_rules(args):
     logger.debug("rules: {}".format(json.dumps(rules_file, indent=2, sort_keys=True)))
 
     for rule in user_rules['mozart']:
-        result = mozart_es.index_document(USER_RULES_MOZART, rule)  # indexing mozart rules
+        result = mozart_es.index_document(index=USER_RULES_MOZART, body=rule)  # indexing mozart rules
         logger.debug(result)
 
     for rule in user_rules['grq']:
-        result = mozart_es.index_document(USER_RULES_GRQ, rule)  # indexing GRQ rules
+        result = mozart_es.index_document(index=USER_RULES_GRQ, body=rule)  # indexing GRQ rules
         logger.debug(result)
