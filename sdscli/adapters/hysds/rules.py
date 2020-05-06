@@ -12,7 +12,7 @@ import json
 
 from sdscli.log_utils import logger
 from sdscli.os_utils import validate_dir, normpath
-from hysds.es_utils import get_mozart_es
+from hysds.es_util import get_mozart_es
 
 USER_RULES_MOZART = 'user_rules-mozart'
 USER_RULES_GRQ = 'user_rules-grq'

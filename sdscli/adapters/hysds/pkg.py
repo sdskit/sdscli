@@ -17,7 +17,7 @@ from sdscli.conf_utils import get_user_files_path, SettingsConf
 from sdscli.os_utils import validate_dir, normpath
 
 from osaka.main import get, put, rmall
-from hysds.es_utils import get_mozart_es
+from hysds.es_util import get_mozart_es
 
 CONTAINERS_INDEX = "containers"
 JOB_SPECS_INDEX = "job_specs"
