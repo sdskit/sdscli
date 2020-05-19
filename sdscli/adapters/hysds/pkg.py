@@ -261,7 +261,7 @@ def rm(args):
     """Remove HySDS package."""
     cont_id = args.id  # container id
 
-    cont_info = mozart_es.get_by_id(index=CONTAINERS_INDEX, id=cont_id, safe=True)  # query for container
+    cont_info = mozart_es.get_by_id(index=CONTAINERS_INDEX, id=cont_id, ignore=404)  # query for container
     if cont_info['found'] is False:
         logger.error("SDS package id {} not found.".format(cont_id))
         return 1
