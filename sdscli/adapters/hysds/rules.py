@@ -9,6 +9,7 @@ standard_library.install_aliases()
 
 import os
 import json
+from datetime import datetime
 
 from sdscli.log_utils import logger
 from sdscli.os_utils import validate_dir, normpath
@@ -65,9 +66,23 @@ def import_rules(args):
     logger.debug("rules: {}".format(json.dumps(rules_file, indent=2, sort_keys=True)))
 
     for rule in user_rules['mozart']:
+        now = datetime.utcnow().isoformat() + 'Z'
+
+        if not rule.get('creation_time', None):
+            rule['creation_time'] = now
+        if not rule.get('modified_time', None):
+            rule['modified_time'] = now
+
         result = mozart_es.index_document(index=USER_RULES_MOZART, body=rule)  # indexing mozart rules
         logger.debug(result)
 
     for rule in user_rules['grq']:
+        now = datetime.utcnow().isoformat() + 'Z'
+
+        if not rule.get('creation_time', None):
+            rule['creation_time'] = now
+        if not rule.get('modified_time', None):
+            rule['modified_time'] = now
+
         result = mozart_es.index_document(index=USER_RULES_GRQ, body=rule)  # indexing GRQ rules
         logger.debug(result)
