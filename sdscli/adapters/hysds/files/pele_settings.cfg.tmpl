@@ -1,6 +1,8 @@
 # ElasticSearch URL
-ES_URL = "http://{{ GRQ_ES_PVT_IP }}:9200"
-ES_EXTERNAL_URL = "http://{{ GRQ_FQDN }}:9200"
+AWS_ES = {{ GRQ_AWS_ES or False }}
+ES_HOST = "{{ GRQ_ES_PVT_IP }}"
+ES_URL = "{{ GRQ_ES_PROTOCOL or 'http' }}://{{ GRQ_ES_PVT_IP }}:{{ GRQ_ES_PORT or 9200 }}"
+ES_EXTERNAL_URL = "{{ GRQ_ES_PROTOCOL or 'http' }}://{{ GRQ_FQDN }}:{{ GRQ_ES_PORT or 9200 }}"
 
 # elastic search index to query
 ES_INDEX = "grq"
@@ -44,3 +46,6 @@ MAIL_DEFAULT_SENDER = "pele-api@jpl.nasa.gov"
 # set default and max page size
 DEFAULT_PAGE_SIZE = 10
 MAX_PAGE_SIZE = 100
+
+# AWS info
+AWS_REGION = "{{ AWS_REGION }}"
