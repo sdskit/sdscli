@@ -981,6 +981,8 @@ def ship_style(bucket=None, encrypt=False):
     ctx = get_context()
     if bucket is None:
         bucket = ctx['DATASET_BUCKET']
+    else:
+        ctx.update({'DATASET_BUCKET': bucket})
     repo_dir = os.path.join(ops_dir, 'mozart/ops/s3-bucket-listing')
     index_file = os.path.join(repo_dir, 'tmp_index.html')
     list_js = os.path.join(repo_dir, 'list.js')
