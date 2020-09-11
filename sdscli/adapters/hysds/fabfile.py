@@ -780,9 +780,9 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     role, hysds_dir, hostname = resolve_role()
 
     ctx = get_context(node_type)
+    ctx.update({'cluster_jobs': cluster_jobs,
+                'cluster_metrics': cluster_metrics})
     if node_type == 'mozart':
-        ctx.update({'cluster_jobs': cluster_jobs,
-                    'cluster_metrics': cluster_metrics})
         upload_template('indexer.conf.mozart', '~/mozart/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('job_status.template', '~/mozart/etc/job_status.template', use_jinja=True,
@@ -793,9 +793,9 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/mozart/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+        upload_template('sdswatch_client.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
+                        context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
     elif node_type == 'metrics':
-        ctx.update({'cluster_jobs': cluster_jobs,
-                    'cluster_metrics': cluster_metrics})
         upload_template('indexer.conf.metrics', '~/metrics/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('job_status.template', '~/metrics/etc/job_status.template', use_jinja=True,
@@ -806,6 +806,14 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/metrics/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+        upload_template('sdswatch_client.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
+                        context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+    elif node_type == 'grq':
+        upload_template('sdswatch_client.conf', '~/sciflo/etc/sdswatch_client.conf', use_jinja=True,
+                        context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+    elif node_type in ('verdi', 'verdi-asg', 'factotum'):
+        upload_template('sdswatch_client.conf', '~/verdi/etc/sdswatch_client.conf', use_jinja=True,
+                        context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
     else:
         raise RuntimeError("Unknown node type: %s" % node_type)
 

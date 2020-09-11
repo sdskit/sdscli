@@ -14,7 +14,7 @@ if [ -z "$(docker images -q logstash:7.1.1)" ]; then
 else
   echo "Logstash already exists in Docker. Will not download image"
 fi
-exec docker run -e HOST=${FQDN} -v /data/work/jobs:/sdswatch/jobs \
+exec docker run --rm -e HOST=${FQDN} -v /data/work/jobs:/sdswatch/jobs \
   -v $HOME/verdi/log:/sdswatch/log \
   -v sdswatch_data:/usr/share/logstash/data \
   -v $HOME/verdi/etc/sdswatch_client.conf:/usr/share/logstash/config/conf/logstash.conf \
