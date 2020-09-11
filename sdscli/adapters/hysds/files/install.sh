@@ -9,6 +9,9 @@ rm -rf $HOME/verdi/etc
 cp -rp $BASE_PATH/etc $HOME/verdi/etc
 cp -rp $HOME/verdi/ops/hysds/celeryconfig.py $HOME/verdi/etc/
 
+# uncomment if using SQS
+#ln -s $HOME/verdi/ops/hysds/scripts/harikiri_sqs.py $HOME/verdi/bin/harikiri.py
+
 # detect GPUs/NVIDIA driver configuration
 GPUS=0
 if [ -e "/usr/bin/nvidia-smi" ]; then
@@ -50,16 +53,42 @@ export CONTAINER_REGISTRY="{{ CONTAINER_REGISTRY }}"
 export CONTAINER_REGISTRY_BUCKET="{{ CONTAINER_REGISTRY_BUCKET }}"
 export DOCKER_REGISTRY_IMAGE="s3://{{ CODE_BUCKET }}/docker-registry-2.tar.gz"
 export DOCKER_REGISTRY_IMAGE_BASENAME="$(basename $DOCKER_REGISTRY_IMAGE 2>/dev/null)"
-if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]
-then
-  rm -rf /tmp/docker-registry-2.tar.gz
-  aws s3 cp ${DOCKER_REGISTRY_IMAGE} /tmp/${DOCKER_REGISTRY_IMAGE_BASENAME}
-  docker load -i /tmp/${DOCKER_REGISTRY_IMAGE_BASENAME}
-  docker run -p 5050:5000 -e REGISTRY_STORAGE=s3 -e REGISTRY_STORAGE_S3_BUCKET={{ CONTAINER_REGISTRY_BUCKET }} -e REGISTRY_STORAGE_S3_REGION={{ AWS_REGION }} --name=registry -d registry:2
+if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]; then
+  if [ -z "$(docker images -q registry:2)" ]; then
+    rm -rf /tmp/docker-registry-2.tar.gz
+    aws s3 cp ${DOCKER_REGISTRY_IMAGE} /tmp/${DOCKER_REGISTRY_IMAGE_BASENAME}
+    docker load -i /tmp/${DOCKER_REGISTRY_IMAGE_BASENAME}
+  else
+    echo "Registry already exists in Docker. Will not download image"
+  fi
+  docker run -p 5050:5000 -e REGISTRY_STORAGE=s3 \
+    -e REGISTRY_STORAGE_S3_BUCKET={{ CONTAINER_REGISTRY_BUCKET }} \
+    -e REGISTRY_STORAGE_S3_REGION={{ AWS_REGION }} --name=registry -d registry:2
 fi
 
-rm -rf /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
-aws s3 cp ${VERDI_PRIMER_IMAGE} /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
-docker load -i /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
+# Start up SDSWatch client
+export LOGSTASH_IMAGE="s3://{{ CODE_BUCKET }}/logstash-7.1.1.tar.gz"
+export LOGSTASH_IMAGE_BASENAME="$(basename $LOGSTASH_IMAGE 2>/dev/null)"
+if [ -z "$(docker images -q logstash:7.1.1)" ]; then
+  rm -rf /tmp/logstash-7.1.1.tar.gz
+  aws s3 cp ${LOGSTASH_IMAGE} /tmp/${LOGSTASH_IMAGE_BASENAME}
+  docker load -i /tmp/${LOGSTASH_IMAGE_BASENAME}
+else
+  echo "Logstash already exists in Docker. Will not download image"
+fi
+docker run -e HOST=${FQDN} -v /data/work/jobs:/sdswatch/jobs \
+  -v $HOME/verdi/log:/sdswatch/log \
+  -v sdswatch_data:/usr/share/logstash/data \
+  -v $HOME/verdi/etc/sdswatch_client.conf:/usr/share/logstash/config/conf/logstash.conf \
+  --name=sdswatch-client -d logstash:7.1.1 \
+  logstash -f /usr/share/logstash/config/conf/logstash.conf --config.reload.automatic
 
-docker tag hysds/verdi:{{ VERDI_TAG }} hysds/verdi:latest
+# Load verdi docker image
+if [ -z "$(docker images -q hysds/verdi:{{ VERDI_TAG }})" ]; then
+  rm -rf /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
+  aws s3 cp ${VERDI_PRIMER_IMAGE} /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
+  docker load -i /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
+  docker tag hysds/verdi:{{ VERDI_TAG }} hysds/verdi:latest
+else
+  echo "Verdi already exists in Docker. Will not download image"
+fi

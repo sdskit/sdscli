@@ -33,7 +33,7 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    num_updates = 25 if config_only else 39  # number of progress bar updates
+    num_updates = 26 if config_only else 40  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -106,8 +106,9 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
 
         # ship logstash shipper configs
         set_bar_desc(bar, 'Updating logstash shipper config')
-        execute(fab.send_shipper_conf, 'mozart', '/home/hysdsops/mozart/log', conf.get('MOZART_ES_CLUSTER'),
-                '127.0.0.1', conf.get('METRICS_ES_CLUSTER'), conf.get('METRICS_PVT_IP'), roles=[comp])
+        execute(fab.send_shipper_conf, 'mozart', '~/mozart/log', conf.get('MOZART_ES_CLUSTER'),
+                '127.0.0.1', conf.get('METRICS_ES_CLUSTER'),
+                conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
         bar.update()
 
         # update mozart config
@@ -233,6 +234,13 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
                 '~/verdi/etc/datasets.json', roles=[comp])
         bar.update()
 
+        # ship logstash shipper configs
+        set_bar_desc(bar, 'Updating logstash shipper config')
+        execute(fab.send_shipper_conf, 'verdi-asg', '~/verdi/log', conf.get('MOZART_ES_CLUSTER'),
+                conf.get('MOZART_REDIS_PVT_IP'), conf.get('METRICS_ES_CLUSTER'),
+                conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
+        bar.update()
+
         # ship netrc
         netrc = os.path.join(get_user_files_path(), 'netrc')
         if os.path.exists(netrc):
@@ -320,8 +328,9 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 
         # ship logstash shipper configs
         set_bar_desc(bar, 'Updating logstash shipper config')
-        execute(fab.send_shipper_conf, 'metrics', '/home/hysdsops/metrics/log', conf.get('MOZART_ES_CLUSTER'),
-                conf.get('MOZART_PVT_IP'), conf.get('METRICS_ES_CLUSTER'), '127.0.0.1', roles=[comp])
+        execute(fab.send_shipper_conf, 'metrics', '~/metrics/log', conf.get('MOZART_ES_CLUSTER'),
+                conf.get('MOZART_REDIS_PVT_IP'), conf.get('METRICS_ES_CLUSTER'),
+                '127.0.0.1', roles=[comp])
         bar.update()
 
         # ship kibana config
@@ -346,7 +355,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    num_updates = 14 if config_only else 23  # number of progress bar updates
+    num_updates = 15 if config_only else 24  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -434,6 +443,13 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
                 '~/sciflo/etc/datasets.json', roles=[comp])
         bar.update()
 
+        # ship logstash shipper configs
+        set_bar_desc(bar, 'Updating logstash shipper config')
+        execute(fab.send_shipper_conf, 'grq', '~/sciflo/log', conf.get('MOZART_ES_CLUSTER'),
+                conf.get('MOZART_REDIS_PVT_IP'), conf.get('METRICS_ES_CLUSTER'),
+                conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
+        bar.update()
+
         # ensure self-signed SSL certs exist
         set_bar_desc(bar, 'Configuring SSL')
         execute(fab.ensure_ssl, 'grq', roles=[comp])
@@ -476,7 +492,7 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
 def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
     """"Update factotum component."""
 
-    num_updates = 7 if config_only else 14  # number of progress bar updates
+    num_updates = 8 if config_only else 15  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -541,6 +557,13 @@ def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
                 '~/verdi/etc/datasets.json', roles=[comp])
         bar.update()
 
+        # ship logstash shipper configs
+        set_bar_desc(bar, 'Updating logstash shipper config')
+        execute(fab.send_shipper_conf, 'factotum', '~/verdi/log', conf.get('MOZART_ES_CLUSTER'),
+                conf.get('MOZART_REDIS_PVT_IP'), conf.get('METRICS_ES_CLUSTER'),
+                conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
+        bar.update()
+
         # expose hysds log dir via webdav
         set_bar_desc(bar, 'Expose logs')
         execute(fab.mkdir, '/data/work', None, None, roles=[comp])
@@ -564,7 +587,7 @@ def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
 def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
     """"Update verdi component."""
 
-    num_updates = 8 if config_only else 15  # number of progress bar updates
+    num_updates = 9 if config_only else 16  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -633,6 +656,13 @@ def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
         execute(fab.rm_rf, '~/verdi/etc/datasets.json', roles=[comp])
         execute(fab.send_template, 'datasets.json',
                 '~/verdi/etc/datasets.json', roles=[comp])
+        bar.update()
+
+        # ship logstash shipper configs
+        set_bar_desc(bar, 'Updating logstash shipper config')
+        execute(fab.send_shipper_conf, 'verdi', '~/verdi/log', conf.get('MOZART_ES_CLUSTER'),
+                conf.get('MOZART_REDIS_PVT_IP'), conf.get('METRICS_ES_CLUSTER'),
+                conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
