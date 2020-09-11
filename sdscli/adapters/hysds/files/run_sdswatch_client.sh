@@ -5,6 +5,8 @@ BASE_PATH=$(cd "${BASE_PATH}"; pwd)
 source $HOME/verdi/bin/activate
 
 # Start up SDSWatch client
+IPADDRESS_ETH0=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')
+FQDN=$IPADDRESS_ETH0
 export LOGSTASH_IMAGE="s3://{{ CODE_BUCKET }}/logstash-7.1.1.tar.gz"
 export LOGSTASH_IMAGE_BASENAME="$(basename $LOGSTASH_IMAGE 2>/dev/null)"
 if [ -z "$(docker images -q logstash:7.1.1)" ]; then
