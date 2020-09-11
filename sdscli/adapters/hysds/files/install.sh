@@ -61,9 +61,29 @@ if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]; then
   else
     echo "Registry already exists in Docker. Will not download image"
   fi
-  docker run -p 5050:5000 -e REGISTRY_STORAGE=s3 -e REGISTRY_STORAGE_S3_BUCKET={{ CONTAINER_REGISTRY_BUCKET }} -e REGISTRY_STORAGE_S3_REGION={{ AWS_REGION }} --name=registry -d registry:2
+  docker run -p 5050:5000 -e REGISTRY_STORAGE=s3 \
+    -e REGISTRY_STORAGE_S3_BUCKET={{ CONTAINER_REGISTRY_BUCKET }} \
+    -e REGISTRY_STORAGE_S3_REGION={{ AWS_REGION }} --name=registry -d registry:2
 fi
 
+# Start up SDSWatch client
+export LOGSTASH_IMAGE="s3://{{ CODE_BUCKET }}/logstash-7.1.1.tar.gz"
+export LOGSTASH_IMAGE_BASENAME="$(basename $LOGSTASH_IMAGE 2>/dev/null)"
+if [ -z "$(docker images -q logstash:7.1.1)" ]; then
+  rm -rf /tmp/logstash-7.1.1.tar.gz
+  aws s3 cp ${LOGSTASH_IMAGE} /tmp/${LOGSTASH_IMAGE_BASENAME}
+  docker load -i /tmp/${LOGSTASH_IMAGE_BASENAME}
+else
+  echo "Logstash already exists in Docker. Will not download image"
+fi
+docker run -e HOST=${FQDN} -v /data/work/jobs:/sdswatch/jobs \
+  -v $HOME/verdi/log:/sdswatch/log \
+  -v sdswatch_data:/usr/share/logstash/data \
+  -v $HOME/verdi/etc/sdswatch_client.conf:/usr/share/logstash/config/conf/logstash.conf \
+  --name=sdswatch-client -d logstash:7.1.1 \
+  logstash -f /usr/share/logstash/config/conf/logstash.conf --config.reload.automatic
+
+# Load verdi docker image
 if [ -z "$(docker images -q hysds/verdi:{{ VERDI_TAG }})" ]; then
   rm -rf /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
   aws s3 cp ${VERDI_PRIMER_IMAGE} /tmp/${VERDI_PRIMER_IMAGE_BASENAME}
