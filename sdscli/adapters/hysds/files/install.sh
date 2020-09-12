@@ -39,6 +39,9 @@ rm -rf $HOME/.netrc; mv -f $BASE_PATH/creds/.netrc $HOME/; chmod 600 $HOME/.netr
 cd /data/work
 tar xvfj $BASE_PATH/beefed-autoindex-open_in_new_win.tbz2
 
+# make jobs dir
+mkdir -p /data/work/jobs
+
 # prime verdi docker image
 if [[ -f $HOME/.aws/credentials ]]; then
   export AWS_ACCESS_KEY_ID="$(grep aws_access_key_id $HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
