@@ -4,6 +4,9 @@ BASE_PATH=$(cd "${BASE_PATH}"; pwd)
 
 source $HOME/verdi/bin/activate
 
+# make jobs dir
+mkdir -p /data/work/jobs
+
 # Start up SDSWatch client
 IPADDRESS_ETH0=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')
 FQDN=$IPADDRESS_ETH0
