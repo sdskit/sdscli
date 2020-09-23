@@ -841,7 +841,7 @@ def ship(encrypt, debug=False):
 def import_kibana(comp='metrics'):
     """"Update metrics component."""
 
-    with tqdm(total=20) as bar:  # progress bar
+    with tqdm(total=4) as bar:  # progress bar
         # ensure venv
         set_bar_desc(bar, 'Ensuring HySDS venv')
         execute(fab.ensure_venv, comp, roles=[comp])
@@ -852,6 +852,8 @@ def import_kibana(comp='metrics'):
         execute(fab.rm_rf, '~/metrics/ops/kibana_metrics', roles=[comp])
         execute(fab.mkdir, '~/metrics/ops/kibana_metrics',
                 'ops', 'ops', roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'copying over dashboards and scripts')
         execute(fab.send_template_user_override, 'import_dashboard.sh.tmpl',
                 '~/metrics/ops/kibana_metrics/import_dashboard.sh',
                 '~/mozart/ops/sdscli/sdscli/adapters/hysds/files/kibana_dashboard_import',
@@ -862,12 +864,17 @@ def import_kibana(comp='metrics'):
                 '~/metrics/ops/kibana_metrics/job-dashboards.json', roles=[comp])
         execute(fab.copy, '~/.sds/files/kibana_dashboard_import/worker-dashboards.json',
                 '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
+        execute(fab.copy, '~/.sds/files/kibana_dashboard_import/sdswatch-dashboards.json',
+                '~/metrics/ops/kibana_metrics/sdswatch-dashboards.json', roles=[comp])
         execute(fab.copy, '~/.sds/files/kibana_dashboard_import/wait-for-it.sh',
                 '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
         execute(fab.chmod, 755,
                 '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
+        bar.update()
+        set_bar_desc(bar, 'importing dashboards and other saved objects')
         execute(fab.import_kibana,
                 '~/metrics/ops/kibana_metrics', roles=[comp])
+        bar.update()
 
 
 def process_kibana_job(job_type, conf):
