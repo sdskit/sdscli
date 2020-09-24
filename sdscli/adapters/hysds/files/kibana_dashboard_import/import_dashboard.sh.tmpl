@@ -9,6 +9,6 @@ curl -XPOST {{METRICS_FQDN}}:5601/api/kibana/dashboards/import -H 'kbn-xsrf:true
 curl -XPOST {{METRICS_FQDN}}:5601/api/kibana/dashboards/import -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @worker-dashboards.json
 
 # SDSWatch
-curl -f -XDELETE -H 'Content-Type: application/json' -H 'kbn-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/saved_objects/index-pattern/sdswatch*'
-curl -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/saved_objects/index-pattern/sdswatch*' '-d{"attributes":{"title":"sdswatch*","timeFieldName":"sdswatch_timestamp"}}'
+curl -f -XDELETE -H 'Content-Type: application/json' -H 'kbn-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/saved_objects/index-pattern/sdswatch-*'
+curl -f -XPOST -H 'Content-Type: application/json' -H 'kbn-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/saved_objects/index-pattern/sdswatch-*' '-d{"attributes":{"title":"sdswatch-*","timeFieldName":"sdswatch_timestamp"}}'
 curl -XPOST {{METRICS_FQDN}}:5601/api/kibana/dashboards/import -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @sdswatch-dashboards.json
