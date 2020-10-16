@@ -33,7 +33,7 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    num_updates = 26 if config_only else 40  # number of progress bar updates
+    num_updates = 28 if config_only else 42  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -65,6 +65,17 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
             bar.update()
             execute(fab.npm_install_package_json, '~/mozart/ops/hysds_ui', roles=[comp])
             bar.update()
+
+        # set default ES shard number
+        set_bar_desc(bar, 'Setting default ES shard number')
+        execute(fab.install_base_es_template, roles=[comp])
+        bar.update()
+
+        # update logstash jvm.options to increase heap size
+        set_bar_desc(bar, 'Updating logstash jvm.options')
+        execute(fab.send_template, 'jvm.options',
+                '~/logstash/config/jvm.options', roles=[comp])
+        bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -258,7 +269,7 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
 def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
     """"Update metrics component."""
 
-    num_updates = 13 if config_only else 20  # number of progress bar updates
+    num_updates = 14 if config_only else 21  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -298,6 +309,12 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
             execute(fab.pip_install_with_req, 'metrics',
                     '~/metrics/ops/chimera', ndeps, roles=[comp])
             bar.update()
+
+        # update logstash jvm.options to increase heap size
+        set_bar_desc(bar, 'Updating logstash jvm.options')
+        execute(fab.send_template, 'jvm.options',
+                '~/logstash/config/jvm.options', roles=[comp])
+        bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -355,7 +372,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    num_updates = 15 if config_only else 24  # number of progress bar updates
+    num_updates = 16 if config_only else 25  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -403,6 +420,11 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
             execute(fab.pip_install_with_req, 'sciflo',
                     '~/sciflo/ops/pele', ndeps, roles=[comp])
             bar.update()
+
+        # set default ES shard number
+        set_bar_desc(bar, 'Setting default ES shard number')
+        execute(fab.install_base_es_template, roles=[comp])
+        bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')

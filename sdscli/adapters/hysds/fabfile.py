@@ -456,6 +456,16 @@ def install_pkg_es_templates():
         run('%s/ops/mozart/scripts/install_es_template.sh %s' % (hysds_dir, role))
 
 
+def install_base_es_template():
+    role, hysds_dir, hostname = resolve_role()
+
+    send_template(
+        "es_template-base.json",
+        "/tmp/es_template-base.json"
+    )
+    run("curl -XPUT 'localhost:9200/_template/index_defaults?pretty' -H 'Content-Type: application/json' -d@/tmp/es_template-base.json")
+
+
 ##########################
 # grq functions
 ##########################
