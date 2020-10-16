@@ -33,7 +33,7 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    num_updates = 26 if config_only else 40  # number of progress bar updates
+    num_updates = 27 if config_only else 41  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -65,6 +65,11 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
             bar.update()
             execute(fab.npm_install_package_json, '~/mozart/ops/hysds_ui', roles=[comp])
             bar.update()
+
+        # set default ES shard number
+        set_bar_desc(bar, 'Setting default ES shard number')
+        execute(fab.install_base_es_template, roles=[comp])
+        bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
@@ -355,7 +360,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    num_updates = 15 if config_only else 24  # number of progress bar updates
+    num_updates = 16 if config_only else 25  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -403,6 +408,11 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
             execute(fab.pip_install_with_req, 'sciflo',
                     '~/sciflo/ops/pele', ndeps, roles=[comp])
             bar.update()
+
+        # set default ES shard number
+        set_bar_desc(bar, 'Setting default ES shard number')
+        execute(fab.install_base_es_template, roles=[comp])
+        bar.update()
 
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
