@@ -834,9 +834,9 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
 
 def send_logstash_jvm_options(node_type):
     ctx = get_context(node_type)
-    ram_size_gb = int(get_ram_size_bytes())/1024**3
+    ram_size_gb = int(get_ram_size_bytes())//1024**3
     echo("instance RAM size: {}GB".format(ram_size_gb))
-    ram_size_gb_half = int(ram_size_gb/2)
+    ram_size_gb_half = int(ram_size_gb//2)
     ctx['LOGSTASH_HEAP_SIZE'] = 8 if ram_size_gb_half >= 8 else ram_size_gb_half
     echo("configuring logstash heap size: {}GB".format(ctx['LOGSTASH_HEAP_SIZE']))
     upload_template('jvm.options', '~/logstash/config/jvm.options',
