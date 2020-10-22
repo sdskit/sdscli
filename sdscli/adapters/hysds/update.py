@@ -73,8 +73,7 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
 
         # update logstash jvm.options to increase heap size
         set_bar_desc(bar, 'Updating logstash jvm.options')
-        execute(fab.send_template, 'jvm.options',
-                '~/logstash/config/jvm.options', roles=[comp])
+        execute(fab.send_logstash_jvm_options, roles=[comp])
         bar.update()
 
         # update celery config
@@ -312,8 +311,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 
         # update logstash jvm.options to increase heap size
         set_bar_desc(bar, 'Updating logstash jvm.options')
-        execute(fab.send_template, 'jvm.options',
-                '~/logstash/config/jvm.options', roles=[comp])
+        execute(fab.send_logstash_jvm_options, roles=[comp])
         bar.update()
 
         # update celery config
