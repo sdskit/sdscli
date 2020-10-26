@@ -182,6 +182,10 @@ def fqdn():
     run('hostname --fqdn')
 
 
+def get_ram_size_bytes():
+    return run("free -b | grep ^Mem: | awk '{print $2}'")
+
+
 def yum_update():
     sudo('yum -y -q update')
 
@@ -827,6 +831,21 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     else:
         raise RuntimeError("Unknown node type: %s" % node_type)
 
+
+def send_logstash_jvm_options(node_type):
+    ctx = get_context(node_type)
+    ram_size_gb = int(get_ram_size_bytes())//1024**3
+    echo("instance RAM size: {}GB".format(ram_size_gb))
+    ram_size_gb_half = int(ram_size_gb//2)
+    ctx['LOGSTASH_HEAP_SIZE'] = 8 if ram_size_gb_half >= 8 else ram_size_gb_half
+    echo("configuring logstash heap size: {}GB".format(ctx['LOGSTASH_HEAP_SIZE']))
+    upload_template('jvm.options', '~/logstash/config/jvm.options',
+                    use_jinja=True, context=ctx, template_dir=get_user_files_path())
+
+
+##########################
+# hysds config functions
+##########################
 
 def send_celeryconf(node_type):
     ctx = get_context(node_type)

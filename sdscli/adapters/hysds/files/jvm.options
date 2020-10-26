@@ -3,8 +3,8 @@
 # Xms represents the initial size of total heap space
 # Xmx represents the maximum size of total heap space
 
--Xms8g
--Xmx8g
+-Xms{{ LOGSTASH_HEAP_SIZE }}g
+-Xmx{{ LOGSTASH_HEAP_SIZE }}g
 
 ################################################################
 ## Expert settings
