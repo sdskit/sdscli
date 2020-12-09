@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 
-
+import sys
 from sdscli.prompt_utils import highlight, blink
 from sdscli.conf_utils import get_user_config_path, get_user_files_path
 from sdscli.log_utils import logger
@@ -15,7 +15,6 @@ from fabric.contrib.files import upload_template, exists, append
 from fabric.api import run, cd, put, sudo, prefix, env, settings, hide
 from copy import deepcopy
 import requests
-import json
 import yaml
 import re
 import os
@@ -764,11 +763,11 @@ def run_jenkins_cli(cmd):
     juser = ctx.get("JENKINS_API_USER", "").strip()
     jkey = ctx.get("JENKINS_API_KEY", "").strip()
     if juser == "" or jkey == "":
-        raise RuntimeError(
-            "An API user/key is needed for Jenkins.  Reload manually or specify one.")
+        raise RuntimeError("An API user/key is needed for Jenkins.  Reload manually or specify one.")
     with prefix('source verdi/bin/activate'):
         run('java -jar %s/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 -http -auth %s:%s %s' %
             (ctx['JENKINS_DIR'], juser, jkey, cmd))
+        sys.stdout.flush()
 
 
 def reload_configuration():
