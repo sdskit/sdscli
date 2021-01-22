@@ -19,6 +19,9 @@ SECRET_KEY = 'testkey'
 OPS_USER = '{{ OPS_USER }}'
 OPS_PASSWORD_HASH = '{{ OPS_PASSWORD_HASH }}'
 
+# auhentication
+AUTH = {{ True if AUTH else False }}
+
 # api token expiration time
 TOKEN_EXPIRATION_SECS = 86400
 
@@ -46,6 +49,10 @@ MAIL_DEFAULT_SENDER = "pele-api@jpl.nasa.gov"
 # set default and max page size
 DEFAULT_PAGE_SIZE = 10
 MAX_PAGE_SIZE = 100
+
+# proxy settings
+HTTP_X_SCRIPT_NAME = ""
+HTTP_X_SCHEME = ""
 
 # AWS info
 AWS_REGION = "{{ AWS_REGION }}"
