@@ -182,6 +182,10 @@ def fqdn():
     run('hostname --fqdn')
 
 
+def get_ram_size_bytes():
+    return run("free -b | grep ^Mem: | awk '{print $2}'")
+
+
 def yum_update():
     sudo('yum -y -q update')
 
@@ -454,6 +458,16 @@ def install_pkg_es_templates():
         raise RuntimeError("Invalid fabric function for %s." % role)
     with prefix('source %s/bin/activate' % hysds_dir):
         run('%s/ops/mozart/scripts/install_es_template.sh %s' % (hysds_dir, role))
+
+
+def install_base_es_template():
+    role, hysds_dir, hostname = resolve_role()
+
+    send_template(
+        "es_template-base.json",
+        "/tmp/es_template-base.json"
+    )
+    run("curl -XPUT 'localhost:9200/_template/index_defaults?pretty' -H 'Content-Type: application/json' -d@/tmp/es_template-base.json")
 
 
 ##########################
@@ -780,9 +794,9 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     role, hysds_dir, hostname = resolve_role()
 
     ctx = get_context(node_type)
+    ctx.update({'cluster_jobs': cluster_jobs,
+                'cluster_metrics': cluster_metrics})
     if node_type == 'mozart':
-        ctx.update({'cluster_jobs': cluster_jobs,
-                    'cluster_metrics': cluster_metrics})
         upload_template('indexer.conf.mozart', '~/mozart/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('job_status.template', '~/mozart/etc/job_status.template', use_jinja=True,
@@ -793,9 +807,9 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/mozart/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+        upload_template('sdswatch_client.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
+                        context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
     elif node_type == 'metrics':
-        ctx.update({'cluster_jobs': cluster_jobs,
-                    'cluster_metrics': cluster_metrics})
         upload_template('indexer.conf.metrics', '~/metrics/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('job_status.template', '~/metrics/etc/job_status.template', use_jinja=True,
@@ -806,9 +820,32 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/metrics/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+        upload_template('sdswatch_client.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
+                        context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+    elif node_type == 'grq':
+        upload_template('sdswatch_client.conf', '~/sciflo/etc/sdswatch_client.conf', use_jinja=True,
+                        context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+    elif node_type in ('verdi', 'verdi-asg', 'factotum'):
+        upload_template('sdswatch_client.conf', '~/verdi/etc/sdswatch_client.conf', use_jinja=True,
+                        context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
     else:
         raise RuntimeError("Unknown node type: %s" % node_type)
 
+
+def send_logstash_jvm_options(node_type):
+    ctx = get_context(node_type)
+    ram_size_gb = int(get_ram_size_bytes())//1024**3
+    echo("instance RAM size: {}GB".format(ram_size_gb))
+    ram_size_gb_half = int(ram_size_gb//2)
+    ctx['LOGSTASH_HEAP_SIZE'] = 8 if ram_size_gb_half >= 8 else ram_size_gb_half
+    echo("configuring logstash heap size: {}GB".format(ctx['LOGSTASH_HEAP_SIZE']))
+    upload_template('jvm.options', '~/logstash/config/jvm.options',
+                    use_jinja=True, context=ctx, template_dir=get_user_files_path())
+
+
+##########################
+# hysds config functions
+##########################
 
 def send_celeryconf(node_type):
     ctx = get_context(node_type)
@@ -981,6 +1018,8 @@ def ship_style(bucket=None, encrypt=False):
     ctx = get_context()
     if bucket is None:
         bucket = ctx['DATASET_BUCKET']
+    else:
+        ctx.update({'DATASET_BUCKET': bucket})
     repo_dir = os.path.join(ops_dir, 'mozart/ops/s3-bucket-listing')
     index_file = os.path.join(repo_dir, 'tmp_index.html')
     list_js = os.path.join(repo_dir, 'list.js')
