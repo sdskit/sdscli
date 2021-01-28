@@ -12,6 +12,12 @@ cp -rp $HOME/verdi/ops/hysds/celeryconfig.py $HOME/verdi/etc/
 # uncomment if using SQS
 #ln -s $HOME/verdi/ops/hysds/scripts/harikiri_sqs.py $HOME/verdi/bin/harikiri.py
 
+# uncomment to use harikiri without having to set up an SQS
+#ln -s $HOME/verdi/bin/harikiri.py
+
+# spot termination detector
+ln -s $HOME/verdi/ops/hysds/scripts/spot_termination_detector.py $HOME/verdi/bin/spot_termination_detector.py
+
 # detect GPUs/NVIDIA driver configuration
 GPUS=0
 if [ -e "/usr/bin/nvidia-smi" ]; then
