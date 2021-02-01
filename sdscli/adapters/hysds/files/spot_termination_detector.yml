@@ -1,0 +1,7 @@
+# This is a configuration file that can be passed as an argument to the spot_termination_detector script
+
+# The Mozart REST API, e.g. https://192.168.0.1/mozart/api/v0.1
+mozart_rest_url:
+
+# Check for inactivity every N seconds. Default is 60.
+check: 60
