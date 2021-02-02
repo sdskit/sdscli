@@ -512,7 +512,7 @@ def create_grq_user_rules_index():
 
 def create_hysds_ios_grq_index():
     with prefix('source ~/sciflo/bin/activate'):
-        with cd('~/mozart/ops/grq2/scripts'):
+        with cd('~/sciflo/ops/grq2/scripts'):
             run('./create_hysds_ios_index.py')
 
 
