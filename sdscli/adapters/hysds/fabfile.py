@@ -510,6 +510,12 @@ def create_grq_user_rules_index():
             run('./create_user_rules_index.py')
 
 
+def create_hysds_ios_grq_index():
+    with prefix('source ~/sciflo/bin/activate'):
+        with cd('~/mozart/ops/grq2/scripts'):
+            run('./create_hysds_ios_index.py')
+
+
 def install_ingest_pipeline():
     with cd('~/sciflo/ops/grq2/scripts'):
         run('python install_ingest_pipeline.py')
@@ -921,6 +927,12 @@ def create_user_rules_index():
     with prefix('source ~/mozart/bin/activate'):
         with cd('~/mozart/ops/mozart/scripts'):
             run('./create_user_rules_index.py')
+
+
+def create_hysds_ios_index():
+    with prefix('source ~/mozart/bin/activate'):
+        with cd('~/mozart/ops/mozart/scripts'):
+            run('./create_hysds_ios_index.py')
 
 
 ##########################
