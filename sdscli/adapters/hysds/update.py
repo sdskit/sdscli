@@ -33,7 +33,7 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    num_updates = 28 if config_only else 42  # number of progress bar updates
+    num_updates = 29 if config_only else 43  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -145,6 +145,11 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         # create user_rules index
         set_bar_desc(bar, 'Creating user_rules index')
         execute(fab.create_user_rules_index, roles=[comp])
+        bar.update()
+
+        # create hysds_ios-mozart index
+        set_bar_desc(bar, 'Creating hysds_ios-grq index')
+        execute(fab.create_hysds_ios_index, roles=[comp])
         bar.update()
 
         # ensure self-signed SSL certs exist
@@ -370,7 +375,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    num_updates = 16 if config_only else 25  # number of progress bar updates
+    num_updates = 17 if config_only else 26  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -446,6 +451,11 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         # create user_rules index
         set_bar_desc(bar, 'Creating user_rules index')
         execute(fab.create_grq_user_rules_index, roles=[comp])
+        bar.update()
+
+        # create hysds_ios-grq index
+        set_bar_desc(bar, 'Creating hysds_ios-grq index')
+        execute(fab.create_hysds_ios_grq_index, roles=[comp])
         bar.update()
 
         # update supervisor config
