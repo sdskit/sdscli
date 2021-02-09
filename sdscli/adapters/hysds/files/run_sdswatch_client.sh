@@ -40,6 +40,7 @@ else
   echo "Logstash already exists in Docker. Will not download image"
 fi
 exec docker run --rm -e HOST=${FQDN} \
+  -e XPACK_MONITORING_ENABLED=false \
   $verdi_params \
   -v $HYSDS_DIR/log:/sdswatch/log \
   -v sdswatch_data:/usr/share/logstash/data \
