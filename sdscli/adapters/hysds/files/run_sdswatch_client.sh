@@ -2,10 +2,30 @@
 BASE_PATH=$(dirname "${BASH_SOURCE}")
 BASE_PATH=$(cd "${BASE_PATH}"; pwd)
 
-source $HOME/verdi/bin/activate
+# detect HySDS virtualenv
+if [ -d "${HOME}/mozart" ]; then
+  HYSDS_DIR=${HOME}/mozart
+elif [ -d "${HOME}/metrics" ]; then
+  HYSDS_DIR=${HOME}/metrics
+elif [ -d "${HOME}/sciflo" ]; then
+  HYSDS_DIR=${HOME}/sciflo
+elif [ -d "${HOME}/verdi" ]; then
+  HYSDS_DIR=${HOME}/verdi
+else
+  echo "Couldn't detect installation of HySDS." >&2
+  exit 1
+fi
 
-# make jobs dir
-mkdir -p /data/work/jobs
+# source virtualenv
+source $HYSDS_DIR/bin/activate
+
+# if verdi, make jobs dir and set verdi params
+if [[ "${HYSDS_DIR}" == *verdi ]]; then
+  mkdir -p /data/work/jobs
+  verdi_params="-v /data/work/jobs:/sdswatch/jobs"
+else
+  verdi_params=""
+fi
 
 # Start up SDSWatch client
 IPADDRESS_ETH0=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}')
@@ -19,9 +39,10 @@ if [ -z "$(docker images -q logstash:7.1.1)" ]; then
 else
   echo "Logstash already exists in Docker. Will not download image"
 fi
-exec docker run --rm -e HOST=${FQDN} -v /data/work/jobs:/sdswatch/jobs \
-  -v $HOME/verdi/log:/sdswatch/log \
+exec docker run --rm -e HOST=${FQDN} \
+  $verdi_params \
+  -v $HYSDS_DIR/log:/sdswatch/log \
   -v sdswatch_data:/usr/share/logstash/data \
-  -v $HOME/verdi/etc/sdswatch_client.conf:/usr/share/logstash/config/conf/logstash.conf \
+  -v $HYSDS_DIR/etc/sdswatch_client.conf:/usr/share/logstash/config/conf/logstash.conf \
   --name=sdswatch-client logstash:7.1.1 \
   logstash -f /usr/share/logstash/config/conf/logstash.conf --config.reload.automatic
