@@ -2,7 +2,22 @@
 BASE_PATH=$(dirname "${BASH_SOURCE}")
 BASE_PATH=$(cd "${BASE_PATH}"; pwd)
 
-source $HOME/verdi/bin/activate
+# detect HySDS virtualenv
+if [ -d "${HOME}/mozart" ]; then
+  HYSDS_DIR=${HOME}/mozart
+elif [ -d "${HOME}/metrics" ]; then
+  HYSDS_DIR=${HOME}/metrics
+elif [ -d "${HOME}/sciflo" ]; then
+  HYSDS_DIR=${HOME}/sciflo
+elif [ -d "${HOME}/verdi" ]; then
+  HYSDS_DIR=${HOME}/verdi
+else
+  echo "Couldn't detect installation of HySDS." >&2
+  exit 1
+fi
+
+# source virtualenv
+source $HYSDS_DIR/bin/activate
 
 # Start up Docker Registry if CONTAINER_REGISTRY is defined
 export CONTAINER_REGISTRY="{{ CONTAINER_REGISTRY }}"

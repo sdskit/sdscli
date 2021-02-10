@@ -33,7 +33,7 @@ prompt_style = style_from_dict({
 def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
     """"Update mozart component."""
 
-    num_updates = 29 if config_only else 43  # number of progress bar updates
+    num_updates = 31 if config_only else 45  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -119,6 +119,11 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         execute(fab.send_shipper_conf, 'mozart', '~/mozart/log', conf.get('MOZART_ES_CLUSTER'),
                 '127.0.0.1', conf.get('METRICS_ES_CLUSTER'),
                 conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
+        bar.update()
+
+        # update HySDS scripts
+        set_bar_desc(bar, 'Updating HySDS scripts')
+        execute(fab.send_hysds_scripts, 'mozart', roles=[comp])
         bar.update()
 
         # update mozart config
@@ -256,6 +261,11 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
                 conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
         bar.update()
 
+        # update HySDS scripts
+        set_bar_desc(bar, 'Updating HySDS scripts')
+        execute(fab.send_hysds_scripts, 'verdi-asg', roles=[comp])
+        bar.update()
+
         # ship netrc
         netrc = os.path.join(get_user_files_path(), 'netrc')
         if os.path.exists(netrc):
@@ -273,7 +283,7 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
 def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
     """"Update metrics component."""
 
-    num_updates = 14 if config_only else 21  # number of progress bar updates
+    num_updates = 15 if config_only else 22  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -353,6 +363,11 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
                 '127.0.0.1', roles=[comp])
         bar.update()
 
+        # update HySDS scripts
+        set_bar_desc(bar, 'Updating HySDS scripts')
+        execute(fab.send_hysds_scripts, 'metrics', roles=[comp])
+        bar.update()
+
         # ship kibana config
         set_bar_desc(bar, 'Updating kibana config')
         execute(fab.send_template, 'kibana.yml',
@@ -375,7 +390,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    num_updates = 17 if config_only else 26  # number of progress bar updates
+    num_updates = 18 if config_only else 27  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -480,6 +495,11 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
                 conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
         bar.update()
 
+        # update HySDS scripts
+        set_bar_desc(bar, 'Updating HySDS scripts')
+        execute(fab.send_hysds_scripts, 'grq', roles=[comp])
+        bar.update()
+
         # ensure self-signed SSL certs exist
         set_bar_desc(bar, 'Configuring SSL')
         execute(fab.ensure_ssl, 'grq', roles=[comp])
@@ -522,7 +542,7 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
 def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
     """"Update factotum component."""
 
-    num_updates = 8 if config_only else 15  # number of progress bar updates
+    num_updates = 9 if config_only else 16  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -594,6 +614,11 @@ def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
                 conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
         bar.update()
 
+        # update HySDS scripts
+        set_bar_desc(bar, 'Updating HySDS scripts')
+        execute(fab.send_hysds_scripts, 'factotum', roles=[comp])
+        bar.update()
+
         # expose hysds log dir via webdav
         set_bar_desc(bar, 'Expose logs')
         execute(fab.mkdir, '/data/work', None, None, roles=[comp])
@@ -617,7 +642,7 @@ def update_factotum(conf, ndeps=False, config_only=False, comp='factotum'):
 def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
     """"Update verdi component."""
 
-    num_updates = 9 if config_only else 16  # number of progress bar updates
+    num_updates = 10 if config_only else 17  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -693,6 +718,11 @@ def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
         execute(fab.send_shipper_conf, 'verdi', '~/verdi/log', conf.get('MOZART_ES_CLUSTER'),
                 conf.get('MOZART_REDIS_PVT_IP'), conf.get('METRICS_ES_CLUSTER'),
                 conf.get('METRICS_REDIS_PVT_IP'), roles=[comp])
+        bar.update()
+
+        # update HySDS scripts
+        set_bar_desc(bar, 'Updating HySDS scripts')
+        execute(fab.send_hysds_scripts, 'verdi', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav

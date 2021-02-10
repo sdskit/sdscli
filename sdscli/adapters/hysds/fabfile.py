@@ -813,8 +813,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/mozart/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('sdswatch_client.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
+        upload_template('sdswatch_client-pcm.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+        send_template("run_sdswatch_client.sh", "~/mozart/bin/run_sdswatch_client.sh")
+        run("chmod 755 ~/mozart/bin/run_sdswatch_client.sh")
     elif node_type == 'metrics':
         upload_template('indexer.conf.metrics', '~/metrics/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
@@ -826,14 +828,20 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/metrics/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('sdswatch_client.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
+        upload_template('sdswatch_client-pcm.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+        send_template("run_sdswatch_client.sh", "~/metrics/bin/run_sdswatch_client.sh")
+        run("chmod 755 ~/metrics/bin/run_sdswatch_client.sh")
     elif node_type == 'grq':
-        upload_template('sdswatch_client.conf', '~/sciflo/etc/sdswatch_client.conf', use_jinja=True,
+        upload_template('sdswatch_client-pcm.conf', '~/sciflo/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+        send_template("run_sdswatch_client.sh", "~/sciflo/bin/run_sdswatch_client.sh")
+        run("chmod 755 ~/sciflo/bin/run_sdswatch_client.sh")
     elif node_type in ('verdi', 'verdi-asg', 'factotum'):
         upload_template('sdswatch_client.conf', '~/verdi/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
+        send_template("run_sdswatch_client.sh", "~/verdi/bin/run_sdswatch_client.sh")
+        run("chmod 755 ~/verdi/bin/run_sdswatch_client.sh")
     else:
         raise RuntimeError("Unknown node type: %s" % node_type)
 
@@ -933,6 +941,25 @@ def create_hysds_ios_index():
     with prefix('source ~/mozart/bin/activate'):
         with cd('~/mozart/ops/mozart/scripts'):
             run('./create_hysds_ios_index.py')
+
+
+def send_hysds_scripts(node_type):
+    role, hysds_dir, hostname = resolve_role()
+
+    if node_type == 'mozart':
+        send_template("run_docker_registry.sh", "~/mozart/bin/run_docker_registry.sh")
+        run("chmod 755 ~/mozart/bin/run_docker_registry.sh")
+    elif node_type == 'metrics':
+        send_template("run_docker_registry.sh", "~/metrics/bin/run_docker_registry.sh")
+        run("chmod 755 ~/metrics/bin/run_docker_registry.sh")
+    elif node_type == 'grq':
+        send_template("run_docker_registry.sh", "~/sciflo/bin/run_docker_registry.sh")
+        run("chmod 755 ~/sciflo/bin/run_docker_registry.sh")
+    elif node_type in ('verdi', 'verdi-asg', 'factotum'):
+        send_template("run_docker_registry.sh", "~/verdi/bin/run_docker_registry.sh")
+        run("chmod 755 ~/verdi/bin/run_docker_registry.sh")
+    else:
+        raise RuntimeError("Unknown node type: %s" % node_type)
 
 
 ##########################
