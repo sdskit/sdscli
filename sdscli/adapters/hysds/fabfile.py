@@ -943,6 +943,25 @@ def create_hysds_ios_index():
             run('./create_hysds_ios_index.py')
 
 
+def send_hysds_scripts(node_type):
+    role, hysds_dir, hostname = resolve_role()
+
+    if node_type == 'mozart':
+        send_template("run_docker_registry.sh", "~/mozart/bin/run_docker_registry.sh")
+        run("chmod 755 ~/mozart/bin/run_docker_registry.sh")
+    elif node_type == 'metrics':
+        send_template("run_docker_registry.sh", "~/metrics/bin/run_docker_registry.sh")
+        run("chmod 755 ~/metrics/bin/run_docker_registry.sh")
+    elif node_type == 'grq':
+        send_template("run_docker_registry.sh", "~/sciflo/bin/run_docker_registry.sh")
+        run("chmod 755 ~/sciflo/bin/run_docker_registry.sh")
+    elif node_type in ('verdi', 'verdi-asg', 'factotum'):
+        send_template("run_docker_registry.sh", "~/verdi/bin/run_docker_registry.sh")
+        run("chmod 755 ~/verdi/bin/run_docker_registry.sh")
+    else:
+        raise RuntimeError("Unknown node type: %s" % node_type)
+
+
 ##########################
 # self-signed SSL certs
 ##########################
