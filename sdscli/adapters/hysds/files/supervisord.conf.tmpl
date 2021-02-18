@@ -55,7 +55,7 @@ environment=HYSDS_ROOT_WORK_DIR="/data/work",
             HYSDS_GPU_AVAILABLE="__HYSDS_GPU_AVAILABLE__",
             FACTER_ipaddress_eth0="__IPADDRESS_ETH0__",
             FACTER_fqdn="__FQDN__"
-command=celery worker --app=hysds --concurrency=1 --loglevel=INFO -Q {{ queue }} -n %(program_name)s.__FQDN__ -O fair --without-mingle --without-gossip --heartbeat-interval=60
+command=celery --app=hysds worker --concurrency=1 --loglevel=INFO -Q {{ queue }} -n %(program_name)s.__FQDN__ -O fair --without-mingle --without-gossip --heartbeat-interval=60
 process_name=%(program_name)s
 priority=1
 numprocs=1
