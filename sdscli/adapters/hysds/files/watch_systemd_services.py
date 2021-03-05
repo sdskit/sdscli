@@ -18,9 +18,10 @@ ACTIVEENTER_TS_RE = re.compile(r'\nActiveEnterTimestamp=(?P<ActiveEnterTimestamp
 WATCHDOG_TS_RE = re.compile(r'\nWatchdogTimestamp=(?P<WatchdogTimestamp>.+)\n')
 
 
-def daemon(check, name, source_type, source_id, services):
+def daemon(check, host, name, source_type, source_id, services):
     print("configuration:")
     print(f"check: {check}")
+    print(f"host: {host}")
     print(f"name: {name}")
     print(f"source_type: {source_type}")
     print(f"source_id: {source_id}")
@@ -41,7 +42,7 @@ def daemon(check, name, source_type, source_id, services):
             if m:= WATCHDOG_TS_RE.search(output):
                 watchdog_ts = m.group(1)
             timestamp = datetime.utcnow().isoformat()
-            print(f'{timestamp}, nisar-mozart.jpl.nasa.gov, systemd, status, systemd.service={service} systemd.ActiveState={active_state} systemd.SubState={sub_state} systemd.ActiveStateTimestamp="{active_enter_ts}" systemd.WatchdogTimestamp="{watchdog_ts}"', flush=True)
+            print(f'{timestamp}, {host}, systemd, status, systemd.service={service} systemd.ActiveState={active_state} systemd.SubState={sub_state} systemd.ActiveStateTimestamp="{active_enter_ts}" systemd.WatchdogTimestamp="{watchdog_ts}"', flush=True)
              
         time.sleep(check)
 
@@ -54,6 +55,12 @@ if __name__ == "__main__":
         type=int,
         default=60,
         help="check and dump logs every N seconds. Default is 60.",
+    )
+    parser.add_argument(
+        "--host",
+        type=str,
+        required=True,
+        help="Host name.",
     )
     parser.add_argument(
         "-n",
@@ -85,4 +92,4 @@ if __name__ == "__main__":
         help="Systemd services to check.",
     )
     args = parser.parse_args()
-    daemon(args.check, args.name, args.source_type, args.source_id, args.services)
+    daemon(args.check, args.host, args.name, args.source_type, args.source_id, args.services)
