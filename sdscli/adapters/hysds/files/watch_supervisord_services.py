@@ -16,9 +16,8 @@ RUNNING_RE = re.compile(r'^(?P<service>.+?)\s+(?P<status>RUNNING)\s+pid\s+(?P<pi
 STOPPED_RE = re.compile(r'^(?P<service>.+?)\s+(?P<status>STOPPED)\s+(?P<date_stopped>.+)$')
 
 
-def daemon(file_dir, check, name, source_type, source_id, services):
+def daemon(check, name, source_type, source_id, services):
     print("configuration:")
-    print(f"file_dir: {file_dir}")
     print(f"check: {check}")
     print(f"name: {name}")
     print(f"source_type: {source_type}")
@@ -54,13 +53,6 @@ def daemon(file_dir, check, name, source_type, source_id, services):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "-d",
-        "--file_dir",
-        type=str,
-        required=True,
-        help="log directory, e.g. /home/ops/mozart/log",
-    )
     parser.add_argument(
         "-c",
         "--check",
@@ -99,4 +91,4 @@ if __name__ == "__main__":
         help="Systemd services to check.",
     )
     args = parser.parse_args()
-    daemon(args.file_dir, args.check, args.name, args.source_type, args.source_id, args.services)
+    daemon(args.check, args.name, args.source_type, args.source_id, args.services)
