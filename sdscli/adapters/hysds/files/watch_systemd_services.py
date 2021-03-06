@@ -2,20 +2,18 @@
 """
 SDSWatch daemon to periodically dump SDSWatch logs of systemd services.
 """
-import os
 import argparse
 import time
 import re
-import backoff
-from subprocess import check_output, STDOUT, CalledProcessError
+from subprocess import check_output
 from datetime import datetime
 
 
 # regexes
-ACTIVESTATE_RE = re.compile(r'\nActiveState=(?P<ActiveState>.+)\n')
-SUBSTATE_RE = re.compile(r'\nSubState=(?P<SubState>.+)\n')
-ACTIVEENTER_TS_RE = re.compile(r'\nActiveEnterTimestamp=(?P<ActiveEnterTimestamp>.+)\n')
-WATCHDOG_TS_RE = re.compile(r'\nWatchdogTimestamp=(?P<WatchdogTimestamp>.+)\n')
+ACTIVESTATE_RE = re.compile(r"\nActiveState=(?P<ActiveState>.+)\n")
+SUBSTATE_RE = re.compile(r"\nSubState=(?P<SubState>.+)\n")
+ACTIVEENTER_TS_RE = re.compile(r"\nActiveEnterTimestamp=(?P<ActiveEnterTimestamp>.+)\n")
+WATCHDOG_TS_RE = re.compile(r"\nWatchdogTimestamp=(?P<WatchdogTimestamp>.+)\n")
 
 
 def daemon(check, host, name, source_type, source_id, services):
@@ -29,21 +27,24 @@ def daemon(check, host, name, source_type, source_id, services):
 
     while True:
         for service in services:
-            output = check_output(["sudo", "systemctl", "show", "--no-page", service], universal_newlines=True)
-            #print("#" * 80)
-            #print(f"{service}")
-            #print(output)
+            output = check_output(
+                ["sudo", "systemctl", "show", "--no-page", service],
+                universal_newlines=True,
+            )
             if m := ACTIVESTATE_RE.search(output):
                 active_state = m.group(1)
             if m := SUBSTATE_RE.search(output):
                 sub_state = m.group(1)
             if m := ACTIVEENTER_TS_RE.search(output):
                 active_enter_ts = m.group(1)
-            if m:= WATCHDOG_TS_RE.search(output):
+            if m := WATCHDOG_TS_RE.search(output):
                 watchdog_ts = m.group(1)
             timestamp = datetime.utcnow().isoformat()
-            print(f'{timestamp}, {host}, systemd, status, systemd.service={service} systemd.ActiveState={active_state} systemd.SubState={sub_state} systemd.ActiveStateTimestamp="{active_enter_ts}" systemd.WatchdogTimestamp="{watchdog_ts}"', flush=True)
-             
+            print(
+                f'{timestamp}, {host}, systemd, status, systemd.service={service} systemd.ActiveState={active_state} systemd.SubState={sub_state} systemd.ActiveStateTimestamp="{active_enter_ts}" systemd.WatchdogTimestamp="{watchdog_ts}"',
+                flush=True,
+            )
+
         time.sleep(check)
 
 
@@ -57,10 +58,7 @@ if __name__ == "__main__":
         help="check and dump logs every N seconds. Default is 60.",
     )
     parser.add_argument(
-        "--host",
-        type=str,
-        required=True,
-        help="Host name.",
+        "--host", type=str, required=True, help="Host name.",
     )
     parser.add_argument(
         "-n",
@@ -92,4 +90,11 @@ if __name__ == "__main__":
         help="Systemd services to check.",
     )
     args = parser.parse_args()
-    daemon(args.check, args.host, args.name, args.source_type, args.source_id, args.services)
+    daemon(
+        args.check,
+        args.host,
+        args.name,
+        args.source_type,
+        args.source_id,
+        args.services,
+    )
