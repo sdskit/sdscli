@@ -29,7 +29,7 @@ def export(args):
     rules['mozart'] = [rule['_source'] for rule in mozart_rules]
     logger.debug('%d mozart user rules found' % len(mozart_rules))
 
-    grq_rules = mozart_es.query(index=USER_RULES_MOZART)
+    grq_rules = mozart_es.query(index=USER_RULES_GRQ)
     rules['grq'] = [rule['_source'] for rule in grq_rules]
     logger.debug('%d grq user rules found' % len(grq_rules))
 
