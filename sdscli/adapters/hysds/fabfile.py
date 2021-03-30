@@ -925,16 +925,27 @@ def send_hysds_ui_conf():
     upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
                     template_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'))
 
-    tosca_cfg = '~/mozart/etc/tosca.js'
-    send_template_user_override('tosca.template.js', tosca_cfg,
-                                tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
-                                node_type='mozart')
-    figaro_cfg = '~/mozart/etc/figaro.js'
-    send_template_user_override('figaro.template.js', figaro_cfg,
-                                tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
-                                node_type='mozart')
+    user_path = get_user_files_path()
 
-    # symlink all to ~/mozart/ops/hysds_ui/src/config/
+    tosca_cfg = '~/mozart/etc/tosca.js'
+    if os.path.exists(os.path.join(user_path, 'tosca.js')):
+        send_template_user_override('tosca.js', tosca_cfg, node_type='mozart')
+    else:
+        send_template_user_override('tosca.template.js', tosca_cfg,
+                                    tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
+                                    node_type='mozart')
+
+    figaro_cfg = '~/mozart/etc/figaro.js'
+    if os.path.exists(os.path.join(user_path, 'figaro.js')):
+        print('using custom figaro.js')
+        send_template_user_override('figaro.js', figaro_cfg, node_type='mozart')
+    else:
+        print('usinng default figaro.js')
+        send_template_user_override('figaro.template.js', figaro_cfg,
+                                    tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
+                                    node_type='mozart')
+
+    # symlink to ~/mozart/ops/hysds_ui/src/config/
     ln_sf(tosca_cfg, os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config', 'tosca.js'))
     ln_sf(figaro_cfg, os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config', 'figaro.js'))
 
