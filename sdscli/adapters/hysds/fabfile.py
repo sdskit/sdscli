@@ -929,18 +929,20 @@ def send_hysds_ui_conf():
 
     tosca_cfg = '~/mozart/etc/tosca.js'
     if os.path.exists(os.path.join(user_path, 'tosca.js')):
+        print('using custom tosca configuration in .sds/files')
         send_template_user_override('tosca.js', tosca_cfg, node_type='mozart')
     else:
+        print('using default tosca configuration')
         send_template_user_override('tosca.template.js', tosca_cfg,
                                     tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
                                     node_type='mozart')
 
     figaro_cfg = '~/mozart/etc/figaro.js'
     if os.path.exists(os.path.join(user_path, 'figaro.js')):
-        print('using custom figaro.js')
+        print('using custom figaro configuration in .sds/files')
         send_template_user_override('figaro.js', figaro_cfg, node_type='mozart')
     else:
-        print('usinng default figaro.js')
+        print('using default figaro configuration')
         send_template_user_override('figaro.template.js', figaro_cfg,
                                     tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
                                     node_type='mozart')
