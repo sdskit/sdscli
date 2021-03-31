@@ -253,12 +253,13 @@ def send_template(tmpl, dest, tmpl_dir=None, node_type=None):
 
 def send_template_user_override(tmpl, dest, tmpl_dir=None, node_type=None):
     """
-
-    :param tmpl:
-    :param dest:
-    :param tmpl_dir:
-    :param node_type:
-    :return:
+    Write filled-out template to destination using the template found in a specified template directory.
+    If template exists in the user files (i.e. ~/.sds/files), that template will be used.
+    :param tmpl: template file name
+    :param dest: output file name
+    :param tmpl_dir: nominal directory containing the template
+    :param node_type: node type/role
+    :return: None
     """
     if tmpl_dir is None:
         tmpl_dir = get_user_files_path()
