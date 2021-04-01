@@ -252,6 +252,15 @@ def send_template(tmpl, dest, tmpl_dir=None, node_type=None):
 
 
 def send_template_user_override(tmpl, dest, tmpl_dir=None, node_type=None):
+    """
+    Write filled-out template to destination using the template found in a specified template directory.
+    If template exists in the user files (i.e. ~/.sds/files), that template will be used.
+    :param tmpl: template file name
+    :param dest: output file name
+    :param tmpl_dir: nominal directory containing the template
+    :param node_type: node type/role
+    :return: None
+    """
     if tmpl_dir is None:
         tmpl_dir = get_user_files_path()
     else:
@@ -917,11 +926,31 @@ def send_hysds_ui_conf():
     upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
                     template_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'))
 
+    user_path = get_user_files_path()
 
-def send_hysds_ui_conf():
-    dest_file = '~/mozart/ops/hysds_ui/src/config/index.js'
-    upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
-                    template_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'))
+    tosca_cfg = '~/mozart/etc/tosca.js'
+    if os.path.exists(os.path.join(user_path, 'tosca.js')):
+        print('using custom tosca configuration in .sds/files')
+        send_template_user_override('tosca.js', tosca_cfg, node_type='mozart')
+    else:
+        print('using default tosca configuration')
+        send_template_user_override('tosca.template.js', tosca_cfg,
+                                    tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
+                                    node_type='mozart')
+
+    figaro_cfg = '~/mozart/etc/figaro.js'
+    if os.path.exists(os.path.join(user_path, 'figaro.js')):
+        print('using custom figaro configuration in .sds/files')
+        send_template_user_override('figaro.js', figaro_cfg, node_type='mozart')
+    else:
+        print('using default figaro configuration')
+        send_template_user_override('figaro.template.js', figaro_cfg,
+                                    tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
+                                    node_type='mozart')
+
+    # symlink to ~/mozart/ops/hysds_ui/src/config/
+    ln_sf(tosca_cfg, os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config', 'tosca.js'))
+    ln_sf(figaro_cfg, os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config', 'figaro.js'))
 
 
 def send_grq2conf():
