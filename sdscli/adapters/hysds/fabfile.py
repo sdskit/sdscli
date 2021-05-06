@@ -252,6 +252,15 @@ def send_template(tmpl, dest, tmpl_dir=None, node_type=None):
 
 
 def send_template_user_override(tmpl, dest, tmpl_dir=None, node_type=None):
+    """
+    Write filled-out template to destination using the template found in a specified template directory.
+    If template exists in the user files (i.e. ~/.sds/files), that template will be used.
+    :param tmpl: template file name
+    :param dest: output file name
+    :param tmpl_dir: nominal directory containing the template
+    :param node_type: node type/role
+    :return: None
+    """
     if tmpl_dir is None:
         tmpl_dir = get_user_files_path()
     else:
@@ -813,10 +822,14 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/mozart/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('sdswatch_client-pcm.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
+        upload_template('sdswatch_client.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         send_template("run_sdswatch_client.sh", "~/mozart/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/mozart/bin/run_sdswatch_client.sh")
+        send_template("watch_supervisord_services.py", "~/mozart/bin/watch_supervisord_services.py")
+        run("chmod 755 ~/mozart/bin/watch_supervisord_services.py")
+        send_template("watch_systemd_services.py", "~/mozart/bin/watch_systemd_services.py")
+        run("chmod 755 ~/mozart/bin/watch_systemd_services.py")
     elif node_type == 'metrics':
         upload_template('indexer.conf.metrics', '~/metrics/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
@@ -828,20 +841,32 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('event_status.template', '~/metrics/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('sdswatch_client-pcm.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
+        upload_template('sdswatch_client.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         send_template("run_sdswatch_client.sh", "~/metrics/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/metrics/bin/run_sdswatch_client.sh")
+        send_template("watch_supervisord_services.py", "~/metrics/bin/watch_supervisord_services.py")
+        run("chmod 755 ~/metrics/bin/watch_supervisord_services.py")
+        send_template("watch_systemd_services.py", "~/metrics/bin/watch_systemd_services.py")
+        run("chmod 755 ~/metrics/bin/watch_systemd_services.py")
     elif node_type == 'grq':
-        upload_template('sdswatch_client-pcm.conf', '~/sciflo/etc/sdswatch_client.conf', use_jinja=True,
+        upload_template('sdswatch_client.conf', '~/sciflo/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         send_template("run_sdswatch_client.sh", "~/sciflo/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/sciflo/bin/run_sdswatch_client.sh")
+        send_template("watch_supervisord_services.py", "~/sciflo/bin/watch_supervisord_services.py")
+        run("chmod 755 ~/sciflo/bin/watch_supervisord_services.py")
+        send_template("watch_systemd_services.py", "~/sciflo/bin/watch_systemd_services.py")
+        run("chmod 755 ~/sciflo/bin/watch_systemd_services.py")
     elif node_type in ('verdi', 'verdi-asg', 'factotum'):
         upload_template('sdswatch_client.conf', '~/verdi/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         send_template("run_sdswatch_client.sh", "~/verdi/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/verdi/bin/run_sdswatch_client.sh")
+        send_template("watch_supervisord_services.py", "~/verdi/bin/watch_supervisord_services.py")
+        run("chmod 755 ~/verdi/bin/watch_supervisord_services.py")
+        send_template("watch_systemd_services.py", "~/verdi/bin/watch_systemd_services.py")
+        run("chmod 755 ~/verdi/bin/watch_systemd_services.py")
     else:
         raise RuntimeError("Unknown node type: %s" % node_type)
 
@@ -901,11 +926,31 @@ def send_hysds_ui_conf():
     upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
                     template_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'))
 
+    user_path = get_user_files_path()
 
-def send_hysds_ui_conf():
-    dest_file = '~/mozart/ops/hysds_ui/src/config/index.js'
-    upload_template('index.template.js', dest_file, use_jinja=True, context=get_context('mozart'),
-                    template_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'))
+    tosca_cfg = '~/mozart/etc/tosca.js'
+    if os.path.exists(os.path.join(user_path, 'tosca.js')):
+        print('using custom tosca configuration in .sds/files')
+        send_template_user_override('tosca.js', tosca_cfg, node_type='mozart')
+    else:
+        print('using default tosca configuration')
+        send_template_user_override('tosca.template.js', tosca_cfg,
+                                    tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
+                                    node_type='mozart')
+
+    figaro_cfg = '~/mozart/etc/figaro.js'
+    if os.path.exists(os.path.join(user_path, 'figaro.js')):
+        print('using custom figaro configuration in .sds/files')
+        send_template_user_override('figaro.js', figaro_cfg, node_type='mozart')
+    else:
+        print('using default figaro configuration')
+        send_template_user_override('figaro.template.js', figaro_cfg,
+                                    tmpl_dir=os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config'),
+                                    node_type='mozart')
+
+    # symlink to ~/mozart/ops/hysds_ui/src/config/
+    ln_sf(tosca_cfg, os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config', 'tosca.js'))
+    ln_sf(figaro_cfg, os.path.join(ops_dir, 'mozart/ops/hysds_ui/src/config', 'figaro.js'))
 
 
 def send_grq2conf():
