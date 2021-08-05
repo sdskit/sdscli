@@ -23,7 +23,7 @@ setup(
         "requests>=2.22.0",
         "kombu>=4.5.0",
         "redis>=3.2.1",
-        'elasticsearch>=7.0.0,<8.0.0',
+        'elasticsearch>=7.0.0,<7.14.0',
         'elasticsearch-dsl>=7.0.0,<8.0.0',
         "awscli>=1.17.1",
         "boto3>=1.11.1",
