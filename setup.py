@@ -24,7 +24,7 @@ setup(
         "kombu>=4.5.0",
         "redis>=3.2.1",
         'elasticsearch>=7.0.0,<7.14.0',
-        'elasticsearch-dsl>=7.0.0,<7.14.0',
+        'elasticsearch-dsl>=7.0.0,<=7.4.0',
         "awscli>=1.17.1",
         "boto3>=1.11.1",
         "fabric3>=1.14.post1",
