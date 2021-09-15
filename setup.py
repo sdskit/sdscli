@@ -28,7 +28,7 @@ setup(
         "awscli>=1.17.1",
         "boto3>=1.11.1",
         "fabric3>=1.14.post1",
-        "Jinja2>=2.10.1",
+        "Jinja2>=3.0.0,<4.0.0",
     ],
     entry_points={"console_scripts": ["sds=sdscli.command_line:main"]},
     package_data={
