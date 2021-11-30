@@ -193,6 +193,7 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
 
         # update verdi for code/config bundle
         set_bar_desc(bar, 'Ensuring HySDS venv')
+        execute(fab.rm_rf, '~/verdi', roles=[comp])
         execute(fab.ensure_venv, 'verdi',
                 update_bash_profile=False, roles=[comp])
         bar.update()
