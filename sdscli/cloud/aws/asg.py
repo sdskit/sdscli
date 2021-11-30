@@ -240,11 +240,16 @@ def create(args, conf):
                 i] + ', for example: [t2.medium t3.medium t3a.medium]: ', default='t2.medium t3.medium t3a.medium')
             i_list = inst.split()
             d = {'QUEUE_NAME': q_list[i], 'INSTANCE_TYPES': i_list}
+            use_job_total = prompt(get_prompt_tokens=lambda x: [(Token, "Do you want to scale up based on total jobs to workers? (default is number of waiting jobs to workers) [y/n]: ")],
+                          validator=YesNoValidator(), style=prompt_style).strip() == 'y'
+            if use_job_total:
+                d['TOTAL_JOBS_METRIC'] = True
             queues.append(d)
             logger.debug(str(queues))
     for i, q in enumerate(queues):
         queue = q['QUEUE_NAME']
         ins_type = q['INSTANCE_TYPES']
+        total_jobs_metric = q.get('TOTAL_JOBS_METRIC', False)
         inst_type_arr = []
         for j in range(len(ins_type)):
             inst_type_arr.append({'InstanceType':ins_type[j]})
@@ -348,7 +353,10 @@ def create(args, conf):
 
         # add target tracking scaling policy
         policy_name = "{}-target-tracking".format(asg)
-        metric_name = "JobsWaitingPerInstance-{}".format(asg)
+        if total_jobs_metric:
+            metric_name = "JobsPerInstance-{}".format(asg)
+        else:
+            metric_name = "JobsWaitingPerInstance-{}".format(asg)
         ttsp_args = {
             'AutoScalingGroupName': asg,
             'PolicyName': policy_name,
