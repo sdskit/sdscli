@@ -486,7 +486,7 @@ def grqd_start(force=False):
     mkdir('sciflo/run', context['OPS_USER'], context['OPS_USER'])
     if not exists('sciflo/run/supervisord.pid') or force:
         with prefix('source sciflo/bin/activate'):
-            run('supervisord')
+            run('supervisord', pty=False)
 
 
 def grqd_clean_start():
@@ -536,7 +536,7 @@ def install_ingest_pipeline():
 def mozartd_start(force=False):
     if not exists('mozart/run/supervisord.pid') or force:
         with prefix('source mozart/bin/activate'):
-            run('supervisord')
+            run('supervisord', pty=False)
 
 
 def mozartd_clean_start():
@@ -609,7 +609,7 @@ def npm_install_package_json(dest):
 def metricsd_start(force=False):
     if not exists('metrics/run/supervisord.pid') or force:
         with prefix('source metrics/bin/activate'):
-            run('supervisord')
+            run('supervisord', pty=False)
 
 
 def metricsd_clean_start():
@@ -654,7 +654,7 @@ def import_kibana(path):
 def verdid_start(force=False):
     if not exists('verdi/run/supervisord.pid') or force:
         with prefix('source verdi/bin/activate'):
-            run('supervisord')
+            run('supervisord', pty=False)
 
 
 def verdid_clean_start():
