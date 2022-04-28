@@ -99,7 +99,7 @@ def export(args):
             else:
                 # download container
                 if args.skip_include_dependency_images:
-                    logger.info(f"Skipping download of {d['container_image_url']}.")
+                    logger.info(f"Skipping download of dependency image: {d['container_image_url']}.")
                 else:
                     get(d['container_image_url'], export_dir)
                 d['container_image_url'] = os.path.basename(d['container_image_url'])
@@ -240,7 +240,7 @@ def import_pkg(args):
                 dep_img = os.path.join(export_dir, d['container_image_url'])
                 d['container_image_url'] = "%s/%s" % (code_bucket_url, d['container_image_url'])
                 if args.skip_include_dependency_images:
-                    logger.info(f"Skipping upload of {dep_img}.")
+                    logger.info(f"Skipping upload of dependency image: {dep_img}.")
                 else:
                     put(dep_img, d['container_image_url'])
                 dep_images[d['container_image_name']] = d['container_image_url']
