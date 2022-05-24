@@ -156,9 +156,12 @@ def print_status(conf, comp, debug=False):
     """"Status of component."""
 
     print_component_header(comp)
-    print_tps_status(conf, comp, debug)
-    print_supervisor_header(comp)
-    execute(fab.status, roles=[comp])
+    if len(fab.env.roledefs[comp]) == 1 and "None" not in fab.env.roledefs[comp]:
+        print_tps_status(conf, comp, debug)
+        print_supervisor_header(comp)
+        execute(fab.status, roles=[comp])
+    else:
+        print(f"No configured host(s) for role: {comp}. Skipping.")
 
 
 def status_comp(comp, conf, debug=False):
