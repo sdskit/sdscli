@@ -71,6 +71,11 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         execute(fab.install_base_es_template, roles=[comp])
         bar.update()
 
+        # set the ES rollover policy
+        set_bar_desc(bar, 'Setting ES rollover policy')
+        execute(fab.install_es_rollover_policy, roles=[comp])
+        bar.update()
+
         # update logstash jvm.options to increase heap size
         set_bar_desc(bar, 'Updating logstash jvm.options')
         execute(fab.send_logstash_jvm_options, 'mozart', roles=[comp])

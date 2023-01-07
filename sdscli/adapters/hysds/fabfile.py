@@ -479,6 +479,18 @@ def install_base_es_template():
     run("curl -XPUT 'localhost:9200/_template/index_defaults?pretty' -H 'Content-Type: application/json' -d@/tmp/es_template-base.json")
 
 
+def install_es_rollover_policy():
+    role, hysds_dir, hostname = resolve_role()
+    ctx = get_context(role)
+    policy_file_name = "es_ilm_rollover_policy.json"
+    target_file = os.path.join(ctx.get("OPS_HOME"), f"{hysds_dir}/etc/{policy_file_name}")
+    send_template(
+        policy_file_name,
+        target_file
+    )
+    run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_rollover_policy?pretty' -H 'Content-Type: application/json' -d@{target_file}")
+
+
 ##########################
 # grq functions
 ##########################
