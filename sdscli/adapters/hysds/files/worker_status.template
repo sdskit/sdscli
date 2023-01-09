@@ -146,7 +146,9 @@
       "aliases": {
         "worker_status": {},
         "job_status": {},
-        "worker_status-current": {}
+        "worker_status-current": {
+            "is_write_index": true
+        }
       }
   }
 }
