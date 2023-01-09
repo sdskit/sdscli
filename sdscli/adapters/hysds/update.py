@@ -81,7 +81,7 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         bar.update()
 
         set_bar_desc(bar, 'Bootstrap ES indices for rollover')
-        execute(fab.bootstrap_initial_rollover_indices(), roles=[comp])
+        execute(fab.bootstrap_initial_rollover_indices, roles=[comp])
         bar.update()
 
         # update logstash jvm.options to increase heap size
