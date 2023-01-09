@@ -1,4 +1,7 @@
 {
+  "index_patterns": [
+    "job_status*"
+  ],
   "template": {
       "mappings": {
         "properties": {
@@ -673,9 +676,6 @@
           }
         }
       },
-      "index_patterns": [
-        "job_status*"
-      ],
       "settings": {
         "index.refresh_interval": "5s",
         "index.lifecycle.name": "ilm_rollover_policy",

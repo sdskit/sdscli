@@ -1,4 +1,7 @@
 {
+  "index_patterns": [
+    "event_status-*"
+  ],
   "template": {
       "mappings": {
         "properties": {
@@ -70,9 +73,6 @@
           }
         }
       },
-      "index_patterns": [
-        "event_status-*"
-      ],
       "settings": {
         "index.refresh_interval": "5s",
         "index.lifecycle.name": "ilm_rollover_policy",
