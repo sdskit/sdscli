@@ -527,7 +527,7 @@ def bootstrap_initial_rollover_indices():
             }
         }
         run(f"curl -XPUT 'localhost:9200/{bootstrap_index_name}?pretty' "
-            f"-H 'Content-Type: application/json' -d'{payload}'")
+            f"-H 'Content-Type: application/json' -d'{json.dumps(payload)}'")
 
 ##########################
 # grq functions
