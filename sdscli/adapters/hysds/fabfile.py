@@ -490,6 +490,52 @@ def install_es_rollover_policy():
     )
     run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_rollover_policy?pretty' -H 'Content-Type: application/json' -d@{target_file}")
 
+def install_mozart_es_templates():
+    role, hysds_dir, hostname = resolve_role()
+    ctx = get_context(role)
+
+    # rollover index templates
+    templates = [
+        "job_status.template",
+        "worker_status.template",
+        "task_status.template",
+        "event_status.template"
+    ]
+
+    for template in templates:
+        # Copy templates to etc/ directory
+        target_path = os.path.join(ctx.get("OPS_HOME"), f"{hysds_dir}/etc/{template}")
+        send_template(
+            template,
+            target_path
+        )
+        template_doc_name = template.split(".template")[0]
+        print(f"Creating ES index template for {template}")
+        run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
+            f"-H 'Content-Type: application/json' -d@{target_path}")
+
+def bootstrap_initial_rollover_indices():
+    role, hysds_dir, hostname = resolve_role()
+    ctx = get_context(role)
+
+    indices = [
+        "job_status-current",
+        "worker_status-current",
+        "task_status-current",
+        "event_status-current"
+    ]
+    for index in indices:
+        bootstrap_index_name = f"{index}-000001"
+        print(f"Creating ES initial index for rollover: {bootstrap_index_name}")
+        payload = {
+            "aliases": {
+                f"{index}": {
+                    "is_write_index": True
+                }
+            }
+        }
+        run(f"curl -XPUT 'localhost:9200/{bootstrap_index_name}?pretty' "
+            f"-H 'Content-Type: application/json' -d'{payload}'")
 
 ##########################
 # grq functions
