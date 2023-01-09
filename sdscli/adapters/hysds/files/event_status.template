@@ -74,9 +74,14 @@
         }
       },
       "settings": {
-        "index.refresh_interval": "5s",
-        "index.lifecycle.name": "ilm_rollover_policy",
-        "index.lifecycle.rollover_alias": "event_status-current",
+        "number_of_shards": 5,
+        "index": {
+          "refresh_interval": "5s",
+          "lifecycle": {
+            "name": "ilm_rollover_policy",
+            "rollover_alias": "event_status-current",
+          }
+        },
         "analysis": {
           "analyzer": {
             "default": {
