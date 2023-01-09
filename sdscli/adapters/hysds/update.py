@@ -77,7 +77,7 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         bar.update()
 
         set_bar_desc(bar, 'Installing ES templates')
-        execute(fab.install_mozart_es_templates(), roles=[comp])
+        execute(fab.install_mozart_es_templates, roles=[comp])
         bar.update()
 
         set_bar_desc(bar, 'Bootstrap ES indices for rollover')
