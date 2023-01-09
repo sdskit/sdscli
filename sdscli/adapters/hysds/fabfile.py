@@ -481,7 +481,7 @@ def install_base_es_template():
 
 def install_es_rollover_policy():
     policy_file_name = "es_ilm_rollover_policy.json"
-    target_file = f"~/mozart/etc/{policy_file_name}"
+    target_file = f"{ops_dir}/mozart/etc/{policy_file_name}"
     send_template(
         policy_file_name,
         target_file
@@ -499,7 +499,7 @@ def install_mozart_es_templates():
 
     for template in templates:
         # Copy templates to etc/ directory
-        target_path = f"~/mozart/etc/{template}"
+        target_path = f"{ops_dir}/mozart/etc/{template}"
         send_template(
             template,
             target_path
