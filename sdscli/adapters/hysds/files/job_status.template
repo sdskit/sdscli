@@ -682,7 +682,7 @@
           "refresh_interval": "5s",
           "lifecycle": {
             "name": "ilm_rollover_policy",
-            "rollover_alias": "job_status-current",
+            "rollover_alias": "job_status-current"
           }
         },
         "analysis": {

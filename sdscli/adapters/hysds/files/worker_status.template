@@ -128,7 +128,7 @@
           "refresh_interval": "5s",
           "lifecycle": {
             "name": "ilm_rollover_policy",
-            "rollover_alias": "worker_status-current",
+            "rollover_alias": "worker_status-current"
           }
         },
         "analysis": {
