@@ -698,7 +698,7 @@
         }
       },
       "aliases": {
-        "job_status-current": {
+        "job_status": {
             "is_write_index": true
         }
       }
