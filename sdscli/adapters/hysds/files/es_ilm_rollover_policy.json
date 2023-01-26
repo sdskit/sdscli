@@ -8,13 +8,13 @@
         "min_age": "90d"
       },
       "cold": {
-        "min_age": "7d",
+        "min_age": "97d",
         "actions": {
           "freeze": {}
         }
       },
       "delete": {
-        "min_age": "7d",
+        "min_age": "104d",
         "actions": {
           "delete": {}
         }
