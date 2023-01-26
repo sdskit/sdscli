@@ -2,20 +2,21 @@
   "policy": {
     "phases": {
       "hot": {
-        "min_age": "0ms",
+        "min_age": "0ms"
+      },
+      "warm": {
+        "min_age": "90d"
+      },
+      "cold": {
+        "min_age": "7d",
         "actions": {
-          "rollover": {
-            "max_age": "90d",
-            "max_size": "50GB"
-          }
+          "freeze": {}
         }
       },
       "delete": {
         "min_age": "7d",
         "actions": {
-          "delete": {
-            "delete_searchable_snapshot": true
-          }
+          "delete": {}
         }
       }
     }
