@@ -1,6 +1,6 @@
 {
   "index_patterns": [
-    "event_status-current-*"
+    "event_status-*"
   ],
   "template": {
       "mappings": {
@@ -78,8 +78,7 @@
         "index": {
           "refresh_interval": "5s",
           "lifecycle": {
-            "name": "ilm_rollover_policy",
-            "rollover_alias": "event_status-current"
+            "name": "ilm_mozart_policy"
           }
         },
         "analysis": {

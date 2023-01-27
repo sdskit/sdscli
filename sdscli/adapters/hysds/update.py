@@ -73,7 +73,7 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
 
         # set the ES rollover policy
         set_bar_desc(bar, 'Setting ES Index Lifecycle Manager policy')
-        execute(fab.install_es_rollover_policy, roles=[comp])
+        execute(fab.install_es_policy, roles=[comp])
         bar.update()
 
         set_bar_desc(bar, 'Installing ES templates')
