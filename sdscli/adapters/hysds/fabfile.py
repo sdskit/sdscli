@@ -480,7 +480,7 @@ def install_base_es_template():
 
 
 def install_es_rollover_policy():
-    policy_file_name = "es_ilm_rollover_policy.json"
+    policy_file_name = "es_ilm_policy.json"
     target_file = f"{ops_dir}/mozart/etc/{policy_file_name}"
     send_template(
         policy_file_name,
