@@ -12,6 +12,17 @@
       "warm": {
         "min_age": "90d",
         "actions": {
+          "forcemerge": {
+            "max_num_segments": 1
+          },
+          "shrink": {
+            "number_of_shards": 1
+          },
+          "allocate": {
+            "require": {
+              "data": "warm"
+            }
+          },
           "set_priority" : {
             "priority": 50
           }
@@ -23,7 +34,12 @@
           "set_priority" : {
             "priority": 0
           },
-          "freeze": {}
+          "freeze": {},
+          "allocate": {
+            "require": {
+              "data": "cold"
+            }
+          }
         }
       },
       "delete": {
