@@ -12,16 +12,8 @@
       "warm": {
         "min_age": "90d",
         "actions": {
-          "forcemerge": {
-            "max_num_segments": 1
-          },
-          "shrink": {
-            "number_of_shards": 1
-          },
-          "allocate": {
-            "require": {
-              "data": "warm"
-            }
+          "migrate": {
+            "enabled": false
           },
           "set_priority" : {
             "priority": 50
@@ -34,12 +26,10 @@
           "set_priority" : {
             "priority": 0
           },
-          "freeze": {},
-          "allocate": {
-            "require": {
-              "data": "cold"
-            }
-          }
+	      "migrate": {
+            "enabled": false
+          },
+          "freeze": {}
         }
       },
       "delete": {
