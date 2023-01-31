@@ -847,14 +847,6 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     if node_type == 'mozart':
         upload_template('indexer.conf.mozart', '~/mozart/etc/indexer.conf', use_jinja=True, context=ctx,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('job_status.template', '~/mozart/etc/job_status.template', use_jinja=True,
-                        template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('worker_status.template', '~/mozart/etc/worker_status.template', use_jinja=True,
-                        template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('task_status.template', '~/mozart/etc/task_status.template', use_jinja=True,
-                        template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('event_status.template', '~/mozart/etc/event_status.template', use_jinja=True,
-                        template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('sdswatch_client.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         send_template("run_sdswatch_client.sh", "~/mozart/bin/run_sdswatch_client.sh")
@@ -865,14 +857,6 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
         run("chmod 755 ~/mozart/bin/watch_systemd_services.py")
     elif node_type == 'metrics':
         upload_template('indexer.conf.metrics', '~/metrics/etc/indexer.conf', use_jinja=True, context=ctx,
-                        template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('job_status.template', '~/metrics/etc/job_status.template', use_jinja=True,
-                        template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('worker_status.template', '~/metrics/etc/worker_status.template', use_jinja=True,
-                        template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('task_status.template', '~/metrics/etc/task_status.template', use_jinja=True,
-                        template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        upload_template('event_status.template', '~/metrics/etc/event_status.template', use_jinja=True,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('sdswatch_client.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
