@@ -123,7 +123,7 @@
         }
       },
       "settings": {
-        "number_of_shards": 5,
+        "number_of_shards": 8,
         "index": {
           "refresh_interval": "5s"
         },
