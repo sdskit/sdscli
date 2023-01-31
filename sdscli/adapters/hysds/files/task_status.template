@@ -144,6 +144,7 @@
       },
       "aliases": {
         "task_status": {},
+        "task_status-current": {},
         "job_status": {}
       }
   }

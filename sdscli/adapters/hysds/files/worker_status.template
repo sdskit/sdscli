@@ -144,6 +144,7 @@
       },
       "aliases": {
         "worker_status": {},
+        "worker_status-current": {},
         "job_status": {}
       }
   }
