@@ -140,7 +140,6 @@
         }
       },
       "aliases": {
-        "worker_status": {},
         "job_status": {}
       }
   }
