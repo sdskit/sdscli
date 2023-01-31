@@ -705,7 +705,7 @@
       },
       "aliases": {
         "job_status": {},
-        "job_status_current": {}
+        "job_status-current": {}
       }
   }
 }
