@@ -140,6 +140,7 @@
         }
       },
       "aliases": {
+        "task_status": {},
         "job_status": {}
       }
   }
