@@ -494,9 +494,9 @@ def install_mozart_es_templates():
     # HC-451 will focus on adding ILM to worker, task, and event status indices
     templates = [
         "job_status.template",
-        #"worker_status.template",
-        #"task_status.template",
-        #"event_status.template"
+        "worker_status.template",
+        "task_status.template",
+        "event_status.template"
     ]
 
     for template in templates:
