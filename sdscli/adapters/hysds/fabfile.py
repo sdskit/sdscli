@@ -489,12 +489,14 @@ def install_es_policy():
     run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
 
 def install_mozart_es_templates():
-    # rollover index templates
+    # install index templates
+    # Only job_status.template has ILM policy attached
+    # HC-451 will focus on adding ILM to worker, task, and event status indices
     templates = [
         "job_status.template",
-        "worker_status.template",
-        "task_status.template",
-        "event_status.template"
+        #"worker_status.template",
+        #"task_status.template",
+        #"event_status.template"
     ]
 
     for template in templates:
@@ -509,25 +511,6 @@ def install_mozart_es_templates():
         run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
             f"-H 'Content-Type: application/json' -d@{target_path}")
 
-def bootstrap_initial_rollover_indices():
-    indices = [
-        "job_status-current",
-        "worker_status-current",
-        "task_status-current",
-        "event_status-current"
-    ]
-    for index in indices:
-        bootstrap_index_name = f"{index}-000001"
-        print(f"Creating ES initial index for rollover: {bootstrap_index_name}")
-        payload = {
-            "aliases": {
-                f"{index}": {
-                    "is_write_index": True
-                }
-            }
-        }
-        run(f"curl -XPUT 'localhost:9200/{bootstrap_index_name}?pretty' "
-            f"-H 'Content-Type: application/json' -d'{json.dumps(payload)}'")
 
 ##########################
 # grq functions
