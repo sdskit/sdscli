@@ -78,7 +78,7 @@
         "index": {
           "refresh_interval": "5s",
           "lifecycle": {
-            "name": "ilm_mozart_policy"
+            "name": "ilm_policy_mozart"
           }
         },
         "analysis": {

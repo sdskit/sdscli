@@ -480,13 +480,13 @@ def install_base_es_template():
 
 
 def install_es_policy():
-    policy_file_name = "es_ilm_policy.json"
+    policy_file_name = "es_ilm_policy_mozart.json"
     target_file = f"{ops_dir}/mozart/etc/{policy_file_name}"
     send_template(
         policy_file_name,
         target_file
     )
-    run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_mozart_policy?pretty' -H 'Content-Type: application/json' -d@{target_file}")
+    run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
 
 def install_mozart_es_templates():
     # rollover index templates
