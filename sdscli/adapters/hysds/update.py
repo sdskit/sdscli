@@ -71,6 +71,16 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         execute(fab.install_base_es_template, roles=[comp])
         bar.update()
 
+        # set the ES ILM policy
+        set_bar_desc(bar, 'Setting ES Index Lifecycle Manager policy')
+        execute(fab.install_es_policy, roles=[comp])
+        bar.update()
+
+        # install the templates in order to attach the ILM policy onto them
+        set_bar_desc(bar, 'Installing ES templates')
+        execute(fab.install_mozart_es_templates, roles=[comp])
+        bar.update()
+
         # update logstash jvm.options to increase heap size
         set_bar_desc(bar, 'Updating logstash jvm.options')
         execute(fab.send_logstash_jvm_options, 'mozart', roles=[comp])
