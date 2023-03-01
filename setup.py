@@ -27,7 +27,7 @@ setup(
         'elasticsearch-dsl>=7.0.0,<=7.4.0',
         "awscli>=1.17.1",
         "boto3>=1.11.1",
-        "fabric3>=1.14.post1",
+        "fab-classic>=1.19.2",
         "Jinja2>=3.0.0,<4.0.0",
     ],
     entry_points={"console_scripts": ["sds=sdscli.command_line:main"]},
