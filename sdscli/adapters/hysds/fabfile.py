@@ -619,7 +619,7 @@ def rabbitmq_queues_flush():
 
 def mozart_es_flush():
     ctx = get_context()
-    run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_template/*_status'.format(**ctx))
+    run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_index_template/*_status'.format(**ctx))
     run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 job_status-current'.format(
         **ctx))
     run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 task_status-current'.format(
