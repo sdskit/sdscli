@@ -488,10 +488,13 @@ def install_es_policy():
     )
     run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
 
+
 def install_mozart_es_templates():
     # install index templates
     # Only job_status.template has ILM policy attached
     # HC-451 will focus on adding ILM to worker, task, and event status indices
+
+    # template files located in ~/.sds/files
     templates = [
         "job_status.template",
         "worker_status.template",
@@ -619,14 +622,14 @@ def rabbitmq_queues_flush():
 
 def mozart_es_flush():
     ctx = get_context()
-    run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_template/*_status'.format(**ctx))
-    run('~/mozart/ops/hysds/scripts/clean_job_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(
+    #run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_index_template/*_status'.format(**ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 job_status-current'.format(
         **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_task_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 task_status-current'.format(
         **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_worker_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 event_status-current'.format(
         **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_event_status_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 worker_status-current'.format(
         **ctx))
     #run('~/mozart/ops/hysds/scripts/clean_job_spec_container_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
 

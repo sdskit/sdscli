@@ -76,7 +76,10 @@
       "settings": {
         "number_of_shards": 8,
         "index": {
-          "refresh_interval": "5s"
+          "refresh_interval": "5s",
+          "lifecycle": {
+            "name": "ilm_policy_mozart"
+          }
         },
         "analysis": {
           "analyzer": {
@@ -91,7 +94,9 @@
         }
       },
       "aliases": {
-        "job_status": {}
+        "job_status": {},
+        "event_status": {},
+        "event_status-current": {}
       }
   }
 }
