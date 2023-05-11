@@ -476,8 +476,11 @@ def install_base_es_template():
         "es_template-base.json",
         "/tmp/es_template-base.json"
     )
+    dir = role
+    if role == "grq":
+        dir = "grq2"
     with prefix('source %s/bin/activate' % hysds_dir):
-        run(f'{hysds_dir}/ops/{role}/scripts/install_base_es_template.sh /tmp/es_template-base.json')
+        run(f'{hysds_dir}/ops/{dir}/scripts/install_base_es_template.sh /tmp/es_template-base.json')
 
 
 def install_es_policy():
