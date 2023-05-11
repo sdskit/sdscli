@@ -66,6 +66,13 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
             execute(fab.npm_install_package_json, '~/mozart/ops/hysds_ui', roles=[comp])
             bar.update()
 
+        # update celery config
+        set_bar_desc(bar, 'Updating celery config')
+        execute(fab.rm_rf, '~/mozart/ops/hysds/celeryconfig.py', roles=[comp])
+        execute(fab.rm_rf, '~/mozart/ops/hysds/celeryconfig.pyc', roles=[comp])
+        execute(fab.send_celeryconf, 'mozart', roles=[comp])
+        bar.update()
+
         # set default ES shard number
         set_bar_desc(bar, 'Setting default ES shard number')
         execute(fab.install_base_es_template, roles=[comp])
@@ -84,13 +91,6 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         # update logstash jvm.options to increase heap size
         set_bar_desc(bar, 'Updating logstash jvm.options')
         execute(fab.send_logstash_jvm_options, 'mozart', roles=[comp])
-        bar.update()
-
-        # update celery config
-        set_bar_desc(bar, 'Updating celery config')
-        execute(fab.rm_rf, '~/mozart/ops/hysds/celeryconfig.py', roles=[comp])
-        execute(fab.rm_rf, '~/mozart/ops/hysds/celeryconfig.pyc', roles=[comp])
-        execute(fab.send_celeryconf, 'mozart', roles=[comp])
         bar.update()
 
         # update supervisor config
