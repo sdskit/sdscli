@@ -450,11 +450,6 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
                     '~/sciflo/ops/pele', ndeps, roles=[comp])
             bar.update()
 
-        # set default ES shard number
-        set_bar_desc(bar, 'Setting default ES shard number')
-        execute(fab.install_base_es_template, roles=[comp])
-        bar.update()
-
         # update celery config
         set_bar_desc(bar, 'Updating celery config')
         execute(fab.rm_rf, '~/sciflo/ops/hysds/celeryconfig.py', roles=[comp])
@@ -466,6 +461,11 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         set_bar_desc(bar, 'Updating grq2 config')
         execute(fab.rm_rf, '~/sciflo/ops/grq2/settings.cfg', roles=[comp])
         execute(fab.send_grq2conf, roles=[comp])
+        bar.update()
+
+        # set default ES shard number
+        set_bar_desc(bar, 'Setting default ES shard number')
+        execute(fab.install_base_es_template, roles=[comp])
         bar.update()
 
         # update pele config
