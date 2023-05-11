@@ -477,7 +477,7 @@ def install_base_es_template():
         "/tmp/es_template-base.json"
     )
     with prefix('source %s/bin/activate' % hysds_dir):
-        run(f'{hysds_dir}/ops/{role}/scripts/install_es_template.sh /tmp/es_template-base.json')
+        run(f'{hysds_dir}/ops/{role}/scripts/install_base_es_template.sh /tmp/es_template-base.json')
 
 
 def install_es_policy():
