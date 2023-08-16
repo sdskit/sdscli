@@ -484,13 +484,17 @@ def install_base_es_template():
 
 
 def install_es_policy():
-    policy_file_name = "es_ilm_policy_mozart.json"
-    target_file = f"{ops_dir}/mozart/etc/{policy_file_name}"
-    send_template(
-        policy_file_name,
-        target_file
-    )
-    run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
+    ilm_policy_file_name = "es_ilm_policy_mozart.json"
+    ilm_target_file = f"{ops_dir}/mozart/etc/{ilm_policy_file_name}"
+    send_template(ilm_policy_file_name, ilm_target_file)
+
+    ism_policy_file_name = "opensearch_ism_policy_mozart.json"
+    ism_target_file = f"{ops_dir}/mozart/etc/{ism_policy_file_name}"
+    send_template(ism_policy_file_name, ism_target_file)
+
+    # run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
+    with cd('~/mozarts/ops/hysds/scripts'):
+        run(f"python install_ilm_policy.py --ilm-policy {ilm_target_file} --ism-policy {ism_target_file}")
 
 
 def install_mozart_es_templates():
@@ -509,14 +513,13 @@ def install_mozart_es_templates():
     for template in templates:
         # Copy templates to etc/ directory
         target_path = f"{ops_dir}/mozart/etc/{template}"
-        send_template(
-            template,
-            target_path
-        )
-        template_doc_name = template.split(".template")[0]
+        send_template(template, target_path)
+        template_doc_name = template.replace(".template", '')
         print(f"Creating ES index template for {template}")
-        run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
-            f"-H 'Content-Type: application/json' -d@{target_path}")
+        # run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
+        #     f"-H 'Content-Type: application/json' -d@{target_path}")
+        with cd('~/mozarts/ops/hysds/scripts'):
+            run(f"python install_job_status_template.py {template_doc_name} {target_path}")
 
 
 ##########################
@@ -760,6 +763,7 @@ def python_setup_develop(node_type, dest):
 ##########################
 # ci functions
 ##########################
+
 
 def get_ci_job_info(repo, branch=None):
     ctx = get_context()

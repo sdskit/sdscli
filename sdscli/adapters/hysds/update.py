@@ -401,7 +401,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    num_updates = 18 if config_only else 27  # number of progress bar updates
+    num_updates = 17 if config_only else 26  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -534,9 +534,9 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         bar.update()
 
         # installing ingest pipeline
-        set_bar_desc(bar, 'Install GRQ Elasticsearch ingest pipeline')
-        execute(fab.install_ingest_pipeline, roles=[comp])
-        bar.update()
+        # set_bar_desc(bar, 'Install GRQ Elasticsearch ingest pipeline')
+        # execute(fab.install_ingest_pipeline, roles=[comp])
+        # bar.update()
 
         # update ES template
         set_bar_desc(bar, 'Update ES template')
