@@ -18,15 +18,7 @@
       },
       {
         "name": "warm",
-        "actions": [
-          {
-            "warm_migration": {},
-            "retry": {
-              "count": 5,
-              "delay": "1h"
-            }
-          }
-        ],
+        "actions": [],
         "transitions": [
           {
             "state_name": "cold",
