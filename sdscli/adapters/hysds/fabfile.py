@@ -48,6 +48,7 @@ mozart_host = '%s' % context['MOZART_PVT_IP']
 mozart_rabbit_host = '%s' % context['MOZART_RABBIT_PVT_IP']
 mozart_redis_host = '%s' % context['MOZART_REDIS_PVT_IP']
 mozart_es_host = '%s' % context['MOZART_ES_PVT_IP']
+jobs_es_url = f"{context['MOZART_ES_PROTOCOL']}://{context['MOZART_ES_PVT_IP']}:{context['MOZART_ES_PORT']}"
 
 # metrics host
 metrics_host = '%s' % context['METRICS_PVT_IP']
@@ -484,21 +485,21 @@ def install_base_es_template():
 
 
 def install_es_policy():
+    # TODO equivalent of install_es_template.sh/py (in mozart or hysds repo)
     policy_file_name = "es_ilm_policy_mozart.json"
     target_file = f"{ops_dir}/mozart/etc/{policy_file_name}"
     send_template(
         policy_file_name,
         target_file
     )
-    # TODO support AWS ES
-    run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
+    run(f"curl -XPUT '{jobs_es_url}/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
 
 
 def install_mozart_es_templates():
     # install index templates
     # Only job_status.template has ILM policy attached
     # HC-451 will focus on adding ILM to worker, task, and event status indices
-
+    ctx = get_context()
     # template files located in ~/.sds/files
     templates = [
         "job_status.template",
@@ -516,8 +517,7 @@ def install_mozart_es_templates():
         )
         template_doc_name = template.split(".template")[0]
         print(f"Creating ES index template for {template}")
-        # TODO support AWS ES
-        run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
+        run(f"curl -XPUT '{jobs_es_url}/_index_template/{template_doc_name}?pretty' "
             f"-H 'Content-Type: application/json' -d@{target_path}")
 
 
@@ -627,18 +627,12 @@ def rabbitmq_queues_flush():
 
 
 def mozart_es_flush():
-    ctx = get_context()
-    # TODO support AWS ES
-    #run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_index_template/*_status'.format(**ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 job_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 task_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 event_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 worker_status-current'.format(
-        **ctx))
-    #run('~/mozart/ops/hysds/scripts/clean_job_spec_container_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
+    # run(f'curl -XDELETE {jobs_es_url}/_index_template/*_status')
+    run(f'~/mozart/ops/hysds/scripts/clean_indices_from_alias.py {jobs_es_url} job_status-current')
+    run(f'~/mozart/ops/hysds/scripts/clean_indices_from_alias.py {jobs_es_url} task_status-current')
+    run(f'~/mozart/ops/hysds/scripts/clean_indices_from_alias.py {jobs_es_url} event_status-current')
+    run(f'~/mozart/ops/hysds/scripts/clean_indices_from_alias.py {jobs_es_url} worker_status-current')
+    # run(f'~/mozart/ops/hysds/scripts/clean_job_spec_container_indexes.sh {jobs_es_url}')
 
 
 def npm_install_package_json(dest):
