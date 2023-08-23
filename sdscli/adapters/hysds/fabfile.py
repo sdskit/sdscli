@@ -490,6 +490,7 @@ def install_es_policy():
         policy_file_name,
         target_file
     )
+    # TODO support AWS ES
     run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
 
 
@@ -515,6 +516,7 @@ def install_mozart_es_templates():
         )
         template_doc_name = template.split(".template")[0]
         print(f"Creating ES index template for {template}")
+        # TODO support AWS ES
         run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
             f"-H 'Content-Type: application/json' -d@{target_path}")
 
@@ -626,6 +628,7 @@ def rabbitmq_queues_flush():
 
 def mozart_es_flush():
     ctx = get_context()
+    # TODO support AWS ES
     #run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_index_template/*_status'.format(**ctx))
     run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 job_status-current'.format(
         **ctx))
