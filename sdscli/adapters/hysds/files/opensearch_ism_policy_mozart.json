@@ -21,18 +21,6 @@
         "actions": [],
         "transitions": [
           {
-            "state_name": "cold",
-            "conditions": {
-              "min_index_age": "97d"
-            }
-          }
-        ]
-      },
-      {
-        "name": "cold",
-        "actions": [],
-        "transitions": [
-          {
             "state_name": "delete",
             "conditions": {
               "min_index_age": "104d"
@@ -44,7 +32,7 @@
         "name": "delete",
         "actions": [
           {
-            "cold_delete": {}
+            "delete": {}
           }
         ]
       }
