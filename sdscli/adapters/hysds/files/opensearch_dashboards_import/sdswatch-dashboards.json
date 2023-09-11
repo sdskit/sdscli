@@ -17,7 +17,7 @@
         "optionsJSON": "{\"hidePanelTitles\":false,\"useMargins\":true}",
         "version": 1,
         "timeRestore": false,
-        "opensearchDashboardsSavedObjectMeta": {
+        "kibanaSavedObjectMeta": {
           "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
         }
       },
@@ -51,7 +51,7 @@
         "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
         "description": "",
         "version": 1,
-        "opensearchDashboardsSavedObjectMeta": {
+        "kibanaSavedObjectMeta": {
           "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
         },
         "savedSearchRefName": "search_0"
@@ -81,7 +81,7 @@
         "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
         "description": "",
         "version": 1,
-        "opensearchDashboardsSavedObjectMeta": {
+        "kibanaSavedObjectMeta": {
           "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
         },
         "savedSearchRefName": "search_0"
@@ -119,18 +119,18 @@
           ]
         ],
         "version": 1,
-        "opensearchDashboardsSavedObjectMeta": {
-          "searchSourceJSON": "{\"highlightAll\":true,\"version\":true,\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[{\"meta\":{\"negate\":false,\"type\":\"phrase\",\"key\":\"source_type\",\"value\":\"systemd\",\"params\":{\"query\":\"systemd\"},\"disabled\":false,\"alias\":null,\"indexRefName\":\"opensearchDashboardsSavedObjectMeta.searchSourceJSON.filter[0].meta.index\"},\"query\":{\"match\":{\"source_type\":{\"query\":\"systemd\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}],\"indexRefName\":\"opensearchDashboardsSavedObjectMeta.searchSourceJSON.index\"}"
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"highlightAll\":true,\"version\":true,\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[{\"meta\":{\"negate\":false,\"type\":\"phrase\",\"key\":\"source_type\",\"value\":\"systemd\",\"params\":{\"query\":\"systemd\"},\"disabled\":false,\"alias\":null,\"indexRefName\":\"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\"},\"query\":{\"match\":{\"source_type\":{\"query\":\"systemd\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}],\"indexRefName\":\"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
         }
       },
       "references": [
         {
-          "name": "opensearchDashboardsSavedObjectMeta.searchSourceJSON.index",
+          "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
           "type": "index-pattern",
           "id": "684cf7c0-7d37-11eb-9ca4-d9758905c91a"
         },
         {
-          "name": "opensearchDashboardsSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+          "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
           "type": "index-pattern",
           "id": "684cf7c0-7d37-11eb-9ca4-d9758905c91a"
         }
@@ -161,18 +161,18 @@
           ]
         ],
         "version": 1,
-        "opensearchDashboardsSavedObjectMeta": {
-          "searchSourceJSON": "{\"highlightAll\":true,\"version\":true,\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[{\"meta\":{\"negate\":false,\"type\":\"phrase\",\"key\":\"source_type\",\"value\":\"supervisord\",\"params\":{\"query\":\"supervisord\"},\"disabled\":false,\"alias\":null,\"indexRefName\":\"opensearchDashboardsSavedObjectMeta.searchSourceJSON.filter[0].meta.index\"},\"query\":{\"match\":{\"source_type\":{\"query\":\"supervisord\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}],\"indexRefName\":\"opensearchDashboardsSavedObjectMeta.searchSourceJSON.index\"}"
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"highlightAll\":true,\"version\":true,\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[{\"meta\":{\"negate\":false,\"type\":\"phrase\",\"key\":\"source_type\",\"value\":\"supervisord\",\"params\":{\"query\":\"supervisord\"},\"disabled\":false,\"alias\":null,\"indexRefName\":\"kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index\"},\"query\":{\"match\":{\"source_type\":{\"query\":\"supervisord\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}],\"indexRefName\":\"kibanaSavedObjectMeta.searchSourceJSON.index\"}"
         }
       },
       "references": [
         {
-          "name": "opensearchDashboardsSavedObjectMeta.searchSourceJSON.index",
+          "name": "kibanaSavedObjectMeta.searchSourceJSON.index",
           "type": "index-pattern",
           "id": "684cf7c0-7d37-11eb-9ca4-d9758905c91a"
         },
         {
-          "name": "opensearchDashboardsSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
+          "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
           "type": "index-pattern",
           "id": "684cf7c0-7d37-11eb-9ca4-d9758905c91a"
         }
