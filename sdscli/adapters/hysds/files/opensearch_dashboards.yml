@@ -27,10 +27,10 @@ opensearch.url: "http://localhost:9200"
 
 # Kibana uses an index in opensearch to store saved searches, visualizations and
 # dashboards. Kibana creates a new index if the index doesn't already exist.
-#kibana.index: ".kibana"
+#opensearchDashboards.index: ".kibana"
 
 # The default application to load.
-#kibana.defaultAppId: "discover"
+#opensearchDashboards.defaultAppId: "discover"
 
 # If your opensearch is protected with basic authentication, these settings provide
 # the username and password that the Kibana server uses to perform maintenance on the Kibana
@@ -80,7 +80,7 @@ opensearch.url: "http://localhost:9200"
 #opensearch.startupTimeout: 5000
 
 # Specifies the path where Kibana creates the process ID file.
-#pid.file: /var/run/kibana.pid
+#pid.file: /var/run/opensearchDashboards.pid
 
 # Enables you specify a file where Kibana stores log output.
 #logging.dest: stdout
