@@ -76,10 +76,10 @@ if [ ! -z "$CONTAINER_REGISTRY" -a ! -z "$CONTAINER_REGISTRY_BUCKET" ]; then
 fi
 
 # Start up SDSWatch client
-export LOGSTASH_IMAGE="s3://{{ CODE_BUCKET }}/logstash-7.9.3.tar.gz"
+export LOGSTASH_IMAGE="s3://{{ CODE_BUCKET }}/logstash-oss-7.16.3.tar.gz"
 export LOGSTASH_IMAGE_BASENAME="$(basename $LOGSTASH_IMAGE 2>/dev/null)"
-if [ -z "$(docker images -q logstash:7.9.3)" ]; then
-  rm -rf /tmp/logstash-7.9.3.tar.gz
+if [ -z "$(docker images -q logstash-oss:7.16.3)" ]; then
+  rm -rf /tmp/logstash-oss-7.16.3.tar.gz
   aws s3 cp ${LOGSTASH_IMAGE} /tmp/${LOGSTASH_IMAGE_BASENAME}
   docker load -i /tmp/${LOGSTASH_IMAGE_BASENAME}
 else
@@ -89,7 +89,7 @@ docker run -e HOST=${FQDN} -v /data/work/jobs:/sdswatch/jobs \
   -v $HOME/verdi/log:/sdswatch/log \
   -v sdswatch_data:/usr/share/logstash/data \
   -v $HOME/verdi/etc/sdswatch_client.conf:/usr/share/logstash/config/conf/logstash.conf \
-  --name=sdswatch-client -d logstash:7.9.3 \
+  --name=sdswatch-client -d logstash-oss:7.16.3 \
   logstash -f /usr/share/logstash/config/conf/logstash.conf --config.reload.automatic
 
 # Load verdi docker image
