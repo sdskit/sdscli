@@ -32,12 +32,12 @@ extra_opts = "-k"
 repo_re = re.compile(r'.+//.*?/(.*?)/(.*?)(?:\.git)?$')
 
 # define private EC2 IP addresses for infrastructure hosts
-context = {}
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sds_cfg = get_user_config_path()
 if not os.path.isfile(sds_cfg):
     raise RuntimeError(
         "SDS configuration file doesn't exist. Run 'sds configure'.")
+
 with open(sds_cfg) as f:
     context = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -50,6 +50,7 @@ mozart_redis_host = '%s' % context['MOZART_REDIS_PVT_IP']
 mozart_es_host = '%s' % context['MOZART_ES_PVT_IP']
 
 # metrics host
+metrics_es_engine = context.get("METRICS_ES_ENGINE", "elasticsearch")
 metrics_host = '%s' % context['METRICS_PVT_IP']
 metrics_redis_host = '%s' % context['METRICS_REDIS_PVT_IP']
 metrics_es_host = '%s' % context['METRICS_ES_PVT_IP']
