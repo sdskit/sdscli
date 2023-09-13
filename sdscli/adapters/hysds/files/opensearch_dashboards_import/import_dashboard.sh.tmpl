@@ -1,6 +1,9 @@
 #!/bin/bash
 ./wait-for-it.sh {{METRICS_FQDN}}:5601 -t 120
 
+# Sleeping to give time for kibana to start up
+sleep 60
+
 # job and worker metrics
 curl -f -XDELETE -H 'Content-Type: application/json' -H 'osd-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/saved_objects/index-pattern/logstash-*'
 curl -f -XPOST -H 'Content-Type: application/json' -H 'osd-xsrf: true' 'http://{{METRICS_FQDN}}:5601/api/saved_objects/index-pattern/logstash-*' '-d{"attributes":{"title":"logstash-*","timeFieldName":"@timestamp"}}'
