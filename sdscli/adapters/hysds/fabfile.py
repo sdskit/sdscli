@@ -490,7 +490,10 @@ def install_es_policy():
         policy_file_name,
         target_file
     )
-    run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
+    role, hysds_dir, hostname = resolve_role()
+
+    with prefix('source %s/bin/activate' % hysds_dir):
+        run(f'{hysds_dir}/ops/{dir}/scripts/install_ilm_policy.sh --policy_file ${target_file}')
 
 
 def install_mozart_es_templates():
@@ -505,18 +508,16 @@ def install_mozart_es_templates():
         "task_status.template",
         "event_status.template"
     ]
-
+    target_dir = f"{ops_dir}/mozart/etc"
     for template in templates:
         # Copy templates to etc/ directory
-        target_path = f"{ops_dir}/mozart/etc/{template}"
+        target_path = f"{target_dir}/{template}"
         send_template(
             template,
             target_path
         )
-        template_doc_name = template.split(".template")[0]
-        print(f"Creating ES index template for {template}")
-        run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
-            f"-H 'Content-Type: application/json' -d@{target_path}")
+    with prefix('source %s/bin/activate' % ops_dir):
+        run(f"{ops_dir}/mozart/scripts/install_es_template.sh --install_job_templates --template_dir {target_dir}")
 
 
 ##########################
