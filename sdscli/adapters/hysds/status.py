@@ -75,7 +75,7 @@ def print_redis_status(password, host):
 
 def print_es_status(host):
     """Print status of ES server."""
-
+    print(f"[{host}] Pinging ElasticSearch")
     service = "elasticsearch"
     status = "inactive"
     try:
