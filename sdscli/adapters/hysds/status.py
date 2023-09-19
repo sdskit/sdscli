@@ -137,9 +137,9 @@ def print_tps_status(conf, comp, debug=False):
         #                   conf.get('MOZART_REDIS_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
-        # print_es_status(conf.get('MOZART_ES_PVT_IP'))
-        ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
-        print_service_status('elasticsearch', ret, debug)
+        print_es_status(conf.get('MOZART_ES_PVT_IP'))
+        #ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        #print_service_status('elasticsearch', ret, debug)
     elif comp == 'metrics':
         print_tps_header(comp)
         # print_redis_status(conf.get('METRICS_REDIS_PASSWORD'),
