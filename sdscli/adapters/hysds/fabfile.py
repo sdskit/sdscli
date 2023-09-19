@@ -519,7 +519,7 @@ def install_mozart_es_templates():
             target_path
         )
     with prefix('source %s/bin/activate' % hysds_dir):
-        run(f"{ops_dir}/mozart/scripts/install_es_template.sh --install_job_templates --template_dir {target_dir}")
+        run(f"{hysds_dir}/ops/mozart/scripts/install_es_template.sh --install_job_templates --template_dir {target_dir}")
 
 
 ##########################
