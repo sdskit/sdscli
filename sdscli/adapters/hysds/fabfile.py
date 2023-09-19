@@ -466,7 +466,7 @@ def install_pkg_es_templates():
     if role not in ('grq', 'mozart'):
         raise RuntimeError("Invalid fabric function for %s." % role)
     with prefix('source %s/bin/activate' % hysds_dir):
-        run('%s/ops/mozart/scripts/install_es_template.sh %s' % (hysds_dir, role))
+        run('%s/ops/mozart/scripts/install_es_template.sh' % (hysds_dir))
 
 
 def install_base_es_template():
