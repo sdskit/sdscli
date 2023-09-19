@@ -38,7 +38,6 @@
     ],
     "ism_template": {
       "index_patterns": ["*-status.*"],
-      "priority": 100
     }
   }
 }
