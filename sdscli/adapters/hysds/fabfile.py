@@ -494,7 +494,7 @@ def install_es_policy():
     )
 
     with prefix('source %s/bin/activate' % hysds_dir):
-        run(f'{hysds_dir}/ops/{role}/scripts/install_ilm_policy.sh --policy_file ${target_file}')
+        run(f'{hysds_dir}/ops/{role}/scripts/install_ilm_policy.sh --policy_file {target_file}')
 
 
 def install_mozart_es_templates():
