@@ -484,16 +484,17 @@ def install_base_es_template():
 
 
 def install_es_policy():
+    role, hysds_dir, hostname = resolve_role()
+
     policy_file_name = "es_ilm_policy_mozart.json"
     target_file = f"{ops_dir}/mozart/etc/{policy_file_name}"
     send_template(
         policy_file_name,
         target_file
     )
-    role, hysds_dir, hostname = resolve_role()
 
     with prefix('source %s/bin/activate' % hysds_dir):
-        run(f'{hysds_dir}/ops/{dir}/scripts/install_ilm_policy.sh --policy_file ${target_file}')
+        run(f'{hysds_dir}/ops/{role}/scripts/install_ilm_policy.sh --policy_file ${target_file}')
 
 
 def install_mozart_es_templates():
