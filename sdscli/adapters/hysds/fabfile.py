@@ -501,6 +501,7 @@ def install_mozart_es_templates():
     # install index templates
     # Only job_status.template has ILM policy attached
     # HC-451 will focus on adding ILM to worker, task, and event status indices
+    role, hysds_dir, hostname = resolve_role()
 
     # template files located in ~/.sds/files
     templates = [
@@ -517,7 +518,7 @@ def install_mozart_es_templates():
             template,
             target_path
         )
-    with prefix('source %s/bin/activate' % ops_dir):
+    with prefix('source %s/bin/activate' % hysds_dir):
         run(f"{ops_dir}/mozart/scripts/install_es_template.sh --install_job_templates --template_dir {target_dir}")
 
 
