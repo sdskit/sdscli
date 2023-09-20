@@ -381,8 +381,9 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 
         # ship kibana config
         set_bar_desc(bar, 'Updating kibana config')
-        execute(fab.send_template, 'kibana.yml',
-                '~/kibana/config/kibana.yml', roles=[comp])
+        if fab.metrics_es_engine != "opensearch":
+            execute(fab.send_template, 'kibana.yml',
+                    '~/kibana/config/kibana.yml', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
