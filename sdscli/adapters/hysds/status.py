@@ -129,7 +129,10 @@ def print_tps_status(conf, comp, debug=False):
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
         # print_es_status(conf.get('MOZART_ES_PVT_IP'))
-        ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        if fab.mozart_es_engine == "opensearch":
+            ret = execute(fab.systemctl, 'status', 'opensearch', roles=[comp])
+        else:
+            ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
         print_service_status('elasticsearch', ret, debug)
     elif comp == 'metrics':
         print_tps_header(comp)
@@ -138,16 +141,22 @@ def print_tps_status(conf, comp, debug=False):
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
         # print_es_status(conf.get('METRICS_ES_PVT_IP')) # ES accessible only from localhost
-        ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        if fab.metrics_es_engine == "opensearch":
+            ret = execute(fab.systemctl, 'status', 'opensearch', roles=[comp])
+        else:
+            ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
         print_service_status('elasticsearch', ret, debug)
     elif comp == 'grq':
         print_tps_header(comp)
         # print_es_status(conf.get('GRQ_ES_PVT_IP'))
-        ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        if fab.grq_es_engine == "opensearch":
+            ret = execute(fab.systemctl, 'status', 'opensearch', roles=[comp])
+        else:
+            ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
         print_service_status('elasticsearch', ret, debug)
     elif comp == 'ci':
         print_tps_header(comp)
-        #print_http_status("Jenkins", "http://{}:8080".format(conf.get('CI_PVT_IP')))
+        # print_http_status("Jenkins", "http://{}:8080".format(conf.get('CI_PVT_IP')))
         ret = execute(fab.systemctl, 'status', 'jenkins', roles=[comp])
         print_service_status('jenkins', ret, debug)
 

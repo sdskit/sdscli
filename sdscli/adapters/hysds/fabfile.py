@@ -44,6 +44,7 @@ with open(sds_cfg) as f:
 # define and build groups to reduce redundancy in defining roles
 
 # mozart hosts
+mozart_es_engine = context.get("MOZART_ES_ENGINE", "elasticsearch")
 mozart_host = '%s' % context['MOZART_PVT_IP']
 mozart_rabbit_host = '%s' % context['MOZART_RABBIT_PVT_IP']
 mozart_redis_host = '%s' % context['MOZART_REDIS_PVT_IP']
@@ -56,6 +57,7 @@ metrics_redis_host = '%s' % context['METRICS_REDIS_PVT_IP']
 metrics_es_host = '%s' % context['METRICS_ES_PVT_IP']
 
 # grq host
+grq_es_engine = context.get("GRQ_ES_ENGINE", "elasticsearch")
 grq_host = '%s' % context['GRQ_PVT_IP']
 grq_es_host = '%s' % context['GRQ_ES_PVT_IP']
 
