@@ -1,5 +1,5 @@
 #!/bin/bash
-./wait-for-it.sh {{METRICS_FQDN}}:5601/metrics -t 120
+./wait-for-it.sh {{METRICS_FQDN}}:5601 -t 120
 
 # Sleeping to give time for kibana to start up
 # sleep 60
