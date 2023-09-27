@@ -466,7 +466,7 @@ def install_pkg_es_templates():
     if role not in ('grq', 'mozart'):
         raise RuntimeError("Invalid fabric function for %s." % role)
     with prefix('source %s/bin/activate' % hysds_dir):
-        run('%s/ops/mozart/scripts/install_es_template.sh %s' % (hysds_dir, role))
+        run('%s/ops/mozart/scripts/install_es_template.sh' % (hysds_dir))
 
 
 def install_base_es_template():
@@ -484,19 +484,24 @@ def install_base_es_template():
 
 
 def install_es_policy():
+    role, hysds_dir, hostname = resolve_role()
+
     policy_file_name = "es_ilm_policy_mozart.json"
     target_file = f"{ops_dir}/mozart/etc/{policy_file_name}"
     send_template(
         policy_file_name,
         target_file
     )
-    run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
+
+    with prefix('source %s/bin/activate' % hysds_dir):
+        run(f'{hysds_dir}/ops/{role}/scripts/install_ilm_policy.sh --policy_file {target_file}')
 
 
 def install_mozart_es_templates():
     # install index templates
     # Only job_status.template has ILM policy attached
     # HC-451 will focus on adding ILM to worker, task, and event status indices
+    role, hysds_dir, hostname = resolve_role()
 
     # template files located in ~/.sds/files
     templates = [
@@ -505,18 +510,16 @@ def install_mozart_es_templates():
         "task_status.template",
         "event_status.template"
     ]
-
+    target_dir = f"{ops_dir}/mozart/etc"
     for template in templates:
         # Copy templates to etc/ directory
-        target_path = f"{ops_dir}/mozart/etc/{template}"
+        target_path = f"{target_dir}/{template}"
         send_template(
             template,
             target_path
         )
-        template_doc_name = template.split(".template")[0]
-        print(f"Creating ES index template for {template}")
-        run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
-            f"-H 'Content-Type: application/json' -d@{target_path}")
+    with prefix('source %s/bin/activate' % hysds_dir):
+        run(f"{hysds_dir}/ops/mozart/scripts/install_es_template.sh --install_job_templates --template_dir {target_dir}")
 
 
 ##########################
