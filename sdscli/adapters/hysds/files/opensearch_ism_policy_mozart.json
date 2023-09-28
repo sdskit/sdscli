@@ -1,6 +1,6 @@
 {
   "policy": {
-    "description": "Rolling Mozart indices from hot -> warm -> cold -> delete",
+    "description": "Rolling Mozart indices from hot -> warm -> delete",
     "default_state": "hot",
     "states": [
       {
