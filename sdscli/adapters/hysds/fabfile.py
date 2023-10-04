@@ -867,7 +867,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('sdswatch_client.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        send_template("run_sdswatch_client.sh", "~/mozart/bin/run_sdswatch_client.sh")
+        if mozart_es_engine == "opensearch":
+            send_template("run_sdswatch_client_opensearch.sh", "~/mozart/bin/run_sdswatch_client.sh")
+        else:
+            send_template("run_sdswatch_client.sh", "~/mozart/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/mozart/bin/run_sdswatch_client.sh")
         send_template("watch_supervisord_services.py", "~/mozart/bin/watch_supervisord_services.py")
         run("chmod 755 ~/mozart/bin/watch_supervisord_services.py")
@@ -878,7 +881,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('sdswatch_client.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        send_template("run_sdswatch_client.sh", "~/metrics/bin/run_sdswatch_client.sh")
+        if metrics_es_engine == "opensearch":
+            send_template("run_sdswatch_client_opensearch.sh", "~/metrics/bin/run_sdswatch_client.sh")
+        else:
+            send_template("run_sdswatch_client.sh", "~/metrics/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/metrics/bin/run_sdswatch_client.sh")
         send_template("watch_supervisord_services.py", "~/metrics/bin/watch_supervisord_services.py")
         run("chmod 755 ~/metrics/bin/watch_supervisord_services.py")
@@ -887,7 +893,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     elif node_type == 'grq':
         upload_template('sdswatch_client.conf', '~/sciflo/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        send_template("run_sdswatch_client.sh", "~/sciflo/bin/run_sdswatch_client.sh")
+        if grq_es_engine == "opensearch":
+            send_template("run_sdswatch_client_opensearch.sh", "~/sciflo/bin/run_sdswatch_client.sh")
+        else:
+            send_template("run_sdswatch_client.sh", "~/sciflo/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/sciflo/bin/run_sdswatch_client.sh")
         send_template("watch_supervisord_services.py", "~/sciflo/bin/watch_supervisord_services.py")
         run("chmod 755 ~/sciflo/bin/watch_supervisord_services.py")
@@ -896,7 +905,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     elif node_type in ('verdi', 'verdi-asg', 'factotum'):
         upload_template('sdswatch_client.conf', '~/verdi/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        send_template("run_sdswatch_client.sh", "~/verdi/bin/run_sdswatch_client.sh")
+        if metrics_es_engine == "opensearch":
+            send_template("run_sdswatch_client_opensearch.sh", "~/verdi/bin/run_sdswatch_client.sh")
+        else:
+            send_template("run_sdswatch_client.sh", "~/verdi/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/verdi/bin/run_sdswatch_client.sh")
         send_template("watch_supervisord_services.py", "~/verdi/bin/watch_supervisord_services.py")
         run("chmod 755 ~/verdi/bin/watch_supervisord_services.py")
