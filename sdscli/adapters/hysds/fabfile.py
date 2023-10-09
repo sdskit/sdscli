@@ -469,7 +469,7 @@ def install_pkg_es_templates():
     if role not in ('grq', 'mozart'):
         raise RuntimeError("Invalid fabric function for %s." % role)
     with prefix('source %s/bin/activate' % hysds_dir):
-        run('%s/ops/mozart/scripts/install_es_template.sh %s' % (hysds_dir, role))
+        run('%s/ops/mozart/scripts/install_es_template.sh' % (hysds_dir))
 
 
 def install_base_es_template():
@@ -508,6 +508,7 @@ def install_mozart_es_templates():
     # install index templates
     # Only job_status.template has ILM policy attached
     # HC-451 will focus on adding ILM to worker, task, and event status indices
+    role, hysds_dir, hostname = resolve_role()
 
     # template files located in ~/.sds/files
     templates = [
@@ -516,7 +517,7 @@ def install_mozart_es_templates():
         "task_status.template",
         "event_status.template"
     ]
-
+    target_dir = f"{ops_dir}/mozart/etc"
     for template in templates:
         # Copy templates to etc/ directory
         target_path = f"{ops_dir}/mozart/etc/{template}"

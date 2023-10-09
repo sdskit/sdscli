@@ -75,14 +75,23 @@ def print_redis_status(password, host):
 
 def print_es_status(host):
     """Print status of ES server."""
-
+    print(f"[{host}] Pinging ElasticSearch")
+    service = "elasticsearch"
+    status = "inactive"
     try:
-        es = elasticsearch.Elasticsearch([host], verify_certs=False)
-        es.ping()
-        print(("ES: ", highlight("RUNNING")))
+        es = elasticsearch.Elasticsearch(host if isinstance(host, list) else [host], verify_certs=False)
+        result = es.ping()
+        if result is True:
+            status = "active"
     except Exception as e:
-        print(("ES: ", blink(highlight("NOT RUNNING", 'red', True))))
-        print(e)
+        # Should we print the exception here?
+        print(f"Error while getting ElasticSearch status:\n{str(e)}")
+        pass
+
+    if status == 'active':
+        print(("{}: {}".format(service, highlight(status.upper()))))
+    else:
+        print(("{}: {}".format(service, blink(highlight(status.upper(), 'red')))))
 
 
 def print_http_status(server, url):
@@ -128,32 +137,23 @@ def print_tps_status(conf, comp, debug=False):
         #                   conf.get('MOZART_REDIS_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
-        # print_es_status(conf.get('MOZART_ES_PVT_IP'))
-        if fab.mozart_es_engine == "opensearch":
-            ret = execute(fab.systemctl, 'status', 'opensearch', roles=[comp])
-        else:
-            ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
-        print_service_status('elasticsearch', ret, debug)
+        print_es_status(conf.get('MOZART_ES_PVT_IP'))
+        # ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        # print_service_status('elasticsearch', ret, debug)
     elif comp == 'metrics':
         print_tps_header(comp)
         # print_redis_status(conf.get('METRICS_REDIS_PASSWORD'),
         #                   conf.get('METRICS_REDIS_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
-        # print_es_status(conf.get('METRICS_ES_PVT_IP')) # ES accessible only from localhost
-        if fab.metrics_es_engine == "opensearch":
-            ret = execute(fab.systemctl, 'status', 'opensearch', roles=[comp])
-        else:
-            ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
-        print_service_status('elasticsearch', ret, debug)
+        print_es_status(conf.get('METRICS_ES_PVT_IP')) # ES accessible only from localhost
+        # ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        # print_service_status('elasticsearch', ret, debug)
     elif comp == 'grq':
         print_tps_header(comp)
-        # print_es_status(conf.get('GRQ_ES_PVT_IP'))
-        if fab.grq_es_engine == "opensearch":
-            ret = execute(fab.systemctl, 'status', 'opensearch', roles=[comp])
-        else:
-            ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
-        print_service_status('elasticsearch', ret, debug)
+        print_es_status(conf.get('GRQ_ES_PVT_IP'))
+        # ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        # print_service_status('elasticsearch', ret, debug)
     elif comp == 'ci':
         print_tps_header(comp)
         # print_http_status("Jenkins", "http://{}:8080".format(conf.get('CI_PVT_IP')))
