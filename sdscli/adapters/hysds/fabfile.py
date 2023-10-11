@@ -638,14 +638,10 @@ def rabbitmq_queues_flush():
 def mozart_es_flush():
     ctx = get_context()
     #run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_index_template/*_status'.format(**ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 job_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 task_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 event_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 worker_status-current'.format(
-        **ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py job_status-current'.format(**ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py task_status-current'.format(**ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py event_status-current'.format(**ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py worker_status-current'.format(**ctx))
     #run('~/mozart/ops/hysds/scripts/clean_job_spec_container_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
 
 
