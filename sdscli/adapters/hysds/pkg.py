@@ -222,7 +222,14 @@ def import_pkg(args):
     cont_info = manifest['containers']
     cont_image = os.path.join(export_dir, cont_info['url'])
     cont_info['url'] = "{}/{}".format(code_bucket_url, cont_info['url'])
-    put(cont_image, cont_info['url'])
+    params = {}
+    if args.profile:
+        params["profile"] = args.profile
+    if args.aws_access_key_id:
+        params["aws_access_key_id"] = args.aws_access_key_id
+    if args.aws_secret_access_key:
+        params["aws_secret_access_key"] = args.aws_secret_access_key
+    put(cont_image, cont_info['url'], params={})
 
     # index container in ES
     indexed_container = mozart_es.index_document(index=CONTAINERS_INDEX, body=cont_info, id=cont_info['id'])

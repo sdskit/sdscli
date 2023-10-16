@@ -406,6 +406,9 @@ def main():
         '--skip-include-dependency-images', '-D', action='store_true',
         help="Do not attempt to include dependency images when importing the SDS package"
     )
+    parser_pkg_import.add_argument('--profile', help="AWS profile", default=None)
+    parser_pkg_import.add_argument('--aws-access-key-id', help="AWS aws_access_key_id", default=None)
+    parser_pkg_import.add_argument('--aws-secret-access-key', help="AWS aws_secret_access_key", default=None)
     parser_pkg_rm = parser_pkg_subparsers.add_parser(
         'rm', help="remove SDS package")
     parser_pkg_rm.add_argument('id', help='SDS package id to remove')
