@@ -487,19 +487,19 @@ def install_base_es_template():
 
 
 def install_es_policy():
-    ilm_policy_file_name = "es_ilm_policy_mozart.json"
-    ilm_target_file = f"{ops_dir}/mozart/etc/{ilm_policy_file_name}"
-    send_template(ilm_policy_file_name, ilm_target_file)
-
-    ism_policy_file_name = "opensearch_ism_policy_mozart.json"
-    ism_target_file = f"{ops_dir}/mozart/etc/{ism_policy_file_name}"
-    send_template(ism_policy_file_name, ism_target_file)
-
     # run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
     if mozart_es_engine == "opensearch":
+        ism_policy_file_name = "opensearch_ism_policy_mozart.json"
+        ism_target_file = f"{ops_dir}/mozart/etc/{ism_policy_file_name}"
+        send_template(ism_policy_file_name, ism_target_file)
+
         with cd('~/mozart/ops/hysds/scripts'):
             run(f"python install_ilm_policy.py --ism-policy {ism_target_file}")
     else:
+        ilm_policy_file_name = "es_ilm_policy_mozart.json"
+        ilm_target_file = f"{ops_dir}/mozart/etc/{ilm_policy_file_name}"
+        send_template(ilm_policy_file_name, ilm_target_file)
+
         with cd('~/mozart/ops/hysds/scripts'):
             run(f"python install_ilm_policy.py --ilm-policy {ilm_target_file}")
 
