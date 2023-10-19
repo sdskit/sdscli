@@ -80,13 +80,13 @@ def print_es_status(host, component):
     """Print status of ES server."""
     if component == "mozart":
         service = get_mozart_es_engine()
-        es = get_mozart_es(host)
+        es = get_mozart_es()
     elif component == "metrics":
         service = get_metrics_es_engine()
-        es = get_metrics_es(host)
+        es = get_metrics_es()
     elif component == "grq":
         service = get_grq_es_engine()
-        es = get_grq_es(host)
+        es = get_grq_es()
     else:
         service = "Unknown Search Engine"
         es = None
