@@ -95,7 +95,7 @@ def print_es_status(host, component):
     status = "inactive"
     try:
         if es:
-            result = es.ping()
+            result = es.es.ping()
             if result is True:
                 status = "active"
         else:
