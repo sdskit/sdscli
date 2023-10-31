@@ -32,29 +32,32 @@ extra_opts = "-k"
 repo_re = re.compile(r'.+//.*?/(.*?)/(.*?)(?:\.git)?$')
 
 # define private EC2 IP addresses for infrastructure hosts
-context = {}
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sds_cfg = get_user_config_path()
 if not os.path.isfile(sds_cfg):
     raise RuntimeError(
         "SDS configuration file doesn't exist. Run 'sds configure'.")
+
 with open(sds_cfg) as f:
     context = yaml.load(f, Loader=yaml.FullLoader)
 
 # define and build groups to reduce redundancy in defining roles
 
 # mozart hosts
+mozart_es_engine = context.get("MOZART_ES_ENGINE", "elasticsearch")
 mozart_host = '%s' % context['MOZART_PVT_IP']
 mozart_rabbit_host = '%s' % context['MOZART_RABBIT_PVT_IP']
 mozart_redis_host = '%s' % context['MOZART_REDIS_PVT_IP']
 mozart_es_host = '%s' % context['MOZART_ES_PVT_IP']
 
 # metrics host
+metrics_es_engine = context.get("METRICS_ES_ENGINE", "elasticsearch")
 metrics_host = '%s' % context['METRICS_PVT_IP']
 metrics_redis_host = '%s' % context['METRICS_REDIS_PVT_IP']
 metrics_es_host = '%s' % context['METRICS_ES_PVT_IP']
 
 # grq host
+grq_es_engine = context.get("GRQ_ES_ENGINE", "elasticsearch")
 grq_host = '%s' % context['GRQ_PVT_IP']
 grq_es_host = '%s' % context['GRQ_ES_PVT_IP']
 
@@ -77,12 +80,12 @@ env.roledefs = {
     'mozart': [mozart_host],
     'mozart-rabbit': [mozart_rabbit_host],
     'mozart-redis': [mozart_redis_host],
-    'mozart-es': [mozart_es_host],
+    'mozart-es': mozart_es_host if type(mozart_es_host) is list else [mozart_es_host],
     'metrics': [metrics_host],
     'metrics-redis': [metrics_redis_host],
-    'metrics-es': [metrics_es_host],
+    'metrics-es': metrics_es_host if type(metrics_es_host) is list else [metrics_es_host],
     'grq': [grq_host],
-    'grq-es': [grq_es_host],
+    'grq-es': grq_es_host if type(grq_es_host) is list else [grq_es_host],
     'factotum': [factotum_host],
     'ci': [ci_host],
     'verdi': verdi_hosts,
@@ -484,17 +487,21 @@ def install_base_es_template():
 
 
 def install_es_policy():
-    role, hysds_dir, hostname = resolve_role()
+    # run(f"curl -XPUT 'localhost:9200/_ilm/policy/ilm_policy_mozart?pretty' -H 'Content-Type: application/json' -d@{target_file}")
+    if mozart_es_engine == "opensearch":
+        ism_policy_file_name = "opensearch_ism_policy_mozart.json"
+        ism_target_file = f"{ops_dir}/mozart/etc/{ism_policy_file_name}"
+        send_template(ism_policy_file_name, ism_target_file)
 
-    policy_file_name = "es_ilm_policy_mozart.json"
-    target_file = f"{ops_dir}/mozart/etc/{policy_file_name}"
-    send_template(
-        policy_file_name,
-        target_file
-    )
+        with cd('~/mozart/ops/hysds/scripts'):
+            run(f"python install_ilm_policy.py --ism-policy {ism_target_file}")
+    else:
+        ilm_policy_file_name = "es_ilm_policy_mozart.json"
+        ilm_target_file = f"{ops_dir}/mozart/etc/{ilm_policy_file_name}"
+        send_template(ilm_policy_file_name, ilm_target_file)
 
-    with prefix('source %s/bin/activate' % hysds_dir):
-        run(f'{hysds_dir}/ops/{role}/scripts/install_ilm_policy.sh --policy_file {target_file}')
+        with cd('~/mozart/ops/hysds/scripts'):
+            run(f"python install_ilm_policy.py --ilm-policy {ilm_target_file}")
 
 
 def install_mozart_es_templates():
@@ -513,13 +520,14 @@ def install_mozart_es_templates():
     target_dir = f"{ops_dir}/mozart/etc"
     for template in templates:
         # Copy templates to etc/ directory
-        target_path = f"{target_dir}/{template}"
-        send_template(
-            template,
-            target_path
-        )
-    with prefix('source %s/bin/activate' % hysds_dir):
-        run(f"{hysds_dir}/ops/mozart/scripts/install_es_template.sh --install_job_templates --template_dir {target_dir}")
+        target_path = f"{ops_dir}/mozart/etc/{template}"
+        send_template(template, target_path)
+        template_doc_name = template.replace(".template", '')
+        print(f"Creating ES index template for {template}")
+        # run(f"curl -XPUT 'localhost:9200/_index_template/{template_doc_name}?pretty' "
+        #     f"-H 'Content-Type: application/json' -d@{target_path}")
+        with cd('~/mozart/ops/hysds/scripts'):
+            run(f"python install_job_status_template.py {template_doc_name} {target_path}")
 
 
 ##########################
@@ -630,14 +638,10 @@ def rabbitmq_queues_flush():
 def mozart_es_flush():
     ctx = get_context()
     #run('curl -XDELETE http://{MOZART_ES_PVT_IP}:9200/_index_template/*_status'.format(**ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 job_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 task_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 event_status-current'.format(
-        **ctx))
-    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py http://{MOZART_ES_PVT_IP}:9200 worker_status-current'.format(
-        **ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py job_status-current'.format(**ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py task_status-current'.format(**ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py event_status-current'.format(**ctx))
+    run('~/mozart/ops/hysds/scripts/clean_indices_from_alias.py worker_status-current'.format(**ctx))
     #run('~/mozart/ops/hysds/scripts/clean_job_spec_container_indexes.sh http://{MOZART_ES_PVT_IP}:9200'.format(**ctx))
 
 
@@ -764,6 +768,7 @@ def python_setup_develop(node_type, dest):
 # ci functions
 ##########################
 
+
 def get_ci_job_info(repo, branch=None):
     ctx = get_context()
     match = repo_re.search(repo)
@@ -859,7 +864,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('sdswatch_client.conf', '~/mozart/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        send_template("run_sdswatch_client.sh", "~/mozart/bin/run_sdswatch_client.sh")
+        if mozart_es_engine == "opensearch":
+            send_template("run_sdswatch_client_opensearch.sh", "~/mozart/bin/run_sdswatch_client.sh")
+        else:
+            send_template("run_sdswatch_client.sh", "~/mozart/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/mozart/bin/run_sdswatch_client.sh")
         send_template("watch_supervisord_services.py", "~/mozart/bin/watch_supervisord_services.py")
         run("chmod 755 ~/mozart/bin/watch_supervisord_services.py")
@@ -870,7 +878,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
                         template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
         upload_template('sdswatch_client.conf', '~/metrics/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        send_template("run_sdswatch_client.sh", "~/metrics/bin/run_sdswatch_client.sh")
+        if metrics_es_engine == "opensearch":
+            send_template("run_sdswatch_client_opensearch.sh", "~/metrics/bin/run_sdswatch_client.sh")
+        else:
+            send_template("run_sdswatch_client.sh", "~/metrics/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/metrics/bin/run_sdswatch_client.sh")
         send_template("watch_supervisord_services.py", "~/metrics/bin/watch_supervisord_services.py")
         run("chmod 755 ~/metrics/bin/watch_supervisord_services.py")
@@ -879,7 +890,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     elif node_type == 'grq':
         upload_template('sdswatch_client.conf', '~/sciflo/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        send_template("run_sdswatch_client.sh", "~/sciflo/bin/run_sdswatch_client.sh")
+        if grq_es_engine == "opensearch":
+            send_template("run_sdswatch_client_opensearch.sh", "~/sciflo/bin/run_sdswatch_client.sh")
+        else:
+            send_template("run_sdswatch_client.sh", "~/sciflo/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/sciflo/bin/run_sdswatch_client.sh")
         send_template("watch_supervisord_services.py", "~/sciflo/bin/watch_supervisord_services.py")
         run("chmod 755 ~/sciflo/bin/watch_supervisord_services.py")
@@ -888,7 +902,10 @@ def send_shipper_conf(node_type, log_dir, cluster_jobs, redis_ip_job_status,
     elif node_type in ('verdi', 'verdi-asg', 'factotum'):
         upload_template('sdswatch_client.conf', '~/verdi/etc/sdswatch_client.conf', use_jinja=True,
                         context=ctx, template_dir=os.path.join(ops_dir, 'mozart/ops/hysds/configs/logstash'))
-        send_template("run_sdswatch_client.sh", "~/verdi/bin/run_sdswatch_client.sh")
+        if metrics_es_engine == "opensearch":
+            send_template("run_sdswatch_client_opensearch.sh", "~/verdi/bin/run_sdswatch_client.sh")
+        else:
+            send_template("run_sdswatch_client.sh", "~/verdi/bin/run_sdswatch_client.sh")
         run("chmod 755 ~/verdi/bin/run_sdswatch_client.sh")
         send_template("watch_supervisord_services.py", "~/verdi/bin/watch_supervisord_services.py")
         run("chmod 755 ~/verdi/bin/watch_supervisord_services.py")

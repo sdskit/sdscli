@@ -381,8 +381,9 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 
         # ship kibana config
         set_bar_desc(bar, 'Updating kibana config')
-        execute(fab.send_template, 'kibana.yml',
-                '~/kibana/config/kibana.yml', roles=[comp])
+        if fab.metrics_es_engine != "opensearch":
+            execute(fab.send_template, 'kibana.yml',
+                    '~/kibana/config/kibana.yml', roles=[comp])
         bar.update()
 
         # expose hysds log dir via webdav
@@ -401,7 +402,7 @@ def update_metrics(conf, ndeps=False, config_only=False, comp='metrics'):
 def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
     """"Update grq component."""
 
-    num_updates = 18 if config_only else 27  # number of progress bar updates
+    num_updates = 17 if config_only else 26  # number of progress bar updates
 
     with tqdm(total=num_updates) as bar:  # progress bar
         # ensure venv
@@ -534,9 +535,9 @@ def update_grq(conf, ndeps=False, config_only=False, comp='grq'):
         bar.update()
 
         # installing ingest pipeline
-        set_bar_desc(bar, 'Install GRQ Elasticsearch ingest pipeline')
-        execute(fab.install_ingest_pipeline, roles=[comp])
-        bar.update()
+        # set_bar_desc(bar, 'Install GRQ Elasticsearch ingest pipeline')
+        # execute(fab.install_ingest_pipeline, roles=[comp])
+        # bar.update()
 
         # update ES template
         set_bar_desc(bar, 'Update ES template')
@@ -925,22 +926,41 @@ def import_kibana(comp='metrics'):
                 'ops', 'ops', roles=[comp])
         bar.update()
         set_bar_desc(bar, 'copying over dashboards and scripts')
-        execute(fab.send_template_user_override, 'import_dashboard.sh.tmpl',
-                '~/metrics/ops/kibana_metrics/import_dashboard.sh',
-                '~/mozart/ops/sdscli/sdscli/adapters/hysds/files/kibana_dashboard_import',
-                roles=[comp])
-        execute(fab.chmod, 755,
-                '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
-        execute(fab.copy, '~/.sds/files/kibana_dashboard_import/job-dashboards.json',
-                '~/metrics/ops/kibana_metrics/job-dashboards.json', roles=[comp])
-        execute(fab.copy, '~/.sds/files/kibana_dashboard_import/worker-dashboards.json',
-                '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
-        execute(fab.copy, '~/.sds/files/kibana_dashboard_import/sdswatch-dashboards.json',
-                '~/metrics/ops/kibana_metrics/sdswatch-dashboards.json', roles=[comp])
-        execute(fab.copy, '~/.sds/files/kibana_dashboard_import/wait-for-it.sh',
-                '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
-        execute(fab.chmod, 755,
-                '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
+
+        if fab.metrics_es_engine == "opensearch":
+            execute(fab.send_template_user_override, 'import_dashboard.sh.tmpl',
+                    '~/metrics/ops/kibana_metrics/import_dashboard.sh',
+                    '~/mozart/ops/sdscli/sdscli/adapters/hysds/files/opensearch_dashboards_import',
+                    roles=[comp])
+            execute(fab.chmod, 755,
+                    '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
+            execute(fab.copy, '~/.sds/files/opensearch_dashboards_import/job-dashboards.json',
+                    '~/metrics/ops/kibana_metrics/job-dashboards.json', roles=[comp])
+            execute(fab.copy, '~/.sds/files/opensearch_dashboards_import/worker-dashboards.json',
+                    '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
+            execute(fab.copy, '~/.sds/files/opensearch_dashboards_import/sdswatch-dashboards.json',
+                    '~/metrics/ops/kibana_metrics/sdswatch-dashboards.json', roles=[comp])
+            execute(fab.copy, '~/.sds/files/opensearch_dashboards_import/wait-for-it.sh',
+                    '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
+            execute(fab.chmod, 755,
+                    '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
+        else:
+            execute(fab.send_template_user_override, 'import_dashboard.sh.tmpl',
+                    '~/metrics/ops/kibana_metrics/import_dashboard.sh',
+                    '~/mozart/ops/sdscli/sdscli/adapters/hysds/files/kibana_dashboard_import',
+                    roles=[comp])
+            execute(fab.chmod, 755,
+                    '~/metrics/ops/kibana_metrics/import_dashboard.sh', roles=[comp])
+            execute(fab.copy, '~/.sds/files/kibana_dashboard_import/job-dashboards.json',
+                    '~/metrics/ops/kibana_metrics/job-dashboards.json', roles=[comp])
+            execute(fab.copy, '~/.sds/files/kibana_dashboard_import/worker-dashboards.json',
+                    '~/metrics/ops/kibana_metrics/worker-dashboards.json', roles=[comp])
+            execute(fab.copy, '~/.sds/files/kibana_dashboard_import/sdswatch-dashboards.json',
+                    '~/metrics/ops/kibana_metrics/sdswatch-dashboards.json', roles=[comp])
+            execute(fab.copy, '~/.sds/files/kibana_dashboard_import/wait-for-it.sh',
+                    '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
+            execute(fab.chmod, 755,
+                    '~/metrics/ops/kibana_metrics/wait-for-it.sh', roles=[comp])
         bar.update()
         set_bar_desc(bar, 'importing dashboards and other saved objects')
         execute(fab.import_kibana,

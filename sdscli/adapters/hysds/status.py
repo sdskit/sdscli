@@ -36,6 +36,9 @@ from sdscli.prompt_utils import (highlight, blink, print_component_header,
 
 from . import fabfile as fab
 
+from hysds.es_util import get_mozart_es, get_metrics_es, get_grq_es
+from hysds.es_util import get_mozart_es_engine, get_metrics_es_engine, get_grq_es_engine
+
 
 prompt_style = style_from_dict({
     Token.Alert: 'bg:#D8060C',
@@ -73,19 +76,33 @@ def print_redis_status(password, host):
         print(e)
 
 
-def print_es_status(host):
+def print_es_status(host, component):
     """Print status of ES server."""
-    print(f"[{host}] Pinging ElasticSearch")
-    service = "elasticsearch"
+    if component == "mozart":
+        service = get_mozart_es_engine()
+        es = get_mozart_es()
+    elif component == "metrics":
+        service = get_metrics_es_engine()
+        es = get_metrics_es()
+    elif component == "grq":
+        service = get_grq_es_engine()
+        es = get_grq_es()
+    else:
+        service = "Unknown Search Engine"
+        es = None
+
+    print(f"[{host}] Pinging {service.title()}")
     status = "inactive"
     try:
-        es = elasticsearch.Elasticsearch([host], verify_certs=False)
-        result = es.ping()
-        if result is True:
-            status = "active"
+        if es:
+            result = es.es.ping()
+            if result is True:
+                status = "active"
+        else:
+            status = "unknown"
     except Exception as e:
         # Should we print the exception here?
-        print(f"Error while getting ElasticSearch status:\n{str(e)}")
+        print(f"Error while getting {service} status:\n{str(e)}")
         pass
 
     if status == 'active':
@@ -137,26 +154,26 @@ def print_tps_status(conf, comp, debug=False):
         #                   conf.get('MOZART_REDIS_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
-        print_es_status(conf.get('MOZART_ES_PVT_IP'))
-        #ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
-        #print_service_status('elasticsearch', ret, debug)
+        print_es_status(conf.get('MOZART_ES_PVT_IP'), comp)
+        # ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        # print_service_status('elasticsearch', ret, debug)
     elif comp == 'metrics':
         print_tps_header(comp)
         # print_redis_status(conf.get('METRICS_REDIS_PASSWORD'),
         #                   conf.get('METRICS_REDIS_PVT_IP'))
         ret = execute(fab.systemctl, 'status', 'redis', roles=[comp])
         print_service_status('redis', ret, debug)
-        print_es_status(conf.get('METRICS_ES_PVT_IP')) # ES accessible only from localhost
-        #ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
-        #print_service_status('elasticsearch', ret, debug)
+        print_es_status(conf.get('METRICS_ES_PVT_IP'), comp)
+        # ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        # print_service_status('elasticsearch', ret, debug)
     elif comp == 'grq':
         print_tps_header(comp)
-        print_es_status(conf.get('GRQ_ES_PVT_IP'))
-        #ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
-        #print_service_status('elasticsearch', ret, debug)
+        print_es_status(conf.get('GRQ_ES_PVT_IP'), comp)
+        # ret = execute(fab.systemctl, 'status', 'elasticsearch', roles=[comp])
+        # print_service_status('elasticsearch', ret, debug)
     elif comp == 'ci':
         print_tps_header(comp)
-        #print_http_status("Jenkins", "http://{}:8080".format(conf.get('CI_PVT_IP')))
+        # print_http_status("Jenkins", "http://{}:8080".format(conf.get('CI_PVT_IP')))
         ret = execute(fab.systemctl, 'status', 'jenkins', roles=[comp])
         print_service_status('jenkins', ret, debug)
 

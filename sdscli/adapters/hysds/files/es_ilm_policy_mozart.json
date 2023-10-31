@@ -10,7 +10,7 @@
         }
       },
       "warm": {
-        "min_age": "90d",
+        "min_age": "97d",
         "actions": {
           "migrate": {
             "enabled": false
@@ -18,18 +18,6 @@
           "set_priority" : {
             "priority": 50
           }
-        }
-      },
-      "cold": {
-        "min_age": "97d",
-        "actions": {
-          "set_priority" : {
-            "priority": 0
-          },
-	      "migrate": {
-            "enabled": false
-          },
-          "freeze": {}
         }
       },
       "delete": {

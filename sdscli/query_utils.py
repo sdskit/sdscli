@@ -9,7 +9,7 @@ import json
 import requests
 import backoff
 
-from elasticsearch import Elasticsearch, NotFoundError, RequestsHttpConnection, RequestError, ElasticsearchException
+from elasticsearch import Elasticsearch
 from sdscli.log_utils import logger
 
 # backoff settings
@@ -140,7 +140,7 @@ def query_dataset(url, idx, id, version=None, sort_order="desc"):
 
     # add version constraint
     if version is not None:
-        query['query']['bool']['must'].append({
+        query['query']['bool']['must'].append({  # noqa
             "term": {"version.raw": version}
         })
 
