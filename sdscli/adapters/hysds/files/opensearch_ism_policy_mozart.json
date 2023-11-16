@@ -37,7 +37,7 @@
       }
     ],
     "ism_template": {
-      "index_patterns": ["*-status.*"]
+      "index_patterns": ["*_status*"]
     }
   }
 }
