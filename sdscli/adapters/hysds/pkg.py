@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 from builtins import open
+from datetime import datetime
 from future import standard_library
 standard_library.install_aliases()
 
@@ -23,6 +24,8 @@ CONTAINERS_INDEX = "containers"
 JOB_SPECS_INDEX = "job_specs"
 HYSDS_IOS_MOZART_INDEX = "hysds_ios-mozart"
 HYSDS_IOS_GRQ_INDEX = "hysds_ios-grq"
+USER_RULES_MOZART_INDEX = 'user_rules-mozart'
+USER_RULES_GRQ_INDEX = 'user_rules-grq'
 
 mozart_es = get_mozart_es()
 
@@ -62,9 +65,10 @@ def export(args):
 
     validate_dir(export_dir)  # create export directory
 
-    # download container
-    get(cont_info['url'], export_dir)
-    cont_info['url'] = os.path.basename(cont_info['url'])
+    # download container if url provided
+    if cont_info.get('url', None) != None:
+        get(cont_info['url'], export_dir)
+        cont_info['url'] = os.path.basename(cont_info['url'])
 
     query = {
         "query": {
@@ -218,11 +222,13 @@ def import_pkg(args):
     logger.debug("code_bucket: %s" % code_bucket)
     logger.debug("code_bucket_url: %s" % code_bucket_url)
 
-    # upload container image to s3
     cont_info = manifest['containers']
-    cont_image = os.path.join(export_dir, cont_info['url'])
-    cont_info['url'] = "{}/{}".format(code_bucket_url, cont_info['url'])
-    put(cont_image, cont_info['url'])
+
+    # upload container image to s3
+    if cont_info.get('url', None) != None:
+        cont_image = os.path.join(export_dir, cont_info['url'])
+        cont_info['url'] = "{}/{}".format(code_bucket_url, cont_info['url'])
+        put(cont_image, cont_info['url'])
 
     # index container in ES
     indexed_container = mozart_es.index_document(index=CONTAINERS_INDEX, body=cont_info, id=cont_info['id'])
@@ -259,6 +265,19 @@ def import_pkg(args):
         else:
             indexed_hysds_io = mozart_es.index_document(index=HYSDS_IOS_GRQ_INDEX, body=hysds_io, id=hysds_io_id)
             logger.debug(indexed_hysds_io)
+
+    # index user_rules to ES
+    for component in (('mozart', USER_RULES_MOZART_INDEX), ('grq', USER_RULES_GRQ_INDEX)):
+        for rule in manifest.get('user_rules', {}).get(component[0], []):
+            now = datetime.utcnow().isoformat() + 'Z'
+
+            if not rule.get('creation_time', None):
+                rule['creation_time'] = now
+            if not rule.get('modified_time', None):
+                rule['modified_time'] = now
+
+            result = mozart_es.index_document(index=component[1], body=rule)  # indexing user rules
+            logger.debug(result)
 
     shutil.rmtree(export_dir)  # remove package dir
 
