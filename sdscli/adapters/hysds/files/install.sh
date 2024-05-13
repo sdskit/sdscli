@@ -32,6 +32,8 @@ IPADDRESS_ETH0=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF
 FQDN=$IPADDRESS_ETH0
 sed "s/__IPADDRESS_ETH0__/$IPADDRESS_ETH0/g" $HOME/verdi/etc/supervisord.conf.tmpl | \
   sed "s/__HYSDS_GPU_AVAILABLE__/$GPUS/g" | \
+  sed "s/__HOST_VERDI_HOME__/$HOME/g" | \
+  sed "s/__HOST_USER__/$USER/g" | \
   sed "s/__FQDN__/$FQDN/g" > $HOME/verdi/etc/supervisord.conf
 
 # move creds
