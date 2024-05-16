@@ -293,11 +293,11 @@ def update_mozart(conf, ndeps=False, config_only=False, comp='mozart'):
         # ship the run_podman script
         set_bar_desc(bar, 'Updating run_verdi_podman.sh.tmpl')
         execute(fab.rm_rf, '~/verdi/ops/hysds-dockerfiles/verdi/run_verdi_podman.sh', roles=[comp])
-        execute(fab.send_template(
-            "run_verdi_podman.sh.tmpl",
-            "~/verdi/ops/hysds-dockerfiles/verdi/run_verdi_podman.sh",
-            "~/mozart/ops/hysds-dockerfiles/verdi"),
-            roles=[comp]
+        execute(fab.send_template,
+                "run_verdi_podman.sh.tmpl",
+                "~/verdi/ops/hysds-dockerfiles/verdi/run_verdi_podman.sh",
+                "~/mozart/ops/hysds-dockerfiles/verdi",
+                roles=[comp]
         )
         bar.update()
 
@@ -770,11 +770,11 @@ def update_verdi(conf, ndeps=False, config_only=False, comp='verdi'):
         # ship the run_podman script
         set_bar_desc(bar, 'Updating run_verdi_podman.sh.tmpl')
         execute(fab.rm_rf, '~/verdi/ops/hysds-dockerfiles/verdi/run_verdi_podman.sh', roles=[comp])
-        execute(fab.send_template(
-            "run_verdi_podman.sh.tmpl",
-            "~/verdi/ops/hysds-dockerfiles/verdi/run_verdi_podman.sh",
-            "~/mozart/ops/hysds-dockerfiles/verdi"),
-            roles=[comp]
+        execute(fab.send_template,
+                "run_verdi_podman.sh.tmpl",
+                "~/verdi/ops/hysds-dockerfiles/verdi/run_verdi_podman.sh",
+                "~/mozart/ops/hysds-dockerfiles/verdi",
+                roles=[comp]
         )
         bar.update()
 
