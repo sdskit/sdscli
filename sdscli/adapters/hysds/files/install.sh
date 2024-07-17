@@ -30,8 +30,12 @@ fi
 # write supervisord from template
 IPADDRESS_ETH0=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}') 
 FQDN=$IPADDRESS_ETH0
+HOST_VERDI_HOME={{ HOST_VERDI_HOME or '$HOME' }}
+ESCAPED_HOST_VERDI_HOME=$(printf '%s\n' "$HOST_VERDI_HOME" | sed -e 's/[]\/$*.^[]/\\&/g');
 sed "s/__IPADDRESS_ETH0__/$IPADDRESS_ETH0/g" $HOME/verdi/etc/supervisord.conf.tmpl | \
   sed "s/__HYSDS_GPU_AVAILABLE__/$GPUS/g" | \
+  sed "s/__HOST_VERDI_HOME__/$ESCAPED_HOST_VERDI_HOME/g" | \
+  sed "s/__HOST_USER__/$USER/g" | \
   sed "s/__FQDN__/$FQDN/g" > $HOME/verdi/etc/supervisord.conf
 
 # move creds
