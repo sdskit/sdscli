@@ -36,6 +36,7 @@ sed "s/__IPADDRESS_ETH0__/$IPADDRESS_ETH0/g" $HOME/verdi/etc/supervisord.conf.tm
   sed "s/__HYSDS_GPU_AVAILABLE__/$GPUS/g" | \
   sed "s/__HOST_VERDI_HOME__/$ESCAPED_HOST_VERDI_HOME/g" | \
   sed "s/__HOST_USER__/$USER/g" | \
+  sed "s/__HOST_UID__/$USER/g" | \
   sed "s/__FQDN__/$FQDN/g" > $HOME/verdi/etc/supervisord.conf
 
 # move creds
