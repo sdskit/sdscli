@@ -50,8 +50,8 @@ startsecs=10
 [program:{{ queue }}]
 directory=/home/ops/verdi/ops/hysds
 environment=HYSDS_ROOT_WORK_DIR="/data/work",
-            HYSDS_CELERY_CFG="/home/ops/verdi/etc/celeryconfig.py",
-            HYSDS_DATASETS_CFG="/home/ops/verdi/etc/datasets.json",
+            HYSDS_CELERY_CFG="/root/verdi/etc/celeryconfig.py",
+            HYSDS_DATASETS_CFG="/root/verdi/etc/datasets.json",
             HYSDS_GPU_AVAILABLE="__HYSDS_GPU_AVAILABLE__",
             FACTER_ipaddress_eth0="__IPADDRESS_ETH0__",
             FACTER_fqdn="__FQDN__",
