@@ -35,8 +35,8 @@ stdout_logfile_backups=10
 startsecs=10
 
 [program:instance_stats]
-directory=/home/ops/verdi/ops/hysds/scripts
-command=/home/ops/verdi/ops/hysds/scripts/log_instance_stats.py --interval 600
+directory=/root/verdi/ops/hysds/scripts
+command=/root/verdi/ops/hysds/scripts/log_instance_stats.py --interval 600
 process_name=%(program_name)s
 priority=1
 numprocs=1
@@ -48,7 +48,7 @@ stdout_logfile_backups=10
 startsecs=10
 
 [program:{{ queue }}]
-directory=/home/ops/verdi/ops/hysds
+directory=/root/verdi/ops/hysds
 environment=HYSDS_ROOT_WORK_DIR="/data/work",
             HYSDS_CELERY_CFG="/root/verdi/etc/celeryconfig.py",
             HYSDS_DATASETS_CFG="/root/verdi/etc/datasets.json",
