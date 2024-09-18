@@ -4,7 +4,9 @@ BASE_PATH=$(cd "${BASE_PATH}"; pwd)
 
 # This is the base directory where the verdi codebase resides on the worker at the host level
 HOST_VERDI_HOME={{ HOST_VERDI_HOME or '$HOME' }}
-ESCAPED_HOST_VERDI_HOME=$(printf '%s\n' "$HOST_VERDI_HOME" | sed -e 's/[]\/$*.^[]/\\&/g');
+
+# This is the base directory of the data work directory
+DATA_DIR=/data
 
 source $HOST_VERDI_HOME/verdi/bin/activate
 
@@ -32,6 +34,7 @@ if [ -e "/usr/bin/nvidia-smi" ]; then
 fi
 
 # write supervisord from template
+ESCAPED_HOST_VERDI_HOME=$(printf '%s\n' "$HOST_VERDI_HOME" | sed -e 's/[]\/$*.^[]/\\&/g');
 IPADDRESS_ETH0=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}') 
 FQDN=$IPADDRESS_ETH0
 sed "s/__IPADDRESS_ETH0__/$IPADDRESS_ETH0/g" $HOST_VERDI_HOME/verdi/etc/supervisord.conf.tmpl | \
@@ -41,19 +44,20 @@ sed "s/__IPADDRESS_ETH0__/$IPADDRESS_ETH0/g" $HOST_VERDI_HOME/verdi/etc/supervis
   sed "s/__HOST_UID__/$USER/g" | \
   sed "s/__FQDN__/$FQDN/g" > $HOST_VERDI_HOME/verdi/etc/supervisord.conf
 
-# move creds
+# copy creds
 rm -rf $HOST_VERDI_HOME/.aws
-mv -f $BASE_PATH/creds/.aws $HOST_VERDI_HOME/
-rm -rf $HOST_VERDI_HOME/.boto; mv -f $BASE_PATH/creds/.boto $HOST_VERDI_HOME/
-rm -rf $HOST_VERDI_HOME/.s3cfg; mv -f $BASE_PATH/creds/.s3cfg $HOST_VERDI_HOME/
-rm -rf $HOST_VERDI_HOME/.netrc; mv -f $BASE_PATH/creds/.netrc $HOST_VERDI_HOME/; chmod 600 $HOST_VERDI_HOME/.netrc
+cp -r $BASE_PATH/creds/.aws $HOST_VERDI_HOME/
+rm -rf $HOST_VERDI_HOME/.boto; cp -f $BASE_PATH/creds/.boto $HOST_VERDI_HOME/
+rm -rf $HOST_VERDI_HOME/.s3cfg; cp -f $BASE_PATH/creds/.s3cfg $HOST_VERDI_HOME/
+rm -rf $HOST_VERDI_HOME/.netrc; cp -f $BASE_PATH/creds/.netrc $HOST_VERDI_HOME/; chmod 600 $HOST_VERDI_HOME/.netrc
 
 # extract beefed autoindex
-cd /data/work
+mkdir -p ${DATA_DIR}/work
+cd ${DATA_DIR}/work
 tar xvfj $BASE_PATH/beefed-autoindex-open_in_new_win.tbz2
 
 # make jobs dir
-mkdir -p /data/work/jobs
+mkdir -p ${DATA_DIR}/work/jobs
 
 # prime verdi docker image
 if [[ -f $HOST_VERDI_HOME/.aws/credentials ]]; then
