@@ -56,8 +56,9 @@ mkdir -p ${DATA_DIR}/work
 cd ${DATA_DIR}/work
 tar xvfj $BASE_PATH/beefed-autoindex-open_in_new_win.tbz2
 
-# make jobs dir
+# make jobs and tasks dir
 mkdir -p ${DATA_DIR}/work/jobs
+mkdir -p ${DATA_DIR}/work/tasks
 
 # prime verdi docker image
 if [[ -f $HOST_VERDI_HOME/.aws/credentials ]]; then
