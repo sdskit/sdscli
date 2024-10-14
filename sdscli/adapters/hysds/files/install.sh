@@ -2,21 +2,27 @@
 BASE_PATH=$(dirname "${BASH_SOURCE}")
 BASE_PATH=$(cd "${BASE_PATH}"; pwd)
 
-source $HOME/verdi/bin/activate
+# This is the base directory where the verdi codebase resides on the worker at the host level
+HOST_VERDI_HOME={{ HOST_VERDI_HOME or '$HOME' }}
+
+# This is the base directory of the data work directory
+DATA_DIR=/data
+
+source $HOST_VERDI_HOME/verdi/bin/activate
 
 # copy hysds configs
-rm -rf $HOME/verdi/etc
-cp -rp $BASE_PATH/etc $HOME/verdi/etc
-cp -rp $HOME/verdi/ops/hysds/celeryconfig.py $HOME/verdi/etc/
+rm -rf $HOST_VERDI_HOME/verdi/etc
+cp -rp $BASE_PATH/etc $HOST_VERDI_HOME/verdi/etc
+cp -rp $HOST_VERDI_HOME/verdi/ops/hysds/celeryconfig.py $HOST_VERDI_HOME/verdi/etc/
 
 # uncomment if using SQS
-#ln -s $HOME/verdi/ops/hysds/scripts/harikiri_sqs.py $HOME/verdi/bin/harikiri.py
+#ln -s $HOST_VERDI_HOME/verdi/ops/hysds/scripts/harikiri_sqs.py $HOST_VERDI_HOME/verdi/bin/harikiri.py
 
 # uncomment to use harikiri without having to set up an SQS
-#ln -s $HOME/verdi/bin/harikiri.py
+#ln -s $HOST_VERDI_HOME/verdi/bin/harikiri.py
 
 # spot termination detector
-ln -s $HOME/verdi/ops/hysds/scripts/spot_termination_detector.py $HOME/verdi/bin/spot_termination_detector.py
+ln -s $HOST_VERDI_HOME/verdi/ops/hysds/scripts/spot_termination_detector.py $HOST_VERDI_HOME/verdi/bin/spot_termination_detector.py
 
 # detect GPUs/NVIDIA driver configuration
 GPUS=0
@@ -28,34 +34,36 @@ if [ -e "/usr/bin/nvidia-smi" ]; then
 fi
 
 # write supervisord from template
+ESCAPED_HOST_VERDI_HOME=$(printf '%s\n' "$HOST_VERDI_HOME" | sed -e 's/[]\/$*.^[]/\\&/g');
 IPADDRESS_ETH0=$(/usr/sbin/ifconfig $(/usr/sbin/route | awk '/default/{print $NF}') | grep 'inet ' | sed 's/addr://' | awk '{print $2}') 
 FQDN=$IPADDRESS_ETH0
-HOST_VERDI_HOME={{ HOST_VERDI_HOME or '$HOME' }}
-ESCAPED_HOST_VERDI_HOME=$(printf '%s\n' "$HOST_VERDI_HOME" | sed -e 's/[]\/$*.^[]/\\&/g');
-sed "s/__IPADDRESS_ETH0__/$IPADDRESS_ETH0/g" $HOME/verdi/etc/supervisord.conf.tmpl | \
+sed "s/__IPADDRESS_ETH0__/$IPADDRESS_ETH0/g" $HOST_VERDI_HOME/verdi/etc/supervisord.conf.tmpl | \
   sed "s/__HYSDS_GPU_AVAILABLE__/$GPUS/g" | \
   sed "s/__HOST_VERDI_HOME__/$ESCAPED_HOST_VERDI_HOME/g" | \
   sed "s/__HOST_USER__/$USER/g" | \
-  sed "s/__FQDN__/$FQDN/g" > $HOME/verdi/etc/supervisord.conf
+  sed "s/__HOST_UID__/$USER/g" | \
+  sed "s/__FQDN__/$FQDN/g" > $HOST_VERDI_HOME/verdi/etc/supervisord.conf
 
-# move creds
-rm -rf $HOME/.aws
-mv -f $BASE_PATH/creds/.aws $HOME/
-rm -rf $HOME/.boto; mv -f $BASE_PATH/creds/.boto $HOME/
-rm -rf $HOME/.s3cfg; mv -f $BASE_PATH/creds/.s3cfg $HOME/
-rm -rf $HOME/.netrc; mv -f $BASE_PATH/creds/.netrc $HOME/; chmod 600 $HOME/.netrc
+# copy creds
+rm -rf $HOST_VERDI_HOME/.aws
+cp -r $BASE_PATH/creds/.aws $HOST_VERDI_HOME/
+rm -rf $HOST_VERDI_HOME/.boto; cp -f $BASE_PATH/creds/.boto $HOST_VERDI_HOME/
+rm -rf $HOST_VERDI_HOME/.s3cfg; cp -f $BASE_PATH/creds/.s3cfg $HOST_VERDI_HOME/
+rm -rf $HOST_VERDI_HOME/.netrc; cp -f $BASE_PATH/creds/.netrc $HOST_VERDI_HOME/; chmod 600 $HOST_VERDI_HOME/.netrc
 
 # extract beefed autoindex
-cd /data/work
+mkdir -p ${DATA_DIR}/work
+cd ${DATA_DIR}/work
 tar xvfj $BASE_PATH/beefed-autoindex-open_in_new_win.tbz2
 
-# make jobs dir
-mkdir -p /data/work/jobs
+# make jobs and tasks dir
+mkdir -p ${DATA_DIR}/work/jobs
+mkdir -p ${DATA_DIR}/work/tasks
 
 # prime verdi docker image
-if [[ -f $HOME/.aws/credentials ]]; then
-  export AWS_ACCESS_KEY_ID="$(grep aws_access_key_id $HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-  export AWS_SECRET_ACCESS_KEY="$(grep aws_secret_access_key $HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+if [[ -f $HOST_VERDI_HOME/.aws/credentials ]]; then
+  export AWS_ACCESS_KEY_ID="$(grep aws_access_key_id $HOST_VERDI_HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+  export AWS_SECRET_ACCESS_KEY="$(grep aws_secret_access_key $HOST_VERDI_HOME/.aws/credentials | head -1 | cut -d= -f 2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
 fi
 
 export VERDI_PRIMER_IMAGE="{{ VERDI_PRIMER_IMAGE }}"
@@ -90,9 +98,9 @@ else
   echo "Logstash already exists in Docker. Will not download image"
 fi
 docker run -e HOST=${FQDN} -v /data/work/jobs:/sdswatch/jobs \
-  -v $HOME/verdi/log:/sdswatch/log \
+  -v $HOST_VERDI_HOME/verdi/log:/sdswatch/log \
   -v sdswatch_data:/usr/share/logstash/data \
-  -v $HOME/verdi/etc/sdswatch_client.conf:/usr/share/logstash/config/conf/logstash.conf \
+  -v $HOST_VERDI_HOME/verdi/etc/sdswatch_client.conf:/usr/share/logstash/config/conf/logstash.conf \
   --name=sdswatch-client -d logstash-oss:7.16.3 \
   logstash -f /usr/share/logstash/config/conf/logstash.conf --config.reload.automatic
 
